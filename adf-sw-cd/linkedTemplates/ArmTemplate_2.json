@@ -1,0 +1,1187 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-sw-cd"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/adfdemo_asql_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adfdemo_asql_dst",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "adfdemo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FirstName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LastName",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "EmployeeDemo"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adfdemo_asql_dataset_city')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				},
+				"folder": {
+					"name": "adfdemo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "City"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adfdemo_asql_dataset_employee')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adfdemo_asql_dst",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "adfdemo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FirstName",
+						"type": "varchar"
+					},
+					{
+						"name": "LastName",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "employee"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adfdemo_asql_dataset_stg_adfdemo_object')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adfdemo_asql_dst",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "adfdemo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "object_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "principal_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "schema_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "parent_object_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "type",
+						"type": "char"
+					},
+					{
+						"name": "type_desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "create_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "modify_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "is_ms_shipped",
+						"type": "bit"
+					},
+					{
+						"name": "is_published",
+						"type": "bit"
+					},
+					{
+						"name": "is_schema_published",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "stg_adfdemo_object"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adfdemo_asql_dataset_stg_adfdemo_object1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adfdemo_asql_dst",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "adfdemo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "object_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "principal_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "schema_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "parent_object_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "type",
+						"type": "char"
+					},
+					{
+						"name": "type_desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "create_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "modify_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "is_ms_shipped",
+						"type": "bit"
+					},
+					{
+						"name": "is_published",
+						"type": "bit"
+					},
+					{
+						"name": "is_schema_published",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "stg_adfdemo_object"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adfdemo_asql_dataset_stg_adfdemo_object2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adfdemo_asql_dst",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "adfdemo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "object_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "principal_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "schema_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "parent_object_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "type",
+						"type": "char"
+					},
+					{
+						"name": "type_desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "create_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "modify_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "is_ms_shipped",
+						"type": "bit"
+					},
+					{
+						"name": "is_published",
+						"type": "bit"
+					},
+					{
+						"name": "is_schema_published",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "stg_adfdemo_object"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adfdemo_asql_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adfdemo_asql_dst",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string",
+						"defaultValue": "dbo"
+					},
+					"table": {
+						"type": "string",
+						"defaultValue": "stg_sales"
+					}
+				},
+				"folder": {
+					"name": "adfdemo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "insert_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "update_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "file_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "file_last_modifty_time",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "product_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "qty",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "unit_price",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "subtotal",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					}
+				],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adfdemo_asql_employee')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FirstName",
+						"type": "varchar"
+					},
+					{
+						"name": "LastName",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "employee"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adfdemo_mssql_dataset_employee')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adfdemo_mssql",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "adfdemo"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FirstName",
+						"type": "varchar"
+					},
+					{
+						"name": "LastName",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "employee"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adfdemo_rest_opentdb_com')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adfdemo_rest_opentdb_com",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "adfdemo"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/asql_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				},
+				"parameters": {
+					"schemaName": {
+						"type": "string"
+					},
+					"tableName": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "insert_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "update_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "file_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "file_last_modifty_time",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "product_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "qty",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "unit_price",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "subtotal",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					}
+				],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schemaName",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().tableName",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/asql_dataset_copy1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				},
+				"parameters": {
+					"schemaName": {
+						"type": "string"
+					},
+					"tableName": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "insert_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "update_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "file_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "file_last_modifty_time",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "product_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "qty",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "unit_price",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "subtotal",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					}
+				],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schemaName",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().tableName",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/asql_employeedemo')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FirstName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LastName",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "EmployeeDemo"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/asql_src_object')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "object_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "principal_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "schema_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "parent_object_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "type",
+						"type": "char"
+					},
+					{
+						"name": "type_desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "create_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "modify_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "is_ms_shipped",
+						"type": "bit"
+					},
+					{
+						"name": "is_published",
+						"type": "bit"
+					},
+					{
+						"name": "is_schema_published",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "src_object"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/asql_stg_object')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "object_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "principal_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "schema_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "parent_object_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "type",
+						"type": "char"
+					},
+					{
+						"name": "type_desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "create_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "modify_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "is_ms_shipped",
+						"type": "bit"
+					},
+					{
+						"name": "is_published",
+						"type": "bit"
+					},
+					{
+						"name": "is_schema_published",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "stg_object"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/azuresql_dst')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				},
+				"parameters": {
+					"tableNameWithSchema": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "insert_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "update_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "file_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "file_last_modifty_time",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "product_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "qty",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "unit_price",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "subtotal",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					}
+				],
+				"typeProperties": {
+					"schema": {
+						"value": "@first(array(split(dataset().tableNameWithSchema, '.')))",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@last(array(split(dataset().tableNameWithSchema, '.')))",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/azuresql_dst1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				},
+				"parameters": {
+					"tableNameWithSchema": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "insert_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "update_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "file_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "file_last_modifty_time",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "product_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "qty",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "unit_price",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "subtotal",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					}
+				],
+				"typeProperties": {
+					"schema": {
+						"value": "@first(array(split(dataset().tableNameWithSchema, '.')))",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@last(array(split(dataset().tableNameWithSchema, '.')))",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/cummins_restapi_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RestService1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/msql_demo_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "mssql_demo",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": {
+							"value": "@dataset().dbName",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"schemaName": {
+						"type": "string",
+						"defaultValue": "dbo"
+					},
+					"tableName": {
+						"type": "string",
+						"defaultValue": "b"
+					},
+					"dbName": {
+						"type": "string",
+						"defaultValue": "TestDataSource"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schemaName",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().tableName",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/mssql_adfemo_employee')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "mssql_adfdemo",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FirstName",
+						"type": "varchar"
+					},
+					{
+						"name": "LastName",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "employee"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

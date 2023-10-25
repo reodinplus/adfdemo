@@ -1,0 +1,6 @@
+{
+	"ETLWorkConnectionString": {
+		"type": "string",
+		"value": "Server=;"
+	}
+}

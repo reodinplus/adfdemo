@@ -1,0 +1,57 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-sw-cd"
+		},
+		"AzureBlobStorage1_connectionString": {
+			"value": ""
+		},
+		"AzureSqlDatabase1_connectionString": {
+			"value": ""
+		},
+		"adfdemo_a_sql_src_connectionString": {
+			"value": ""
+		},
+		"adfdemo_asql_dst_connectionString": {
+			"value": ""
+		},
+		"adfdemo_asql_src_connectionString": {
+			"value": ""
+		},
+		"adfdemo_mssql_connectionString": {
+			"value": ""
+		},
+		"adfdemo_storage_connectionString": {
+			"value": ""
+		},
+		"mssql_adfdemo_connectionString": {
+			"value": ""
+		},
+		"mssql_demo_connectionString": {
+			"value": ""
+		},
+		"sqldb_dw_connectionString": {
+			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().dbServerName};Initial Catalog=@{linkedService().dbName};User ID=@{linkedService().dbUserName};Password=@{linkedService().dbUserPwd}"
+		},
+		"storage_account_connectionString": {
+			"value": ""
+		},
+		"AzureKeyVault1_properties_typeProperties_baseUrl": {
+			"value": "@{linkedService().keyVaultAccountURL}"
+		},
+		"RestService1_properties_typeProperties_url": {
+			"value": "https://cumminsxian--uat.sandbox.my.salesforce-sites.com/XCECBOM/services/apexrest/Callout_Order_BySites"
+		},
+		"adfdemo_rest_properties_typeProperties_url": {
+			"value": "https://api.xygeng.cn/one"
+		},
+		"adfdemo_rest_opentdb_com_properties_typeProperties_url": {
+			"value": "https://opentdb.com/api.php?amount=10&category=23&difficulty=easy&type=multiple"
+		},
+		"opentdb_api_properties_typeProperties_url": {
+			"value": "@{linkedService().baseURL}"
+		}
+	}
+}

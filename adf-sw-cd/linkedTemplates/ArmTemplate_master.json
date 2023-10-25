@@ -1,0 +1,255 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-sw-cd"
+		},
+		"AzureBlobStorage1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage1'"
+		},
+		"AzureSqlDatabase1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase1'"
+		},
+		"adfdemo_a_sql_src_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'adfdemo_a_sql_src'"
+		},
+		"adfdemo_asql_dst_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'adfdemo_asql_dst'"
+		},
+		"adfdemo_asql_src_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'adfdemo_asql_src'"
+		},
+		"adfdemo_mssql_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'adfdemo_mssql'"
+		},
+		"adfdemo_storage_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'adfdemo_storage'"
+		},
+		"mssql_adfdemo_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'mssql_adfdemo'"
+		},
+		"mssql_demo_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'mssql_demo'"
+		},
+		"sqldb_dw_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'sqldb_dw'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().dbServerName};Initial Catalog=@{linkedService().dbName};User ID=@{linkedService().dbUserName};Password=@{linkedService().dbUserPwd}"
+		},
+		"storage_account_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'storage_account'"
+		},
+		"AzureKeyVault1_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "@{linkedService().keyVaultAccountURL}"
+		},
+		"RestService1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://cumminsxian--uat.sandbox.my.salesforce-sites.com/XCECBOM/services/apexrest/Callout_Order_BySites"
+		},
+		"adfdemo_rest_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://api.xygeng.cn/one"
+		},
+		"adfdemo_rest_opentdb_com_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://opentdb.com/api.php?amount=10&category=23&difficulty=easy&type=multiple"
+		},
+		"opentdb_api_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{linkedService().baseURL}"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "adf-sw-cd_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AzureBlobStorage1_connectionString": {
+						"value": "[parameters('AzureBlobStorage1_connectionString')]"
+					},
+					"AzureSqlDatabase1_connectionString": {
+						"value": "[parameters('AzureSqlDatabase1_connectionString')]"
+					},
+					"adfdemo_a_sql_src_connectionString": {
+						"value": "[parameters('adfdemo_a_sql_src_connectionString')]"
+					},
+					"adfdemo_asql_src_connectionString": {
+						"value": "[parameters('adfdemo_asql_src_connectionString')]"
+					},
+					"adfdemo_storage_connectionString": {
+						"value": "[parameters('adfdemo_storage_connectionString')]"
+					},
+					"storage_account_connectionString": {
+						"value": "[parameters('storage_account_connectionString')]"
+					},
+					"AzureKeyVault1_properties_typeProperties_baseUrl": {
+						"value": "[parameters('AzureKeyVault1_properties_typeProperties_baseUrl')]"
+					},
+					"adfdemo_rest_properties_typeProperties_url": {
+						"value": "[parameters('adfdemo_rest_properties_typeProperties_url')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "adf-sw-cd_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"adfdemo_asql_dst_connectionString": {
+						"value": "[parameters('adfdemo_asql_dst_connectionString')]"
+					},
+					"adfdemo_mssql_connectionString": {
+						"value": "[parameters('adfdemo_mssql_connectionString')]"
+					},
+					"mssql_adfdemo_connectionString": {
+						"value": "[parameters('mssql_adfdemo_connectionString')]"
+					},
+					"mssql_demo_connectionString": {
+						"value": "[parameters('mssql_demo_connectionString')]"
+					},
+					"sqldb_dw_connectionString": {
+						"value": "[parameters('sqldb_dw_connectionString')]"
+					},
+					"RestService1_properties_typeProperties_url": {
+						"value": "[parameters('RestService1_properties_typeProperties_url')]"
+					},
+					"adfdemo_rest_opentdb_com_properties_typeProperties_url": {
+						"value": "[parameters('adfdemo_rest_opentdb_com_properties_typeProperties_url')]"
+					},
+					"opentdb_api_properties_typeProperties_url": {
+						"value": "[parameters('opentdb_api_properties_typeProperties_url')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-sw-cd_ArmTemplate_0')]"
+			]
+		},
+		{
+			"name": "adf-sw-cd_ArmTemplate_2",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-sw-cd_ArmTemplate_1')]"
+			]
+		},
+		{
+			"name": "adf-sw-cd_ArmTemplate_3",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_3.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-sw-cd_ArmTemplate_2')]"
+			]
+		},
+		{
+			"name": "adf-sw-cd_ArmTemplate_4",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_4.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-sw-cd_ArmTemplate_3')]"
+			]
+		},
+		{
+			"name": "adf-sw-cd_ArmTemplate_5",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_5.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-sw-cd_ArmTemplate_4')]"
+			]
+		}
+	]
+}
