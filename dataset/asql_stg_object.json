@@ -1,0 +1,83 @@
+{
+	"name": "asql_stg_object",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sqldb_dw",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"dbName": "sqldevswcd",
+				"dbUserName": "sqladminuser01",
+				"dbUserPwd": "1qaz!QAZ",
+				"dbServerName": "sqlserverdevswcd.database.windows.net"
+			}
+		},
+		"folder": {
+			"name": "demo"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "object_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "principal_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "schema_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "parent_object_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "type",
+				"type": "char"
+			},
+			{
+				"name": "type_desc",
+				"type": "nvarchar"
+			},
+			{
+				"name": "create_date",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "modify_date",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "is_ms_shipped",
+				"type": "bit"
+			},
+			{
+				"name": "is_published",
+				"type": "bit"
+			},
+			{
+				"name": "is_schema_published",
+				"type": "bit"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "stg_object"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

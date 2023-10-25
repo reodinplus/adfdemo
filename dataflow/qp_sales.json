@@ -1,0 +1,31 @@
+{
+	"name": "qp_sales",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"folder": {
+			"name": "demo"
+		},
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "adfdemo_asql_dataset",
+					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> adfdemo_asql_dataset",
+					"dataset": {
+						"referenceName": "adfdemo_asql_dataset",
+						"type": "DatasetReference"
+					}
+				},
+				{
+					"name": "adfdemo_asql_ds",
+					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> adfdemo_asql_ds",
+					"dataset": {
+						"referenceName": "adfdemo_asql_ds",
+						"type": "DatasetReference"
+					}
+				}
+			],
+			"script": "section Section1;\r\nshared adfdemo_asql_dataset = let AdfDoc = Sql.Database(\"sqlserverdevswcd.database.windows.net\", \"sqldevswcd\", [CreateNavigationProperties = false]), InputTable = AdfDoc{[Schema=\"dbo\",Item=\"EmployeeDemo\"]}[Data] in InputTable;\r\nshared adfdemo_asql_ds = let AdfDoc = Sql.Database(\"sqlserverdevswcd.database.windows.net\", \"sqldevswcd\", [CreateNavigationProperties = false]), InputTable = AdfDoc{[Schema=\"dbo\",Item=\"stg_sales\"]}[Data] in InputTable;\r\nshared UserQuery = let Source = #\"adfdemo_asql_dataset\" in Source;\r\n",
+			"documentLocale": "en-us"
+		}
+	}
+}

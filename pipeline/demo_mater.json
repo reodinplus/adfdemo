@@ -1,0 +1,173 @@
+{
+	"name": "demo_mater",
+	"properties": {
+		"activities": [
+			{
+				"name": "ep_sales_pip",
+				"type": "ExecutePipeline",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "sales",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"batch_id": 1
+					}
+				}
+			},
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dataflow1",
+						"type": "DataFlowReference",
+						"parameters": {
+							"srcTableNameWithSchema": {
+								"value": "'@{variables('dtSrcTableNameWithSchema')}'",
+								"type": "Expression"
+							},
+							"dstTableNameWithSchema": {
+								"value": "'@{variables('dfDstTableNameWithSchema')}'",
+								"type": "Expression"
+							}
+						},
+						"linkedServiceParameters": {
+							"source1": {
+								"linkedService": {
+									"dbName": "sqldevswcd",
+									"dbUserName": "sqladminuser01",
+									"dbUserPwd": "1qaz!QAZ",
+									"dbServerName": "sqlserverdevswcd.database.windows.net"
+								}
+							},
+							"sink1": {
+								"linkedService": {
+									"dbName": "sqldevswcd",
+									"dbUserName": "sqladminuser01",
+									"dbUserPwd": "1qaz!QAZ",
+									"dbServerName": "sqlserverdevswcd.database.windows.net"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "powerquery1",
+				"type": "ExecuteWranglingDataflow",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"queries": [
+						{
+							"queryName": "UserQuery",
+							"dataflowSinks": [
+								{
+									"name": "UserQueryasqldataset",
+									"dataset": {
+										"referenceName": "asql_dataset",
+										"type": "DatasetReference"
+									},
+									"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tinsert_dt as timestamp,\n\t\tupdate_dt as timestamp,\n\t\tfile_name as string,\n\t\tfile_last_modifty_time as timestamp,\n\t\tproduct_id as integer,\n\t\tqty as integer,\n\t\tunit_price as decimal(19,4),\n\t\tsubtotal as decimal(19,4)\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> UserQueryasqldataset"
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "dataflow3",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dataflow3",
+						"type": "DataFlowReference",
+						"linkedServiceParameters": {
+							"source1": {
+								"linkedService": {
+									"storageAccountName": "storageswcd"
+								}
+							},
+							"sink1": {
+								"linkedService": {
+									"dbName": "sqldevswcd",
+									"dbUserName": "sqladminuser01",
+									"dbUserPwd": "1qaz!QAZ",
+									"dbServerName": "sqlserverdevswcd.database.windows.net"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine",
+					"continuationSettings": {
+						"customizedCheckpointKey": "5bfaa0a5-c173-40b9-a4bd-87736bdefe7a"
+					}
+				}
+			}
+		],
+		"variables": {
+			"dfDstTableNameWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.stg_object"
+			},
+			"dtSrcTableNameWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.src_object"
+			}
+		},
+		"folder": {
+			"name": "demo"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-20T03:19:49Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

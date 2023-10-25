@@ -1,0 +1,23 @@
+{
+	"name": "opentdb_api",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"baseURL": {
+				"type": "string",
+				"defaultValue": "https://opentdb.com/api.php"
+			}
+		},
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "@{linkedService().baseURL}",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		},
+		"connectVia": {
+			"referenceName": "TutorialIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

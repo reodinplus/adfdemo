@@ -1,0 +1,29 @@
+{
+	"name": "adfdemo_stroage_dataset_excel",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "storage_account",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"storageAccountName": "storageswcd"
+			}
+		},
+		"folder": {
+			"name": "adfdemo"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Sheet1",
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Employee Demo.xlsx",
+				"folderPath": "adfdemo",
+				"container": "file-data"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

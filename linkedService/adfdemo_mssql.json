@@ -1,0 +1,16 @@
+{
+	"name": "adfdemo_mssql",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=10.0.0.81;initial catalog=TestDataSource;user id=sqladminuser01",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJiMDE5ZDk2Ny00OGUyLTQ1YTItODJlZS0wOGQxZmJmNjQ5NzEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "TutorialIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

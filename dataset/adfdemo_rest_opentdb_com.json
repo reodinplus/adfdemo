@@ -1,0 +1,16 @@
+{
+	"name": "adfdemo_rest_opentdb_com",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adfdemo_rest_opentdb_com",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "adfdemo"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

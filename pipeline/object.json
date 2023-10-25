@@ -1,0 +1,384 @@
+{
+	"name": "object",
+	"properties": {
+		"activities": [
+			{
+				"name": "truncate table",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": {
+						"value": "@variables('truncateProcWithSchema')",
+						"type": "Expression"
+					},
+					"storedProcedureParameters": {
+						"tableNameWithSchema": {
+							"value": {
+								"value": "@variables('stgTableNameWithSchema')",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				}
+			},
+			{
+				"name": "get last modify date",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "truncate table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select last_modify_date = isnull(max(modify_date), '1900-01-01') from dbo.ods_object",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "azuresql_dst",
+						"type": "DatasetReference",
+						"parameters": {
+							"tableNameWithSchema": {
+								"value": "@variables('odsTableNameWithSchema')",
+								"type": "Expression"
+							}
+						}
+					}
+				}
+			},
+			{
+				"name": "src to stg",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "get last modify date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "@concat(\n    variables('srcTableSQL'), \n\t' where modify_date > ''', activity('get last modify date').output.firstRow.last_modify_date, ''''\n)",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"enableSkipIncompatibleRow": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "object_id",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "object_id",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "principal_id",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "principal_id",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "schema_id",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "schema_id",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "parent_object_id",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "parent_object_id",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "type",
+									"type": "String",
+									"physicalType": "char"
+								},
+								"sink": {
+									"name": "type",
+									"type": "String",
+									"physicalType": "char"
+								}
+							},
+							{
+								"source": {
+									"name": "type_desc",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "type_desc",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "create_date",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "create_date",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "modify_date",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "modify_date",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "is_ms_shipped",
+									"type": "Boolean",
+									"physicalType": "bit"
+								},
+								"sink": {
+									"name": "is_ms_shipped",
+									"type": "Boolean",
+									"physicalType": "bit"
+								}
+							},
+							{
+								"source": {
+									"name": "is_published",
+									"type": "Boolean",
+									"physicalType": "bit"
+								},
+								"sink": {
+									"name": "is_published",
+									"type": "Boolean",
+									"physicalType": "bit"
+								}
+							},
+							{
+								"source": {
+									"name": "is_schema_published",
+									"type": "Boolean",
+									"physicalType": "bit"
+								},
+								"sink": {
+									"name": "is_schema_published",
+									"type": "Boolean",
+									"physicalType": "bit"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "azuresql_dst",
+						"type": "DatasetReference",
+						"parameters": {
+							"tableNameWithSchema": {
+								"value": "@variables('srcTableNameWithSchema')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "azuresql_dst",
+						"type": "DatasetReference",
+						"parameters": {
+							"tableNameWithSchema": {
+								"value": "@variables('stgTableNameWithSchema')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "stg to ods",
+				"description": "",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "src to stg",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": {
+						"value": "@variables('odsProcWithSchema')",
+						"type": "Expression"
+					},
+					"storedProcedureParameters": {
+						"batch_id": {
+							"value": {
+								"value": "@pipeline().parameters.batch_id",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"batch_id": {
+				"type": "string",
+				"defaultValue": "0"
+			}
+		},
+		"variables": {
+			"truncateProcWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.p_truncate_table"
+			},
+			"stgTableNameWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.stg_object"
+			},
+			"odsTableNameWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.ods_object"
+			},
+			"srcTableSQL": {
+				"type": "String",
+				"defaultValue": "select name, object_id, principal_id, schema_id, parent_object_id,\ttype, type_desc, create_date, modify_date, is_ms_shipped, is_published,\tis_schema_published from dbo.src_object"
+			},
+			"srcTableNameWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.src_object"
+			},
+			"odsProcWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.p_etl_ods_object"
+			}
+		},
+		"folder": {
+			"name": "demo"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-09-11T06:43:35Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

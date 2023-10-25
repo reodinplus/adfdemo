@@ -1,0 +1,33 @@
+{
+	"name": "sqldb_dw",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"dbName": {
+				"type": "string",
+				"defaultValue": "sqldevswcd"
+			},
+			"dbUserName": {
+				"type": "string",
+				"defaultValue": "sqladminuser01"
+			},
+			"dbUserPwd": {
+				"type": "string",
+				"defaultValue": "1qaz!QAZ"
+			},
+			"dbServerName": {
+				"type": "string",
+				"defaultValue": "sqlserverdevswcd.database.windows.net"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().dbServerName};Initial Catalog=@{linkedService().dbName};User ID=@{linkedService().dbUserName};Password=@{linkedService().dbUserPwd}"
+		},
+		"connectVia": {
+			"referenceName": "AzureIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

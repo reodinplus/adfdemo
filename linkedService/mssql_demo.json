@@ -1,0 +1,22 @@
+{
+	"name": "mssql_demo",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"dbName": {
+				"type": "string",
+				"defaultValue": "TestDataSource"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=10.0.0.81;initial catalog=@{linkedService().dbName};user id=sqladminuser01",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJkNGM2OTQwOC0zOWU0LTQwYWQtOTQ0ZC1mNzIzOTViMDI1YmYiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "TutorialIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

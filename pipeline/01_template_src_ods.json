@@ -1,0 +1,555 @@
+{
+	"name": "01_template_src_ods",
+	"properties": {
+		"activities": [
+			{
+				"name": "truncate table",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": {
+						"value": "@variables('varTruncateProcNameWithSchema')",
+						"type": "Expression"
+					},
+					"storedProcedureParameters": {
+						"tableNameWithSchema": {
+							"value": {
+								"value": "@variables('varStgTableNameWithSchema')",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				}
+			},
+			{
+				"name": "Get Prev Load Point",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "truncate table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": {
+							"value": "@variables('varETLWorkGetPrevLoadPointProcNameWithSchema')",
+							"type": "Expression"
+						},
+						"storedProcedureParameters": {
+							"DataLoadTag": {
+								"type": "String",
+								"value": {
+									"value": "@variables('varStgTableNameWithSchema')",
+									"type": "Expression"
+								}
+							},
+							"SSISProject": {
+								"type": "String",
+								"value": {
+									"value": "@variables('varSSISProject')",
+									"type": "Expression"
+								}
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "azuresql_dst",
+						"type": "DatasetReference",
+						"parameters": {
+							"tableNameWithSchema": " "
+						}
+					}
+				}
+			},
+			{
+				"name": "Set varPrevLoadPoint",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get Prev Load Point",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "varPrevLoadPoint",
+					"value": {
+						"value": "@activity('Get Prev Load Point').output.firstRow.PrevLoadPoint",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set varConfigurationId",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get Prev Load Point",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "varConfigurationId",
+					"value": {
+						"value": "@activity('Get Prev Load Point').output.firstRow.ConfigurationId",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "move src to stg",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set varPrevLoadPoint",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set varConfigurationId",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "@concat(\n    variables('varLoadSQL'),\n    ' where modify_date > ''', \n    variables('varPrevLoadPoint'), \n    ''''\n)",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "azuresql_dst",
+						"type": "DatasetReference",
+						"parameters": {
+							"tableNameWithSchema": " "
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "azuresql_dst",
+						"type": "DatasetReference",
+						"parameters": {
+							"tableNameWithSchema": {
+								"value": "@variables('varStgTableNameWithSchema')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Get Current Load Point SQL",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "move src to stg",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": {
+							"value": "@variables('varETLWorkGetCurrentLoadPointSQLProcNameWithSchema')",
+							"type": "Expression"
+						},
+						"storedProcedureParameters": {
+							"DataLoadTag": {
+								"type": "String",
+								"value": {
+									"value": "@variables('varStgTableNameWithSchema')",
+									"type": "Expression"
+								}
+							},
+							"SSISProject": {
+								"type": "String",
+								"value": {
+									"value": "@variables('varSSISProject')",
+									"type": "Expression"
+								}
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "azuresql_dst",
+						"type": "DatasetReference",
+						"parameters": {
+							"tableNameWithSchema": " "
+						}
+					}
+				}
+			},
+			{
+				"name": "Set varCurrentLoadPointSQL",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get Current Load Point SQL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "varCurrentLoadPointSQL",
+					"value": {
+						"value": "@activity('Get Current Load Point SQL').output.firstRow.CurrLoadPointTSQL",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Get Curr Load Point",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Set varCurrentLoadPointSQL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "@variables('varCurrentLoadPointSQL')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "azuresql_dst",
+						"type": "DatasetReference",
+						"parameters": {
+							"tableNameWithSchema": " "
+						}
+					}
+				}
+			},
+			{
+				"name": "Set varCurrLoadPoint",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get Curr Load Point",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "varCurrLoadPoint",
+					"value": {
+						"value": "@string(activity('Get Curr Load Point').output.firstRow.CurrLoadPoint)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set varCurrRowCnt",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get Curr Load Point",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "varCurrRowCnt",
+					"value": {
+						"value": "@activity('Get Curr Load Point').output.firstRow.RowCnt",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "move stg to ods",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Set varCurrLoadPoint",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set varCurrRowCnt",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": {
+						"value": "@variables('varOdsProcNameWithSchema')",
+						"type": "Expression"
+					},
+					"storedProcedureParameters": {
+						"batch_id": {
+							"value": {
+								"value": "@pipeline().parameters.batch_id",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				}
+			},
+			{
+				"name": "Save Curr Point Load",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "move stg to ods",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": {
+						"value": "@variables('varETLWorkSaveCurrLoadPointProcNameWithSchema')",
+						"type": "Expression"
+					},
+					"storedProcedureParameters": {
+						"CurrLoadPoint": {
+							"value": {
+								"value": "@variables('varCurrLoadPoint')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"DataLoadTag": {
+							"value": {
+								"value": "@variables('varStgTableNameWithSchema')",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"SSISProject": {
+							"value": {
+								"value": "@variables('varSSISProject')",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"batch_id": {
+				"type": "int",
+				"defaultValue": 0
+			}
+		},
+		"variables": {
+			"varStgTableNameWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.stg_object"
+			},
+			"varOdsProcNameWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.p_etl_ods_object"
+			},
+			"varLoadSQL": {
+				"type": "String",
+				"defaultValue": "select name, object_id, principal_id, schema_id, parent_object_id, type, type_desc, create_date, modify_date, is_ms_shipped, is_published, is_schema_published from dbo.src_object"
+			},
+			"varTruncateProcNameWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.p_truncate_table"
+			},
+			"varETLWorkGetPrevLoadPointProcNameWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.USP_DL_Configuration_LoadPoint_Get"
+			},
+			"varSSISProject": {
+				"type": "String",
+				"defaultValue": "Common_ADF"
+			},
+			"varPrevLoadPoint": {
+				"type": "String"
+			},
+			"varConfigurationId": {
+				"type": "Integer"
+			},
+			"varETLWorkGetCurrentLoadPointSQLProcNameWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.USP_DL_CurrLoadPointTSQL_Get"
+			},
+			"varCurrentLoadPointSQL": {
+				"type": "String"
+			},
+			"varCurrLoadPoint": {
+				"type": "String"
+			},
+			"varCurrRowCnt": {
+				"type": "Integer"
+			},
+			"varETLWorkSaveCurrLoadPointProcNameWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.USP_DL_Configuration_LoadPoint_Update"
+			}
+		},
+		"folder": {
+			"name": "demo"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-09-12T07:27:12Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,154 @@
+{
+	"name": "increament_asql_to_asql_data_source_table",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select isnull(max(LastModifytime), '1900-01-01') MaxLastModifytime from dbo.data_destination_table",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "adfdemo_asql_ds",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema": "dbo",
+							"table": "adfdemo_stg_sales"
+						}
+					}
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "@{'dbo'}.@{'data_source_table'}"
+					},
+					{
+						"name": "Destination",
+						"value": "@{'dbo'}.@{'data_destination_table'}"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select * from dbo.data_source_table where \tLastModifytime > '@{activity('Lookup1').output.firstRow.MaxLastModifytime}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "PersonID",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "PersonID",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "Name",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "Name",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "LastModifytime",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "LastModifytime",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "adfdemo_asql_ds_src",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema": "dbo",
+							"table": "data_source_table"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "adfdemo_asql_ds",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema": "dbo",
+							"table": "data_destination_table"
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "ADFDemo"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-20T03:19:49Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

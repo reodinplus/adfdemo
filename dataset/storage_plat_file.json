@@ -1,0 +1,37 @@
+{
+	"name": "storage_plat_file",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "storage_account",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"storageAccountName": "storageswcd"
+			}
+		},
+		"parameters": {
+			"filePath": {
+				"type": "string"
+			},
+			"delimeter": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "demo"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": " "
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

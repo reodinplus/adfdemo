@@ -1,0 +1,17 @@
+{
+	"name": "DestinationDataset_re3",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adfdemo_a_sql_src",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Order"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

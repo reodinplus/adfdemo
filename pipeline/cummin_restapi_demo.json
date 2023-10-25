@@ -1,0 +1,156 @@
+{
+	"name": "cummin_restapi_demo",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Destination",
+						"value": "@{'dbo'}.@{'cummins_order'}"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "POST",
+						"requestBody": "{\n    \"QueryFromDate\": \"2022-09-11\",\n    \"QueryEndDate\": \"2023-01-11\"\n}",
+						"additionalHeaders": {
+							"Secret": "1e42bb78e138f1dadb925c8bc70462fb"
+						},
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['SQJSNo']"
+								},
+								"sink": {
+									"name": "SQJSNo",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['OrderNo']"
+								},
+								"sink": {
+									"name": "OrderNo",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['OrderCount']"
+								},
+								"sink": {
+									"name": "OrderCount",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"path": "['KAM']"
+								},
+								"sink": {
+									"name": "KAM",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ItemSONo']"
+								},
+								"sink": {
+									"name": "ItemSONo",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['Createddate']"
+								},
+								"sink": {
+									"name": "Createddate",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ContractNo']"
+								},
+								"sink": {
+									"name": "ContractNo",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['ClientCode']"
+								},
+								"sink": {
+									"name": "ClientCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['AccountName']"
+								},
+								"sink": {
+									"name": "AccountName",
+									"type": "String"
+								}
+							}
+						],
+						"collectionReference": "$['responseData']",
+						"mapComplexValuesToString": false
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "cummins_restapi_ds",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "adfdemo_asql_ds",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema": "dbo",
+							"table": "cummins_order"
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "demo"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-10-20T03:19:50Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

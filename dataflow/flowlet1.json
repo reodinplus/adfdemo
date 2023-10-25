@@ -1,0 +1,39 @@
+{
+	"name": "flowlet1",
+	"properties": {
+		"folder": {
+			"name": "demo"
+		},
+		"type": "Flowlet",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "sqldb_dw",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "output1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     stgTableNameWithSchem as string ('dbo.adfdemo')",
+				"}",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'objects',",
+				"     isolationLevel: 'READ_COMMITTED') ~> source1",
+				"source1 output() ~> output1"
+			]
+		}
+	}
+}

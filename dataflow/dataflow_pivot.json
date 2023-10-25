@@ -1,0 +1,65 @@
+{
+	"name": "dataflow_pivot",
+	"properties": {
+		"folder": {
+			"name": "demo"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "sqldb_dw",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "sqldb_dw",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "pivot1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          name as string,",
+				"          class as string,",
+				"          score as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'query',",
+				"     store: 'sqlserver',",
+				"     query: 'select *\\nfrom (values\\n     (N\\'张三\\', N\\'语文\\', 80),\\n     (N\\'张三\\', N\\'数学\\', 89),\\n     (N\\'张三\\', N\\'英语\\', 88),\\n     (N\\'李四\\', N\\'语文\\', 89),\\n     (N\\'李四\\', N\\'数学\\', 90),\\n     (N\\'李四\\', N\\'英语\\', 91)\\n) t1 ([name], class, score)',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+				"source1 pivot(groupBy(name),",
+				"     pivotBy(class, ['语文', '数学', '英语', null]),",
+				"     sum = sum(score),",
+				"     columnNaming: 'a$Nb$Vc',",
+				"     lateral: true) ~> pivot1",
+				"pivot1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'stg_object',",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}

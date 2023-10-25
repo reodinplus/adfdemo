@@ -1,0 +1,23 @@
+{
+	"name": "pq_employee",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"folder": {
+			"name": "demo"
+		},
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "adfdemo_asql_dataset_employee",
+					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> adfdemo_asql_dataset_employee",
+					"dataset": {
+						"referenceName": "adfdemo_asql_dataset_employee",
+						"type": "DatasetReference"
+					}
+				}
+			],
+			"script": "section Section1;\r\nshared adfdemo_asql_dataset_employee = let AdfDoc = Sql.Database(\"sqlserverdevswcd.database.windows.net\", \"sqldevswcd\", [CreateNavigationProperties = false]), InputTable = AdfDoc{[Schema=\"dbo\",Item=\"employee\"]}[Data] in InputTable;\r\nshared UserQuery = let Source = #\"adfdemo_asql_dataset_employee\" in Source;\r\n",
+			"documentLocale": "en-us"
+		}
+	}
+}

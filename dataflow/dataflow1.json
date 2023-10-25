@@ -1,0 +1,76 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"folder": {
+			"name": "demo"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "sqldb_dw",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "sqldb_dw",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     srcTableNameWithSchema as string ('dbo.src_object'),",
+				"     dstTableNameWithSchema as string ('dbo.stg_object')",
+				"}",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: (split($srcTableNameWithSchema, '.')[1]),",
+				"     tableName: (split($srcTableNameWithSchema, '.')[2]),",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+				"source1 derive(flle_name = 123) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: true,",
+				"     input(",
+				"          name as string,",
+				"          object_id as integer,",
+				"          principal_id as integer,",
+				"          schema_id as integer,",
+				"          parent_object_id as integer,",
+				"          type as string,",
+				"          type_desc as string,",
+				"          create_date as timestamp,",
+				"          modify_date as timestamp,",
+				"          is_ms_shipped as boolean,",
+				"          is_published as boolean,",
+				"          is_schema_published as boolean",
+				"     ),",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: (split($dstTableNameWithSchema, '.')[1]),",
+				"     tableName: (split($dstTableNameWithSchema, '.')[2]),",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}

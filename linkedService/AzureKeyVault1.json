@@ -1,0 +1,17 @@
+{
+	"name": "AzureKeyVault1",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"keyVaultAccountURL": {
+				"type": "string",
+				"defaultValue": "https://asql-kva-dev.vault.azure.net/"
+			}
+		},
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "@{linkedService().keyVaultAccountURL}"
+		}
+	}
+}

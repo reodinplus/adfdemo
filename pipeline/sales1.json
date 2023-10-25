@@ -1,0 +1,475 @@
+{
+	"name": "sales1",
+	"properties": {
+		"description": "通过文件的lastModified实现增量",
+		"activities": [
+			{
+				"name": "Get Files",
+				"type": "GetMetadata",
+				"dependsOn": [
+					{
+						"activity": "LK_Get File Max Last Modified Datetime",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "storage_excel_src2",
+						"type": "DatasetReference",
+						"parameters": {
+							"containerName": {
+								"value": "@variables('srcContainerName')",
+								"type": "Expression"
+							},
+							"directoryName": {
+								"value": "@variables('srcDirecotryName')",
+								"type": "Expression"
+							},
+							"fileName": " ",
+							"sheetName": " "
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
+						"modifiedDatetimeStart": {
+							"value": "@addSeconds(addHours(activity('LK_Get File Max Last Modified Datetime').output.firstRow.last_modified_time, -8), 1)",
+							"type": "Expression"
+						},
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "ForEach Files",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Filter Valid Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Filter Valid Files').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "COPY_Extract Data From File And Load Into STG",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "Get File Metadata",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "ExcelSource",
+									"additionalColumns": [
+										{
+											"name": "FileName",
+											"value": {
+												"value": "@item().name",
+												"type": "Expression"
+											}
+										},
+										{
+											"name": "FileLastModifyDate",
+											"value": {
+												"value": "@addHours(activity('Get File Metadata').output.lastModified, 8)",
+												"type": "Expression"
+											}
+										}
+									],
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": false,
+										"enablePartitionDiscovery": false
+									}
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false,
+									"disableMetricsCollection": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": "FileName"
+											},
+											"sink": {
+												"name": "file_name",
+												"type": "String",
+												"physicalType": "nvarchar"
+											}
+										},
+										{
+											"source": {
+												"name": "FileLastModifyDate"
+											},
+											"sink": {
+												"name": "file_last_modifty_time",
+												"type": "DateTime",
+												"physicalType": "datetime"
+											}
+										},
+										{
+											"source": {
+												"name": "ProdunctId",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "product_id",
+												"type": "Int32",
+												"physicalType": "int"
+											}
+										},
+										{
+											"source": {
+												"name": "Qty",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "qty",
+												"type": "Int32",
+												"physicalType": "int"
+											}
+										},
+										{
+											"source": {
+												"name": "UnitPrice",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "unit_price",
+												"type": "Decimal",
+												"physicalType": "decimal",
+												"scale": 4,
+												"precision": 19
+											}
+										},
+										{
+											"source": {
+												"name": "SubTotal",
+												"physicalType": "String"
+											},
+											"sink": {
+												"name": "subtotal",
+												"type": "Decimal",
+												"physicalType": "decimal",
+												"scale": 4,
+												"precision": 19
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "storage_excel_src2",
+									"type": "DatasetReference",
+									"parameters": {
+										"containerName": {
+											"value": "@variables('srcContainerName')",
+											"type": "Expression"
+										},
+										"directoryName": {
+											"value": "@variables('srcDirecotryName')",
+											"type": "Expression"
+										},
+										"fileName": {
+											"value": "@item().name",
+											"type": "Expression"
+										},
+										"sheetName": {
+											"value": "@variables('srcSheetName')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "azuresql_dst1",
+									"type": "DatasetReference",
+									"parameters": {
+										"tableNameWithSchema": {
+											"value": "@variables('stgTableNameWithSchema')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "Get File Metadata",
+							"type": "GetMetadata",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "storage_excel_src2",
+									"type": "DatasetReference",
+									"parameters": {
+										"containerName": {
+											"value": "@variables('srcContainerName')",
+											"type": "Expression"
+										},
+										"directoryName": {
+											"value": "@variables('srcDirecotryName')",
+											"type": "Expression"
+										},
+										"fileName": {
+											"value": "@item().name",
+											"type": "Expression"
+										},
+										"sheetName": " "
+									}
+								},
+								"fieldList": [
+									"lastModified"
+								],
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Filter Valid Files",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Get Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Files').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@endswith(item().name, variables('srcFileExtendName'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SP_Truncate Table",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": {
+						"value": "@variables('truncateProcWithSchema')",
+						"type": "Expression"
+					},
+					"storedProcedureParameters": {
+						"tableNameWithSchema": {
+							"value": {
+								"value": "@variables('stgTableNameWithSchema')",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				}
+			},
+			{
+				"name": "SP_Move STG To ODS",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ForEach Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": {
+						"value": "@variables('odsProcNameWithSchema')",
+						"type": "Expression"
+					},
+					"storedProcedureParameters": {
+						"batch_id": {
+							"value": {
+								"value": "@pipeline().parameters.batch_id",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				}
+			},
+			{
+				"name": "LK_Get File Max Last Modified Datetime",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "SP_Truncate Table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select last_modified_time = ISNULL(MAX(file_last_modifty_time), '1900-01-01') from dbo.ods_sales",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "azuresql_dst1",
+						"type": "DatasetReference",
+						"parameters": {
+							"tableNameWithSchema": {
+								"value": "@variables('stgTableNameWithSchema')",
+								"type": "Expression"
+							}
+						}
+					},
+					"firstRowOnly": true
+				}
+			}
+		],
+		"parameters": {
+			"batch_id": {
+				"type": "int",
+				"defaultValue": 0
+			}
+		},
+		"variables": {
+			"srcContainerName": {
+				"type": "String",
+				"defaultValue": "file-data"
+			},
+			"srcDirecotryName": {
+				"type": "String",
+				"defaultValue": "demo/sales"
+			},
+			"srcSheetName": {
+				"type": "String",
+				"defaultValue": "sheet1"
+			},
+			"stgTableNameWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.stg_sales"
+			},
+			"odsProcNameWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.p_etl_ods_sales"
+			},
+			"srcFileExtendName": {
+				"type": "String",
+				"defaultValue": ".xlsx"
+			},
+			"truncateProcWithSchema": {
+				"type": "String",
+				"defaultValue": "dbo.p_truncate_table"
+			}
+		},
+		"folder": {
+			"name": "demo"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-09-07T08:45:32Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

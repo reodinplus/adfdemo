@@ -1,0 +1,112 @@
+{
+	"name": "dataflow_lookup",
+	"properties": {
+		"folder": {
+			"name": "demo"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "sqldb_dw",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "adfdemo_asql_dst",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source2"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "sqldb_dw",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "lookup1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          name as string,",
+				"          object_id as integer,",
+				"          principal_id as integer,",
+				"          schema_id as integer,",
+				"          parent_object_id as integer,",
+				"          type as string,",
+				"          type_desc as string,",
+				"          create_date as timestamp,",
+				"          modify_date as timestamp,",
+				"          is_ms_shipped as boolean,",
+				"          is_published as boolean,",
+				"          is_schema_published as boolean",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'src_object',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+				"source(output(",
+				"          name as string,",
+				"          object_key as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'query',",
+				"     store: 'sqlserver',",
+				"     query: 'select name, object_id object_key from sys.objects where is_ms_shipped = 0',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> source2",
+				"lookup1 select(mapColumn(",
+				"          each(match(instr(name,'source1@')==0))",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"source1, source2 lookup(source1@name == source2@name,",
+				"     multiple: true,",
+				"     broadcast: 'auto')~> lookup1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'stg_object',",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          name,",
+				"          object_id,",
+				"          principal_id,",
+				"          schema_id,",
+				"          parent_object_id,",
+				"          type,",
+				"          type_desc,",
+				"          create_date,",
+				"          modify_date,",
+				"          is_ms_shipped,",
+				"          is_published,",
+				"          is_schema_published",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

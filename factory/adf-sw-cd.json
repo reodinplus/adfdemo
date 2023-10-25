@@ -1,0 +1,17 @@
+{
+	"name": "adf-sw-cd",
+	"properties": {
+		"globalParameters": {
+			"ETLWorkConnectionString": {
+				"type": "string",
+				"value": "Server=;"
+			}
+		}
+	},
+	"location": "japaneast",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "53e4ba99-93d2-444f-817c-0bcdcbfca415",
+		"tenantId": "70de18e1-38e7-4e6e-9927-a6f41d838304"
+	}
+}

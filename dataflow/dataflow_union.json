@@ -1,0 +1,126 @@
+{
+	"name": "dataflow_union",
+	"properties": {
+		"folder": {
+			"name": "demo"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "sqldb_dw",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "sqldb_dw",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source2"
+				},
+				{
+					"linkedService": {
+						"referenceName": "sqldb_dw",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source3"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "sqldb_dw",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "union1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          name as string,",
+				"          object_id as integer,",
+				"          principal_id as integer,",
+				"          schema_id as integer,",
+				"          parent_object_id as integer,",
+				"          type as string,",
+				"          type_desc as string,",
+				"          create_date as timestamp,",
+				"          modify_date as timestamp,",
+				"          is_ms_shipped as boolean,",
+				"          is_published as boolean,",
+				"          is_schema_published as boolean",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'src_object',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+				"source(output(",
+				"          name as string,",
+				"          object_id as integer,",
+				"          principal_id as integer,",
+				"          schema_id as integer,",
+				"          parent_object_id as integer,",
+				"          type as string,",
+				"          type_desc as string,",
+				"          create_date as timestamp,",
+				"          modify_date as timestamp,",
+				"          is_ms_shipped as boolean,",
+				"          is_published as boolean,",
+				"          is_schema_published as boolean",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'query',",
+				"     store: 'sqlserver',",
+				"     query: 'select * from sys.system_objects',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> source2",
+				"source(output(",
+				"          name as string,",
+				"          object_id as integer,",
+				"          principal_id as integer,",
+				"          schema_id as integer,",
+				"          parent_object_id as integer,",
+				"          type as string,",
+				"          type_desc as string,",
+				"          create_date as timestamp,",
+				"          modify_date as timestamp,",
+				"          is_ms_shipped as boolean,",
+				"          is_published as boolean,",
+				"          is_schema_published as boolean",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'sys',",
+				"     tableName: 'all_objects',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> source3",
+				"source1, source2, source3 union(byName: false)~> union1",
+				"union1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'stg_object',",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}

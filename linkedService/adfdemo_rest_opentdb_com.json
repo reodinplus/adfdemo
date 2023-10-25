@@ -1,0 +1,17 @@
+{
+	"name": "adfdemo_rest_opentdb_com",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "https://opentdb.com/api.php?amount=10&category=23&difficulty=easy&type=multiple",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		},
+		"connectVia": {
+			"referenceName": "AzureIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
