@@ -25,7 +25,7 @@
 				],
 				"typeProperties": {
 					"source": {
-						"type": "ExcelSource",
+						"type": "DelimitedTextSource",
 						"additionalColumns": [
 							{
 								"name": "FIleName",
@@ -38,8 +38,11 @@
 						],
 						"storeSettings": {
 							"type": "AzureBlobStorageReadSettings",
-							"recursive": false,
+							"fileListPath": "adfdemo/employee/FileCopyList.txt",
 							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
 						}
 					},
 					"sink": {
@@ -136,13 +139,12 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "adfdemo_storage_ds",
+						"referenceName": "adfdemo_storage_ds_plat",
 						"type": "DatasetReference",
 						"parameters": {
 							"container": "adfdemo",
 							"directory": "employee",
-							"file": "Sales_2020.xlsx",
-							"sheet": "Sheet1"
+							"file": " "
 						}
 					}
 				],
