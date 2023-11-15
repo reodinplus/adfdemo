@@ -38,7 +38,7 @@
 						],
 						"storeSettings": {
 							"type": "AzureBlobStorageReadSettings",
-							"fileListPath": "adfdemo/employee/FileCopyList.txt",
+							"recursive": false,
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
@@ -144,7 +144,7 @@
 						"parameters": {
 							"container": "adfdemo",
 							"directory": "employee",
-							"file": " "
+							"file": "*"
 						}
 					}
 				],
