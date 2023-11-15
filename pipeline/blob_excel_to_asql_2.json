@@ -54,26 +54,76 @@
 						"mappings": [
 							{
 								"source": {
-									"name": "FirsrtName",
-									"type": "String",
-									"physicalType": "String"
+									"name": "FilePath",
+									"type": "String"
 								},
 								"sink": {
-									"name": "FirstName",
+									"name": "file_path",
 									"type": "String",
 									"physicalType": "nvarchar"
 								}
 							},
 							{
 								"source": {
-									"name": "LastName",
+									"name": "FIleName",
+									"type": "String"
+								},
+								"sink": {
+									"name": "file_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ProdunctId",
 									"type": "String",
 									"physicalType": "String"
 								},
 								"sink": {
-									"name": "LastName",
+									"name": "product_id",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "Qty",
 									"type": "String",
-									"physicalType": "nvarchar"
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "qty",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "UnitPrice",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "unit_price",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "SubTotal",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "subtotal",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 19
 								}
 							}
 						],
