@@ -45,6 +45,11 @@
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
-		"schema": []
+		"schema": [
+			{
+				"name": "FilePath",
+				"type": "String"
+			}
+		]
 	}
 }
