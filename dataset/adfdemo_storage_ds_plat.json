@@ -1,0 +1,50 @@
+{
+	"name": "adfdemo_storage_ds_plat",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "storage_account",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"storageAccountName": "storageswcd"
+			}
+		},
+		"parameters": {
+			"container": {
+				"type": "string"
+			},
+			"directory": {
+				"type": "string"
+			},
+			"file": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "adfdemo"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().file",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().directory",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().container",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
