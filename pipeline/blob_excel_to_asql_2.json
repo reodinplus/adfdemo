@@ -5,6 +5,8 @@
 			{
 				"name": "Copy data1",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -155,6 +157,70 @@
 						"parameters": {
 							"schema": "dbo",
 							"table": "project_sales"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copy data1_copy1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "adfdemo//Employee Demo.xlsx"
+					},
+					{
+						"name": "Destination",
+						"value": "dbo.EmployeeDemo"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false,
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "storage_binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"contrainerName": "adfdemo",
+							"directoryName": "employee",
+							"fileName": " "
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "storage_binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"contrainerName": "adfdemo",
+							"directoryName": "employee2",
+							"fileName": " "
 						}
 					}
 				]
