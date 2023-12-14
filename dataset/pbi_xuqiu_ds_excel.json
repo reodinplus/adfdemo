@@ -1,0 +1,23 @@
+{
+	"name": "pbi_xuqiu_ds_excel",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "http_aishu_site",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "demo"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "sheet1",
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "preview/customdoc/信息化体系库/信息化项目/BI项目/BI项目实施/7、门户需求/PBI%20Portal门户建设功能需求.xlsx"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": []
+	}
+}
