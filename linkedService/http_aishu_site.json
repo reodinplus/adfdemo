@@ -1,0 +1,19 @@
+{
+	"name": "http_aishu_site",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "http://share.chinaust.com:8000/#/",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Basic",
+			"userName": "lilijuan",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIxNjQ3MmQ5ZS1kY2Q0LTQxYWQtYmQ3NS1lYWY0YjYzNWI2YTUiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "TutorialIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
