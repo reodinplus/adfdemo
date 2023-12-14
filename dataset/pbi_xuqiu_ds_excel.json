@@ -11,10 +11,10 @@
 		"annotations": [],
 		"type": "Excel",
 		"typeProperties": {
-			"sheetName": "Sheet1",
+			"sheetName": "项目组成员通讯录",
 			"location": {
 				"type": "HttpServerLocation",
-				"relativeUrl": "/preview/customdoc/信息化体系库/信息化项目/BI项目/BI项目实施/7、门户需求/PBI%20Portal门户建设功能需求.xlsx"
+				"relativeUrl": "preview/customdoc/信息化体系库/信息化项目/BI项目/BI项目实施/BI项目组成员通讯录@20231016.xlsx"
 			},
 			"firstRowAsHeader": true
 		},
