@@ -11,7 +11,10 @@
 		"annotations": [],
 		"type": "Excel",
 		"typeProperties": {
-			"sheetName": "项目组成员通讯录",
+			"sheetName": {
+				"value": "项目组成员通讯录",
+				"type": "Expression"
+			},
 			"location": {
 				"type": "HttpServerLocation",
 				"relativeUrl": "preview/customdoc/信息化体系库/信息化项目/BI项目/BI项目实施/BI项目组成员通讯录@20231016.xlsx"
