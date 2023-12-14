@@ -9,7 +9,7 @@
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Basic",
 			"userName": "lilijuan",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJjNmY3OTkxMC1jYTExLTQ1YjEtYWQxMi03ZGRjODUyNDI2NmEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI5NGVkNWFkZi1jZjNkLTRkM2YtODRlZS1jZmQ0NTdmMDA0NDEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "TutorialIntegrationRuntime",
