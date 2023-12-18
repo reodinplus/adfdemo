@@ -7,7 +7,7 @@
 		"typeProperties": {
 			"host": "\\\\10.0.0.163\\00FileDataSource",
 			"userId": "sw01",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIxZGMwZGU4MC1kNGY5LTQ0NzItOGYzZC00MGU4ZTVmMGNjMjEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI4MTkzYzcwNy0wNGIxLTQ2NzYtOGQzZi05NzBkNTdiMzc4MTciLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "TutorialIntegrationRuntime",
