@@ -1,0 +1,23 @@
+{
+	"name": "Excel1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "http_onedriver",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "demo"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "ContryPopulation",
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "personal/zhyding_sharewinfobi_onmicrosoft_com/Documents/%E4%BA%BA%E5%8F%A3.xlsx"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": []
+	}
+}
