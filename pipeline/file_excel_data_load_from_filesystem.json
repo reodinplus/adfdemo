@@ -173,7 +173,7 @@
 		"parameters": {
 			"directoryName": {
 				"type": "string",
-				"defaultValue": "demo/ssiswork/订单数据"
+				"defaultValue": "00Project_Data_Source/02SSISWork/ProjectSource/订单数据"
 			},
 			"sheetName": {
 				"type": "string",
