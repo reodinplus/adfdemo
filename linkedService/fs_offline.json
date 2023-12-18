@@ -1,0 +1,17 @@
+{
+	"name": "fs_offline",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "FileServer",
+		"typeProperties": {
+			"host": "\\\\10.0.0.163\\00FileDataSource",
+			"userId": "sw01",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJhNTNkZDc3Yi0yNzcyLTRhOWEtYTNkZC1iMTJmMmIwYTFhMzgiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "TutorialIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
