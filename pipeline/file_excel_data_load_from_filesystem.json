@@ -23,27 +23,22 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "storage_excel_src",
+						"referenceName": "filesystem_ds_excel",
 						"type": "DatasetReference",
 						"parameters": {
-							"containerName": {
-								"value": "@pipeline().parameters.containerName",
-								"type": "Expression"
-							},
-							"directoryName": {
+							"directory": {
 								"value": "@pipeline().parameters.directoryName",
 								"type": "Expression"
 							},
-							"fileName": " ",
-							"sheetName": " "
+							"file": " ",
+							"sheet": " "
 						}
 					},
 					"fieldList": [
 						"childItems"
 					],
 					"storeSettings": {
-						"type": "AzureBlobStorageReadSettings",
-						"recursive": true,
+						"type": "FileServerReadSettings",
 						"enablePartitionDiscovery": false
 					}
 				}
@@ -82,7 +77,7 @@
 								"source": {
 									"type": "ExcelSource",
 									"storeSettings": {
-										"type": "AzureBlobStorageReadSettings",
+										"type": "FileServerReadSettings",
 										"recursive": true,
 										"enablePartitionDiscovery": false
 									}
@@ -105,22 +100,18 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "storage_excel_src",
+									"referenceName": "filesystem_ds_excel",
 									"type": "DatasetReference",
 									"parameters": {
-										"containerName": {
-											"value": "@pipeline().parameters.containerName",
-											"type": "Expression"
-										},
-										"directoryName": {
+										"directory": {
 											"value": "@pipeline().parameters.directoryName",
 											"type": "Expression"
 										},
-										"fileName": {
+										"file": {
 											"value": "@item().name",
 											"type": "Expression"
 										},
-										"sheetName": {
+										"sheet": {
 											"value": "@pipeline().parameters.sheetName",
 											"type": "Expression"
 										}
@@ -180,10 +171,6 @@
 			}
 		],
 		"parameters": {
-			"containerName": {
-				"type": "string",
-				"defaultValue": "file-data"
-			},
 			"directoryName": {
 				"type": "string",
 				"defaultValue": "demo/ssiswork/订单数据"
