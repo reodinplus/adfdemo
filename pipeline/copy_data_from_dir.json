@@ -165,7 +165,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"directory": "00Project_Data_Source/02SSISWork/ProjectSource/订单数据/Sample",
-							"file": "*。",
+							"file": "*.xlsx",
 							"sheet": "Sheet1"
 						}
 					}
