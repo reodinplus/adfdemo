@@ -17,7 +17,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "select *\nfrom (values\n\t(N'file-data', N'demo/ssiswork/地点数据', N'Sheet1', N'dbo.City'),\n\t(N'file-data', N'demo/ssiswork/产品数据', N'Sheet1', N'dbo.Product'),\n\t(N'file-data', N'demo/ssiswork/客户数据', N'Sheet1', N'dbo.Customer'),\n\t(N'file-data', N'demo/ssiswork/订单数据', N'Sheet1', N'dbo.[Order]')\n) t1(container_name,direcotry_name,sheet_name, stg);",
+						"sqlReaderQuery": "select *\nfrom (values\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/订单数据/地点数据', N'Sheet1', N'dbo.City'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/产品数据', N'Sheet1', N'dbo.Product'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/客户数据', N'Sheet1', N'dbo.Customer'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/订单数据', N'Sheet1', N'dbo.[Order]')\n) t1(container_name,direcotry_name,sheet_name, stg);",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -57,15 +57,11 @@
 							"userProperties": [],
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "file_excel_data_load",
+									"referenceName": "file_excel_data_load_from_filesystem",
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true,
 								"parameters": {
-									"containerName": {
-										"value": "@item().container_name",
-										"type": "Expression"
-									},
 									"directoryName": {
 										"value": "@item().direcotry_name",
 										"type": "Expression"
