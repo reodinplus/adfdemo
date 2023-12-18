@@ -17,7 +17,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "select *\nfrom (values\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/订单数据/地点数据', N'Sheet1', N'dbo.City'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/产品数据', N'Sheet1', N'dbo.Product'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/客户数据', N'Sheet1', N'dbo.Customer'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/订单数据', N'Sheet1', N'dbo.[Order]')\n) t1(container_name,direcotry_name,sheet_name, stg);",
+						"sqlReaderQuery": "\nselect *\nfrom (values\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/地点数据', N'Sheet1', N'dbo.City'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/产品数据', N'Sheet1', N'dbo.Product'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/客户数据', N'Sheet1', N'dbo.Customer'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/订单数据', N'Sheet1', N'dbo.[Order]')\n) t1(container_name,direcotry_name,sheet_name, stg);",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
