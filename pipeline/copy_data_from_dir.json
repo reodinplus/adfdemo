@@ -3,7 +3,68 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
+				"name": "Copy data_wildcardfilepath",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "FileServerReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "00Project_Data_Source/02SSISWork/ProjectSource/订单数据/Sample",
+							"wildcardFileName": "*.xlsx",
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "filesystem_ds_excel",
+						"type": "DatasetReference",
+						"parameters": {
+							"directory": "00Project_Data_Source/02SSISWork/ProjectSource/订单数据/Sample",
+							"file": " ",
+							"sheet": "Sheet1"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "azuresql_dst",
+						"type": "DatasetReference",
+						"parameters": {
+							"tableNameWithSchema": "dbo.order"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copy data1_copy_filepath",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -44,7 +105,6 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"directory": "00Project_Data_Source/02SSISWork/ProjectSource/订单数据/Sample",
-							"file": " ",
 							"sheet": "Sheet1"
 						}
 					}
