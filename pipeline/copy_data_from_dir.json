@@ -66,6 +66,8 @@
 			{
 				"name": "Copy data1_copy_filepath",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -122,10 +124,8 @@
 				]
 			},
 			{
-				"name": "Copy data1_copy_filepath_copy1",
+				"name": "Copy data1_copy_filepathindataset",
 				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -141,8 +141,7 @@
 						"storeSettings": {
 							"type": "FileServerReadSettings",
 							"recursive": true,
-							"enablePartitionDiscovery": false,
-							"fileFilter": "*.xlsx"
+							"enablePartitionDiscovery": false
 						}
 					},
 					"sink": {
@@ -166,7 +165,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"directory": "00Project_Data_Source/02SSISWork/ProjectSource/订单数据/Sample",
-							"file": " ",
+							"file": "*。",
 							"sheet": "Sheet1"
 						}
 					}
