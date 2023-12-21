@@ -1,0 +1,288 @@
+{
+	"name": "blobstorage_excel",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"additionalColumns": [
+							{
+								"name": "FileName",
+								"value": "$$FILENAME"
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "FileName",
+									"type": "String"
+								},
+								"sink": {
+									"name": "file_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "ProdunctId",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "product_id",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "Qty",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "qty",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "UnitPrice",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "unit_price",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "SubTotal",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "subtotal",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "Qty",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "qty2",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "blobstorage_ds_excel",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": "file-data",
+							"directory": "demo/sales",
+							"file": "Sales_2021.xlsx",
+							"sheet": "Sheet1",
+							"range": "A1"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "adfdemo_asql_ds",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema": "dbo",
+							"table": "stg_sales"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copy data1_copy1",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"sink": {
+									"name": "insert_dt",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"sink": {
+									"name": "update_dt",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"sink": {
+									"name": "file_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"sink": {
+									"name": "file_last_modifty_time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"sink": {
+									"name": "product_id",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "Qty",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "qty",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"sink": {
+									"name": "unit_price",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 19
+								}
+							},
+							{
+								"source": {
+									"name": "SubTotal",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "subtotal",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 19
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "blobstorage_ds_excel",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": "file-data",
+							"directory": "demo/sales",
+							"file": "Sales_Demo_2022.xlsx",
+							"sheet": "Sheet1",
+							"range": "A3:E9999"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "adfdemo_asql_ds",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema": "dbo",
+							"table": "stg_sales"
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "demo"
+		},
+		"annotations": []
+	}
+}
