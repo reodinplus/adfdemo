@@ -1,0 +1,19 @@
+{
+	"name": "MetadataDrivenCopyTask_leo_ControlDS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adfdemo_asql_dst",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "MetadataDrivenCopyTask_leo_20240104"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "MainControlTable_leo"
+		}
+	}
+}
