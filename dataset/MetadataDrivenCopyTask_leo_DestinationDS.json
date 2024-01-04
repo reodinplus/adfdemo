@@ -1,0 +1,33 @@
+{
+	"name": "MetadataDrivenCopyTask_leo_DestinationDS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adfdemo_asql_dst",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"cw_table": {
+				"type": "String"
+			},
+			"cw_schema": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "MetadataDrivenCopyTask_leo_20240104"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().cw_schema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().cw_table",
+				"type": "Expression"
+			}
+		}
+	}
+}
