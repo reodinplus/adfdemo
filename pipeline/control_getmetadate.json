@@ -153,11 +153,11 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"url": "https://www.fake.com/",
 								"method": "GET",
 								"headers": {
 									"Content-Type": "application/json"
-								}
+								},
+								"url": "https://www.fake.com/"
 							}
 						},
 						{
