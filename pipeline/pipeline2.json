@@ -1,0 +1,107 @@
+{
+	"name": "pipeline2",
+	"properties": {
+		"activities": [
+			{
+				"name": "Web_Get AcceccTokenObj",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@{variables('corpid')}&corpsecret=@{variables('corpsecret')}",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SVar_Set Var accecc_token",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Web_Get AcceccTokenObj",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "access_token",
+					"value": {
+						"value": "@activity('Web_Get AcceccTokenObj').output.access_token",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Web1",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "SVar_Set Var accecc_token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": []
+			},
+			{
+				"name": "Web1_copy1",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "SVar_Set Var accecc_token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": []
+			}
+		],
+		"variables": {
+			"corpid": {
+				"type": "String",
+				"defaultValue": "ww6756f2ce4a5f10ff"
+			},
+			"corpsecret": {
+				"type": "String",
+				"defaultValue": "VcCpyk0srxuJosFusMfA_mfGzJNrNsdLTPPuqbJ61s0"
+			},
+			"access_token": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "QyWeChat"
+		},
+		"annotations": []
+	}
+}
