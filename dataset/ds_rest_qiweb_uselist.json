@@ -1,0 +1,24 @@
+{
+	"name": "ds_rest_qiweb_uselist",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "rest_qyweb_userlist",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"access_token": {
+					"value": "@dataset().access_token",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"access_token": {
+				"type": "string",
+				"defaultValue": " "
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	}
+}
