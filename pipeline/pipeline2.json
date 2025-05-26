@@ -15,6 +15,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
+					"method": "GET",
 					"url": {
 						"value": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@{variables('corpid')}&corpsecret=@{variables('corpsecret')}",
 						"type": "Expression"
@@ -46,7 +47,7 @@
 				}
 			},
 			{
-				"name": "Web1",
+				"name": "Web_Set Department List",
 				"type": "WebActivity",
 				"dependsOn": [
 					{
@@ -63,10 +64,17 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": {
+						"value": "https://qyapi.weixin.qq.com/cgi-bin/department/list?access_token=@{variables('access_token')}&id",
+						"type": "Expression"
+					}
+				}
 			},
 			{
-				"name": "Web1_copy1",
+				"name": "Web_Get User List",
 				"type": "WebActivity",
 				"dependsOn": [
 					{
@@ -83,7 +91,14 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": {
+						"value": "https://qyapi.weixin.qq.com/cgi-bin/user/list?access_token=@{variables('access_token')}&department_id=1&fetch_child=1&status=0",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"variables": {
