@@ -14,6 +14,9 @@
 					"secureInput": false
 				},
 				"userProperties": [],
+				"typeProperties": {
+					"method": "GET"
+				},
 				"linkedServiceName": {
 					"referenceName": "LS_WEB_QYWeChat_Login",
 					"type": "LinkedServiceReference"
