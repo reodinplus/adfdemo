@@ -329,7 +329,11 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_WEB_QYWeChat_Login",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"variables": {
