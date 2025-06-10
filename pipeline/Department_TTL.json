@@ -5,6 +5,8 @@
 			{
 				"name": "Web_Get AcceccTokenObj",
 				"type": "WebActivity",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -25,6 +27,8 @@
 			{
 				"name": "SVar_Set Var accecc_token",
 				"type": "SetVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Web_Get AcceccTokenObj",
@@ -45,21 +49,121 @@
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "SVar_Set Var accecc_token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "$['errcode']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['errmsg']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['department'][0]['id']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['department'][0]['name']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['department'][0]['parentid']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['department'][0]['order']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['department'][0]['department_leader'][0]"
+								}
+							}
+						],
+						"collectionReference": "",
+						"mapComplexValuesToString": true
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_REST_QYWeChat",
+						"type": "DatasetReference",
+						"parameters": {
+							"RelativeURL": {
+								"value": "department/list?access_token=@{variables('access_token')}&id=",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "asql_dataset",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"variables": {
 			"corpId": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "ww6756f2ce4a5f10ff"
 			},
 			"corpsecret": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "VcCpyk0srxuJosFusMfA_mfGzJNrNsdLTPPuqbJ61s0"
 			},
 			"access_token": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "vgY_VkPSz_qjVoRiaSIlihbEREMl8sySGVCZuMCWHN7Dyu6Tmg4Yv9o0HXASN4dc_q_O5mhGeHKZVMJv38xFSyU_Dle6Xj8Pe5G2Q9O-offT4HvfxfOU8eEPTC3TjrgEM65b0zbXESlj3Yi0rSHFsdLjsUzrC4Cxw37ij1Wb5f8U7KLnDPXT-j0hFLjqNMw96F-158cvnVD7kcH5t7MWiw"
 			}
 		},
 		"folder": {
-			"name": "QyWeChat"
+			"name": "QyWeChat/TTL"
 		},
 		"annotations": []
 	}
