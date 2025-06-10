@@ -12,7 +12,8 @@
 		"type": "Json",
 		"typeProperties": {
 			"location": {
-				"type": "HttpServerLocation"
+				"type": "HttpServerLocation",
+				"relativeUrl": "cgi-bin/gettoken"
 			}
 		},
 		"schema": {}

@@ -53,6 +53,8 @@
 			{
 				"name": "Copy data1",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "SVar_Set Var accecc_token",
@@ -288,6 +290,8 @@
 			{
 				"name": "Set variable1",
 				"type": "SetVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Lookup1",
