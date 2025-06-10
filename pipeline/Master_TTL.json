@@ -82,6 +82,10 @@
 									"access_token": {
 										"value": "@variables('access_token')",
 										"type": "Expression"
+									},
+									"dt": {
+										"value": "@pipeline().parameters.dt",
+										"type": "Expression"
 									}
 								}
 							}
@@ -99,7 +103,17 @@
 									"referenceName": "User_TTL",
 									"type": "PipelineReference"
 								},
-								"waitOnCompletion": true
+								"waitOnCompletion": true,
+								"parameters": {
+									"access_token": {
+										"value": "@variables('access_token')",
+										"type": "Expression"
+									},
+									"dt": {
+										"value": "@pipeline().parameters.dt",
+										"type": "Expression"
+									}
+								}
 							}
 						}
 					]
@@ -114,6 +128,10 @@
 			"corpsecret": {
 				"type": "string",
 				"defaultValue": "VcCpyk0srxuJosFusMfA_mfGzJNrNsdLTPPuqbJ61s0"
+			},
+			"dt": {
+				"type": "string",
+				"defaultValue": "2025-06-10"
 			}
 		},
 		"variables": {
