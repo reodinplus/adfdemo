@@ -50,7 +50,11 @@
 				"outputs": [
 					{
 						"referenceName": "asql_dataset",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"schemaName": "dbo",
+							"tableName": "employee"
+						}
 					}
 				]
 			}
