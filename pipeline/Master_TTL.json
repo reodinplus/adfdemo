@@ -1,0 +1,86 @@
+{
+	"name": "Master_TTL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Web_Get AccessToken",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_WEB_QYWeChat_Login",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "SetVar_Set Var access_token",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Web_Get AccessToken",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "access_token",
+					"value": {
+						"value": "@activity('Web_Get AccessToken').output.access_token",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "SetVar_Set Var access_token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(1,1)",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"corpid": {
+				"type": "string",
+				"defaultValue": "ww6756f2ce4a5f10ff"
+			},
+			"corpsecret": {
+				"type": "string",
+				"defaultValue": "VcCpyk0srxuJosFusMfA_mfGzJNrNsdLTPPuqbJ61s0"
+			}
+		},
+		"variables": {
+			"access_token": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "QyWeChat/TTL"
+		},
+		"annotations": []
+	}
+}

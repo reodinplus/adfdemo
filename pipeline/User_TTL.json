@@ -345,6 +345,201 @@
 						}
 					}
 				}
+			},
+			{
+				"name": "Copy data1_copy1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "$['errcode']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['errmsg']"
+								}
+							},
+							{
+								"source": {
+									"path": "['name']"
+								}
+							},
+							{
+								"source": {
+									"path": "['department'][0]"
+								}
+							},
+							{
+								"source": {
+									"path": "['position']"
+								}
+							},
+							{
+								"source": {
+									"path": "['mobile']"
+								}
+							},
+							{
+								"source": {
+									"path": "['gender']"
+								}
+							},
+							{
+								"source": {
+									"path": "['email']"
+								}
+							},
+							{
+								"source": {
+									"path": "['avatar']"
+								}
+							},
+							{
+								"source": {
+									"path": "['status']"
+								}
+							},
+							{
+								"source": {
+									"path": "['enable']"
+								}
+							},
+							{
+								"source": {
+									"path": "['isleader']"
+								}
+							},
+							{
+								"source": {
+									"path": "['extattr']['attrs'][0]['name']"
+								}
+							},
+							{
+								"source": {
+									"path": "['extattr']['attrs'][0]['value']"
+								}
+							},
+							{
+								"source": {
+									"path": "['extattr']['attrs'][0]['type']"
+								}
+							},
+							{
+								"source": {
+									"path": "['extattr']['attrs'][0]['text']['value']"
+								}
+							},
+							{
+								"source": {
+									"path": "['hide_mobile']"
+								}
+							},
+							{
+								"source": {
+									"path": "['english_name']"
+								}
+							},
+							{
+								"source": {
+									"path": "['telephone']"
+								}
+							},
+							{
+								"source": {
+									"path": "['order'][0]"
+								}
+							},
+							{
+								"source": {
+									"path": "['main_department']"
+								}
+							},
+							{
+								"source": {
+									"path": "['qr_code']"
+								}
+							},
+							{
+								"source": {
+									"path": "['alias']"
+								}
+							},
+							{
+								"source": {
+									"path": "['is_leader_in_dept'][0]"
+								}
+							},
+							{
+								"source": {
+									"path": "['thumb_avatar']"
+								}
+							},
+							{
+								"source": {
+									"path": "['biz_mail']"
+								}
+							},
+							{
+								"source": {
+									"path": "['userid']"
+								}
+							},
+							{
+								"source": {
+									"path": "['direct_leader'][0]"
+								}
+							}
+						],
+						"collectionReference": "$['userlist']",
+						"mapComplexValuesToString": true
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_REST_QYWeChat",
+						"type": "DatasetReference",
+						"parameters": {
+							"RelativeURL": {
+								"value": "user/list?access_token=@{variables('access_token')}&department_id=1&fetch_child=1&status=0",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "asql_dataset",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"variables": {

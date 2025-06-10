@@ -3,64 +3,9 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Web_Get AcceccTokenObj",
-				"type": "WebActivity",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"method": "GET",
-					"url": {
-						"value": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@{variables('corpid')}&corpsecret=@{variables('corpsecret')}",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "SVar_Set Var accecc_token",
-				"type": "SetVariable",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [
-					{
-						"activity": "Web_Get AcceccTokenObj",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "access_token",
-					"value": {
-						"value": "@activity('Web_Get AcceccTokenObj').output.access_token",
-						"type": "Expression"
-					}
-				}
-			},
-			{
 				"name": "Copy data1",
 				"type": "Copy",
-				"dependsOn": [
-					{
-						"activity": "SVar_Set Var accecc_token",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -134,7 +79,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"RelativeURL": {
-								"value": "department/list?access_token=@{variables('access_token')}&id=",
+								"value": "department/list?access_token=@{pipeline().parameters.access_token}&id=",
 								"type": "Expression"
 							}
 						}
@@ -148,18 +93,9 @@
 				]
 			}
 		],
-		"variables": {
-			"corpId": {
-				"type": "String",
-				"defaultValue": "ww6756f2ce4a5f10ff"
-			},
-			"corpsecret": {
-				"type": "String",
-				"defaultValue": "VcCpyk0srxuJosFusMfA_mfGzJNrNsdLTPPuqbJ61s0"
-			},
+		"parameters": {
 			"access_token": {
-				"type": "String",
-				"defaultValue": "vgY_VkPSz_qjVoRiaSIlihbEREMl8sySGVCZuMCWHN7Dyu6Tmg4Yv9o0HXASN4dc_q_O5mhGeHKZVMJv38xFSyU_Dle6Xj8Pe5G2Q9O-offT4HvfxfOU8eEPTC3TjrgEM65b0zbXESlj3Yi0rSHFsdLjsUzrC4Cxw37ij1Wb5f8U7KLnDPXT-j0hFLjqNMw96F-158cvnVD7kcH5t7MWiw"
+				"type": "string"
 			}
 		},
 		"folder": {
