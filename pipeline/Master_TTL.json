@@ -59,7 +59,47 @@
 					"expression": {
 						"value": "@equals(1,1)",
 						"type": "Expression"
-					}
+					},
+					"ifTrueActivities": [
+						{
+							"name": "ExecPL_Department_TTL",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "Department_TTL",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"access_token": {
+										"value": "@variables('access_token')",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "ExecPL_User_TTL",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "User_TTL",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true
+							}
+						}
+					]
 				}
 			}
 		],
@@ -79,7 +119,7 @@
 			}
 		},
 		"folder": {
-			"name": "QyWeChat/TTL"
+			"name": "QyWeChat"
 		},
 		"annotations": []
 	}

@@ -1,0 +1,106 @@
+{
+	"name": "User_TTL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "$['errcode']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['errmsg']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['department'][0]['id']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['department'][0]['name']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['department'][0]['parentid']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['department'][0]['order']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['department'][0]['department_leader'][0]"
+								}
+							}
+						],
+						"collectionReference": "",
+						"mapComplexValuesToString": true
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_REST_QYWeChat",
+						"type": "DatasetReference",
+						"parameters": {
+							"RelativeURL": {
+								"value": "user/list?access_token=@{pipeline().parameters.access_token}&department_id=1&fetch_child=1&status=0",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "asql_dataset",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"parameters": {
+			"access_token": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "QyWeChat/TTL"
+		},
+		"annotations": []
+	}
+}
