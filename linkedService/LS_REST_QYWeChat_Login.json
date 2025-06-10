@@ -1,0 +1,20 @@
+{
+	"name": "LS_REST_QYWeChat_Login",
+	"properties": {
+		"parameters": {
+			"corpid": {
+				"type": "string"
+			},
+			"corpsecret": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@linkedService().corpid&corpsecret=@linkedService().corpsecret",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
