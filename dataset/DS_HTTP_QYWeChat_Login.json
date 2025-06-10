@@ -1,0 +1,20 @@
+{
+	"name": "DS_HTTP_QYWeChat_Login",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_HTTP_QYWeChat_Login",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "QYWeChat"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation"
+			}
+		},
+		"schema": {}
+	}
+}
