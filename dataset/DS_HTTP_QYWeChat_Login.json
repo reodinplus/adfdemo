@@ -5,6 +5,14 @@
 			"referenceName": "LS_HTTP_QYWeChat_Login",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"corpid": {
+				"type": "string"
+			},
+			"corpsecret": {
+				"type": "string"
+			}
+		},
 		"folder": {
 			"name": "QYWeChat"
 		},
@@ -13,7 +21,10 @@
 		"typeProperties": {
 			"location": {
 				"type": "HttpServerLocation",
-				"relativeUrl": "cgi-bin/gettoken"
+				"relativeUrl": {
+					"value": "cgi-bin/gettoken?corpid=@{dataset().corpid}&corpsecret=@{dataset().corpsecret}",
+					"type": "Expression"
+				}
 			}
 		},
 		"schema": {}
