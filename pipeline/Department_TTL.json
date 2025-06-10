@@ -25,15 +25,15 @@
 						}
 					},
 					"sink": {
-						"type": "AzureSqlSink",
-						"writeBehavior": "insert",
-						"sqlWriterUseTableLock": false
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
 					},
-					"enableStaging": false,
-					"translator": {
-						"type": "TabularTranslator",
-						"mapComplexValuesToString": true
-					}
+					"enableStaging": false
 				},
 				"inputs": [
 					{
@@ -49,11 +49,15 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "asql_dataset",
+						"referenceName": "DS_JSON",
 						"type": "DatasetReference",
 						"parameters": {
-							"schemaName": "dbo",
-							"tableName": "employee"
+							"container": "adfdemo",
+							"directory": {
+								"value": "@concat('QYWeChat/DepartmentTTL/dt=', pipeline().parameters.dt)",
+								"type": "Expression"
+							},
+							"file": "department"
 						}
 					}
 				]
@@ -62,6 +66,10 @@
 		"parameters": {
 			"access_token": {
 				"type": "string"
+			},
+			"dt": {
+				"type": "string",
+				"defaultValue": "2025-06-10"
 			}
 		},
 		"folder": {
