@@ -22,7 +22,7 @@
 			"location": {
 				"type": "HttpServerLocation",
 				"relativeUrl": {
-					"value": "cgi-bin/gettoken?corpid=@{dataset().corpid}&corpsecret=@{dataset().corpsecret}",
+					"value": "cgi-bin/gettoken",
 					"type": "Expression"
 				}
 			}
