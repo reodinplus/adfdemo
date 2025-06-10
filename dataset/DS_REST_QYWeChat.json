@@ -1,0 +1,26 @@
+{
+	"name": "DS_REST_QYWeChat",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_REST_QYWeChat",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"RelativeURL": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "QYWeChat"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@dataset().RelativeURL",
+				"type": "Expression"
+			}
+		},
+		"schema": []
+	}
+}
