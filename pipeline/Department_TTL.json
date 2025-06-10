@@ -1,0 +1,66 @@
+{
+	"name": "Department_TTL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Web_Get AcceccTokenObj",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": {
+						"value": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@{variables('corpid')}&corpsecret=@{variables('corpsecret')}",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SVar_Set Var accecc_token",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Web_Get AcceccTokenObj",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "access_token",
+					"value": {
+						"value": "@activity('Web_Get AcceccTokenObj').output.access_token",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"corpId": {
+				"type": "String"
+			},
+			"corpsecret": {
+				"type": "String"
+			},
+			"access_token": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "QyWeChat"
+		},
+		"annotations": []
+	}
+}
