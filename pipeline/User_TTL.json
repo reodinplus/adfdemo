@@ -273,9 +273,10 @@
 							"type": "HttpReadSettings",
 							"requestMethod": "GET",
 							"requestBody": {
-								"value": "corpid=@{variables('corpId')}&corpsecret=@{variables('corpsecret')}",
+								"value": "corpid=@{variables('corpid')}&corpsecret=@{variables('corpsecret')}",
 								"type": "Expression"
-							}
+							},
+							"requestTimeout": ""
 						},
 						"formatSettings": {
 							"type": "JsonReadSettings"
@@ -290,8 +291,6 @@
 			{
 				"name": "Set variable1",
 				"type": "SetVariable",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Lookup1",
@@ -315,7 +314,7 @@
 			}
 		],
 		"variables": {
-			"corpId": {
+			"corpid": {
 				"type": "String",
 				"defaultValue": "ww6756f2ce4a5f10ff"
 			},
