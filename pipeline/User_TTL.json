@@ -1,0 +1,275 @@
+{
+	"name": "User_TTL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Web_Get AcceccTokenObj",
+				"type": "WebActivity",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": {
+						"value": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@{variables('corpid')}&corpsecret=@{variables('corpsecret')}",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SVar_Set Var accecc_token",
+				"type": "SetVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "Web_Get AcceccTokenObj",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "access_token",
+					"value": {
+						"value": "@activity('Web_Get AcceccTokenObj').output.access_token",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "SVar_Set Var accecc_token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "$['errcode']"
+								}
+							},
+							{
+								"source": {
+									"path": "$['errmsg']"
+								}
+							},
+							{
+								"source": {
+									"path": "['name']"
+								}
+							},
+							{
+								"source": {
+									"path": "['department'][0]"
+								}
+							},
+							{
+								"source": {
+									"path": "['position']"
+								}
+							},
+							{
+								"source": {
+									"path": "['mobile']"
+								}
+							},
+							{
+								"source": {
+									"path": "['gender']"
+								}
+							},
+							{
+								"source": {
+									"path": "['email']"
+								}
+							},
+							{
+								"source": {
+									"path": "['avatar']"
+								}
+							},
+							{
+								"source": {
+									"path": "['status']"
+								}
+							},
+							{
+								"source": {
+									"path": "['enable']"
+								}
+							},
+							{
+								"source": {
+									"path": "['isleader']"
+								}
+							},
+							{
+								"source": {
+									"path": "['extattr']['attrs'][0]['name']"
+								}
+							},
+							{
+								"source": {
+									"path": "['extattr']['attrs'][0]['value']"
+								}
+							},
+							{
+								"source": {
+									"path": "['extattr']['attrs'][0]['type']"
+								}
+							},
+							{
+								"source": {
+									"path": "['extattr']['attrs'][0]['text']['value']"
+								}
+							},
+							{
+								"source": {
+									"path": "['hide_mobile']"
+								}
+							},
+							{
+								"source": {
+									"path": "['english_name']"
+								}
+							},
+							{
+								"source": {
+									"path": "['telephone']"
+								}
+							},
+							{
+								"source": {
+									"path": "['order'][0]"
+								}
+							},
+							{
+								"source": {
+									"path": "['main_department']"
+								}
+							},
+							{
+								"source": {
+									"path": "['qr_code']"
+								}
+							},
+							{
+								"source": {
+									"path": "['alias']"
+								}
+							},
+							{
+								"source": {
+									"path": "['is_leader_in_dept'][0]"
+								}
+							},
+							{
+								"source": {
+									"path": "['thumb_avatar']"
+								}
+							},
+							{
+								"source": {
+									"path": "['biz_mail']"
+								}
+							},
+							{
+								"source": {
+									"path": "['userid']"
+								}
+							},
+							{
+								"source": {
+									"path": "['direct_leader'][0]"
+								}
+							}
+						],
+						"collectionReference": "$['userlist']",
+						"mapComplexValuesToString": true
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_REST_QYWeChat",
+						"type": "DatasetReference",
+						"parameters": {
+							"RelativeURL": {
+								"value": "user/list?access_token=@{variables('access_token')}&department_id=1&fetch_child=1&status=0",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "asql_dataset",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"variables": {
+			"corpId": {
+				"type": "String",
+				"defaultValue": "ww6756f2ce4a5f10ff"
+			},
+			"corpsecret": {
+				"type": "String",
+				"defaultValue": "VcCpyk0srxuJosFusMfA_mfGzJNrNsdLTPPuqbJ61s0"
+			},
+			"access_token": {
+				"type": "String",
+				"defaultValue": "jhAT-nUmGL0F2MDjHOQh7V5oCb9R2lqdUmSy_RnNzjzSQPkYK5OrVNPh_3bZcl3FskfGz5uLF4KNcN5uHFfAEzqo_jbgBN1S7d85Ia0rHZCBg9AMeEx5yYt0z1pFrvDgkjY29EV3JYGSinPXt6zb30-AduxqU8AaVs6jKQBVdz81GnuLWF2jxl_5kNmrUFjS2ZQBTrgnsSvJ8rlADMUvZQ"
+			}
+		},
+		"folder": {
+			"name": "QyWeChat/TTL"
+		},
+		"annotations": []
+	}
+}
