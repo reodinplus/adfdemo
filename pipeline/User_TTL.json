@@ -32,44 +32,6 @@
 					"enableStaging": false,
 					"translator": {
 						"type": "TabularTranslator",
-						"mappings": [
-							{
-								"source": {
-									"path": "$['errcode']"
-								}
-							},
-							{
-								"source": {
-									"path": "$['errmsg']"
-								}
-							},
-							{
-								"source": {
-									"path": "$['department'][0]['id']"
-								}
-							},
-							{
-								"source": {
-									"path": "$['department'][0]['name']"
-								}
-							},
-							{
-								"source": {
-									"path": "$['department'][0]['parentid']"
-								}
-							},
-							{
-								"source": {
-									"path": "$['department'][0]['order']"
-								}
-							},
-							{
-								"source": {
-									"path": "$['department'][0]['department_leader'][0]"
-								}
-							}
-						],
-						"collectionReference": "",
 						"mapComplexValuesToString": true
 					}
 				},
