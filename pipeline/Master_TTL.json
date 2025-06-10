@@ -19,7 +19,17 @@
 				},
 				"linkedServiceName": {
 					"referenceName": "LS_WEB_QYWeChat_Login",
-					"type": "LinkedServiceReference"
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"corpid": {
+							"value": "@pipeline().parameters.corpid",
+							"type": "Expression"
+						},
+						"corpsecret": {
+							"value": "@pipeline().parameters.corpsecret",
+							"type": "Expression"
+						}
+					}
 				}
 			},
 			{
