@@ -4,7 +4,7 @@
 		"annotations": [],
 		"type": "HttpServer",
 		"typeProperties": {
-			"url": "https://qyapi.weixin.qq.com/cgi-bin",
+			"url": "https://qyapi.weixin.qq.com/cgi-bin/gettoken",
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Anonymous"
 		}
