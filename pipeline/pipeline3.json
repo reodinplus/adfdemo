@@ -114,7 +114,7 @@
 						"referenceName": "DS_Binary",
 						"type": "DatasetReference",
 						"parameters": {
-							"directory": "sales/",
+							"directory": "sales",
 							"file": " "
 						}
 					},
