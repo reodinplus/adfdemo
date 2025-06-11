@@ -1,0 +1,25 @@
+{
+	"name": "DS_Binary",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adfdemo_storage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"directory": {
+				"type": "string"
+			},
+			"file": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": "adfdemo"
+			}
+		}
+	}
+}
