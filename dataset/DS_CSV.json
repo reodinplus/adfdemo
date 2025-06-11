@@ -1,0 +1,61 @@
+{
+	"name": "DS_CSV",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adfdemo_storage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"directory": {
+				"type": "string"
+			},
+			"file": {
+				"type": "string"
+			},
+			"hasRowHeader": {
+				"type": "bool"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().file",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().directory",
+					"type": "Expression"
+				},
+				"container": "adfdemo"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": {
+				"value": "@dataset().hasRowHeader",
+				"type": "Expression"
+			},
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "ProdunctId",
+				"type": "String"
+			},
+			{
+				"name": "Qty",
+				"type": "String"
+			},
+			{
+				"name": "UnitPrice",
+				"type": "String"
+			},
+			{
+				"name": "SubTotal",
+				"type": "String"
+			}
+		]
+	}
+}
