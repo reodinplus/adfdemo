@@ -1,0 +1,13 @@
+{
+	"name": "LS_REST_QYWX",
+	"properties": {
+		"description": "企业微信的REST类型的链接",
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "sdfds",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
