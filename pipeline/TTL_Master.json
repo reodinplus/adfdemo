@@ -1,5 +1,5 @@
 {
-	"name": "Master_TTL",
+	"name": "TTL_Master",
 	"properties": {
 		"activities": [
 			{
@@ -86,7 +86,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "Department_TTL",
+									"referenceName": "TTL_Department",
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true,
@@ -112,7 +112,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "User_TTL",
+									"referenceName": "TTL_User",
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true,
