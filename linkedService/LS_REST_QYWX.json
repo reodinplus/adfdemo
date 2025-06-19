@@ -1,11 +1,11 @@
 {
 	"name": "LS_REST_QYWX",
 	"properties": {
-		"description": "企业微信的REST类型的链接",
+		"description": "企业微信的 REST 类型的链接服务",
 		"annotations": [],
 		"type": "RestService",
 		"typeProperties": {
-			"url": "sdfds",
+			"url": "https://qyapi.weixin.qq.com/cgi-bin",
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Anonymous"
 		}
