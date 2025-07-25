@@ -3,36 +3,6 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Web_Get AccessToken",
-				"type": "WebActivity",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"method": "GET"
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_WEB_QYWeChat_Login",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"corpid": {
-							"value": "@pipeline().parameters.corpid",
-							"type": "Expression"
-						},
-						"corpsecret": {
-							"value": "@pipeline().parameters.corpsecret",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			{
 				"name": "SetVar_Set Var access_token",
 				"type": "SetVariable",
 				"dependsOn": [
@@ -59,8 +29,6 @@
 			{
 				"name": "If Condition1",
 				"type": "IfCondition",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "SetVar_Set Var access_token",
@@ -129,6 +97,26 @@
 							}
 						}
 					]
+				}
+			},
+			{
+				"name": "Web_Get AccessToken",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": {
+						"value": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@{pipeline().parameters.corpid}&corpsecret=@{pipeline().parameters.corpsecret}",
+						"type": "Expression"
+					}
 				}
 			}
 		],
