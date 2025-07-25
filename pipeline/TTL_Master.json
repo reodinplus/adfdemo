@@ -131,7 +131,7 @@
 			},
 			"dt": {
 				"type": "string",
-				"defaultValue": "2025-06-10"
+				"defaultValue": "2025-07-25"
 			}
 		},
 		"variables": {
