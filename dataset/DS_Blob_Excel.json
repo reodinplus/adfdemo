@@ -1,0 +1,37 @@
+{
+	"name": "DS_Blob_Excel",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_Blob_File",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"path": {
+				"type": "string"
+			},
+			"file": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "ADB数据源"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().file",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().path",
+					"type": "Expression"
+				},
+				"container": "adfdemo"
+			}
+		},
+		"schema": []
+	}
+}
