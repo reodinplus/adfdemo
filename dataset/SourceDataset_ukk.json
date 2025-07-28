@@ -1,0 +1,74 @@
+{
+	"name": "SourceDataset_ukk",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adfdemo_storage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"cw_folderPath": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Sheet1",
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": {
+					"value": "@dataset().cw_folderPath",
+					"type": "Expression"
+				},
+				"container": "adfdemo"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "订单ID",
+				"type": "String"
+			},
+			{
+				"name": "订单日期",
+				"type": "String"
+			},
+			{
+				"name": "发货日期",
+				"type": "String"
+			},
+			{
+				"name": "邮寄方式",
+				"type": "String"
+			},
+			{
+				"name": "客户ID",
+				"type": "String"
+			},
+			{
+				"name": "城市",
+				"type": "String"
+			},
+			{
+				"name": "产品ID",
+				"type": "String"
+			},
+			{
+				"name": "销售额",
+				"type": "String"
+			},
+			{
+				"name": "数量",
+				"type": "String"
+			},
+			{
+				"name": "折扣",
+				"type": "String"
+			},
+			{
+				"name": "利润",
+				"type": "String"
+			}
+		]
+	}
+}

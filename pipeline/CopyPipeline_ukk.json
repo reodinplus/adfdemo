@@ -1,0 +1,226 @@
+{
+	"name": "CopyPipeline_ukk",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy_ukk",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "adfdemo/ETLDemo/@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}/"
+					},
+					{
+						"name": "Destination",
+						"value": "dbo.AzureBlobStorageFile"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"additionalColumns": [
+							{
+								"name": "FileName",
+								"value": "$$FILENAME"
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false,
+							"wildcardFileName": "*",
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"tableOption": "autoCreate"
+					},
+					"enableStaging": false,
+					"validateDataConsistency": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "订单ID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "订单ID",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "订单日期",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "订单日期",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "发货日期",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "发货日期",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "邮寄方式",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "邮寄方式",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "客户ID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "客户ID",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "城市",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "城市",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "产品ID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "产品ID",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "销售额",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "销售额",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "数量",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "数量",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "折扣",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "折扣",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "利润",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "利润",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FileName",
+									"type": "String"
+								},
+								"sink": {
+									"name": "FileName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SourceDataset_ukk",
+						"type": "DatasetReference",
+						"parameters": {
+							"cw_folderPath": "ETLDemo/@{formatDateTime(pipeline().parameters.windowStart,'yyyy')}/@{formatDateTime(pipeline().parameters.windowStart,'MM')}/@{formatDateTime(pipeline().parameters.windowStart,'dd')}"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DestinationDataset_ukk",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"parameters": {
+			"windowStart": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
