@@ -1,0 +1,13 @@
+{
+	"name": "LS_ADB",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-1415684505735454.14.azuredatabricks.net/",
+			"authentication": "MSI",
+			"workspaceResourceId": "/subscriptions/44072c49-e7a3-4d54-82b5-b35c20195cc5/resourceGroups/Databricks-uc-ws/providers/Microsoft.Databricks/workspaces/databricks-uc-ws",
+			"existingClusterId": "CS-PersonalTest"
+		}
+	}
+}
