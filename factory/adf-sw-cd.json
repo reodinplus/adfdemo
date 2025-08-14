@@ -6,6 +6,9 @@
 				"type": "string",
 				"value": "Server=;"
 			}
+		},
+		"globalConfigurations": {
+			"PipelineBillingEnabled": "false"
 		}
 	},
 	"location": "japaneast",
