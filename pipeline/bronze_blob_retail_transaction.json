@@ -289,7 +289,7 @@
 		"variables": {
 			"dstFileDirName": {
 				"type": "String",
-				"defaultValue": "stage_blob_retail_transactions"
+				"defaultValue": "stage_blob_retail_transaction"
 			},
 			"dstFileName": {
 				"type": "String",
