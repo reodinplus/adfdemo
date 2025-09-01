@@ -244,7 +244,7 @@
 								"type": "Expression"
 							},
 							"file": {
-								"value": "@variables('dstFileName')",
+								"value": "@variables('dstFile')",
 								"type": "Expression"
 							}
 						}
@@ -291,9 +291,9 @@
 				"type": "String",
 				"defaultValue": "stage_blob_retail_transaction"
 			},
-			"dstFileName": {
+			"dstFile": {
 				"type": "String",
-				"defaultValue": "retail_transaction"
+				"defaultValue": "retail_transaction.parquet"
 			}
 		},
 		"folder": {
