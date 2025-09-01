@@ -15,10 +15,30 @@
 						"referenceName": "bronze_blob_retail_transaction",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"dt": {
+							"value": "@pipeline().parameters.dt",
+							"type": "Expression"
+						},
+						"dstCatalog": {
+							"value": "@pipeline().parameters.catalog",
+							"type": "Expression"
+						}
+					}
 				}
 			}
 		],
+		"parameters": {
+			"catalog": {
+				"type": "string",
+				"defaultValue": "project_catalog"
+			},
+			"dt": {
+				"type": "string",
+				"defaultValue": "2025-01-01"
+			}
+		},
 		"folder": {
 			"name": "retail/bronze/blob"
 		},
