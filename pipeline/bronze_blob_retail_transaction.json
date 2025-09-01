@@ -5,8 +5,6 @@
 			{
 				"name": "Copy data1",
 				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -17,10 +15,127 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"enableStaging": false
-				}
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false,
+							"modifiedDatetimeStart": {
+								"value": "@addDays(pipeline().parameters.dt,pipeline().parameters.daysOffset)",
+								"type": "Expression"
+							},
+							"wildcardFolderPath": {
+								"value": "@pipeline().parameters.path",
+								"type": "Expression"
+							},
+							"wildcardFileName": {
+								"value": "@pipeline().parameters.file",
+								"type": "Expression"
+							},
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_Blob_CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.container",
+								"type": "Expression"
+							},
+							"path": {
+								"value": "@pipeline().parameters.path",
+								"type": "Expression"
+							},
+							"file": " "
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Deltalake_Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.dstContainer",
+								"type": "Expression"
+							},
+							"path": {
+								"value": "@{pipeline().parameters.dstFileDirPath}/@{variables('dstFileDirName')}/dt=@{pipeline().parameters.dt}",
+								"type": "Expression"
+							},
+							"file": {
+								"value": "@variables('dstFileName')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
 			}
 		],
+		"parameters": {
+			"container": {
+				"type": "string",
+				"defaultValue": "file-data"
+			},
+			"path": {
+				"type": "string",
+				"defaultValue": "retail/retail_transaction"
+			},
+			"file": {
+				"type": "string",
+				"defaultValue": "*.csv"
+			},
+			"dstContainer": {
+				"type": "string",
+				"defaultValue": "demo"
+			},
+			"dstFileDirPath": {
+				"type": "string",
+				"defaultValue": "retail/blob/bronze"
+			},
+			"dt": {
+				"type": "string",
+				"defaultValue": "2025-01-01"
+			},
+			"daysOffset": {
+				"type": "int",
+				"defaultValue": -1000
+			}
+		},
+		"variables": {
+			"dstFileDirName": {
+				"type": "String",
+				"defaultValue": "stage_blob_retail_transactions"
+			},
+			"dstFileName": {
+				"type": "String",
+				"defaultValue": "retail_transaction"
+			}
+		},
 		"folder": {
 			"name": "retail/bronze/blob/detail"
 		},
