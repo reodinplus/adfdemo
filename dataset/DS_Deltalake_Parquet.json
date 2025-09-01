@@ -14,7 +14,7 @@
 			}
 		},
 		"folder": {
-			"name": "ADB数据源"
+			"name": "retail"
 		},
 		"annotations": [],
 		"type": "Parquet",
