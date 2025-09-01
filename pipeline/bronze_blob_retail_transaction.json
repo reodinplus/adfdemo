@@ -19,7 +19,7 @@
 						"type": "DelimitedTextSource",
 						"storeSettings": {
 							"type": "AzureBlobStorageReadSettings",
-							"recursive": false,
+							"recursive": true,
 							"modifiedDatetimeStart": {
 								"value": "@addDays(pipeline().parameters.dt,pipeline().parameters.daysOffset)",
 								"type": "Expression"
