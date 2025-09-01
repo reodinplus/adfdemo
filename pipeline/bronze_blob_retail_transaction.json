@@ -108,7 +108,7 @@
 									"ordinal": 6
 								},
 								"sink": {
-									"name": "Total_Items",
+									"name": "Total_Item",
 									"physicalType": "UTF8"
 								}
 							},
