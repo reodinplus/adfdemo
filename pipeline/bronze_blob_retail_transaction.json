@@ -271,6 +271,22 @@
 					"secureInput": false
 				},
 				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": {
+						"value": "@variables('notebookPath')",
+						"type": "Expression"
+					},
+					"baseParameters": {
+						"catalog_name": {
+							"value": "@pipeline().parameters.dstCatalog",
+							"type": "Expression"
+						},
+						"dt": {
+							"value": "@pipeline().parameters.dt",
+							"type": "Expression"
+						}
+					}
+				},
 				"linkedServiceName": {
 					"referenceName": "LS_ADB",
 					"type": "LinkedServiceReference"
@@ -309,6 +325,10 @@
 			"daysOffset": {
 				"type": "int",
 				"defaultValue": -1000
+			},
+			"dstCatalog": {
+				"type": "string",
+				"defaultValue": "project_catalog"
 			}
 		},
 		"variables": {
@@ -321,7 +341,8 @@
 				"defaultValue": "retail_transaction.parquet"
 			},
 			"notebookPath": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "/retail/dml/bronze/blob_retail_transaction"
 			}
 		},
 		"folder": {
