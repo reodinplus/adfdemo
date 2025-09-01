@@ -37,6 +37,14 @@
 			"dt": {
 				"type": "string",
 				"defaultValue": "2025-01-01"
+			},
+			"container": {
+				"type": "string",
+				"defaultValue": "file-data"
+			},
+			"dstContainer": {
+				"type": "string",
+				"defaultValue": "demo"
 			}
 		},
 		"folder": {
