@@ -291,6 +291,10 @@
 				"type": "string",
 				"defaultValue": "*.csv"
 			},
+			"hasRowHeader": {
+				"type": "bool",
+				"defaultValue": true
+			},
 			"dstContainer": {
 				"type": "string",
 				"defaultValue": "demo"
