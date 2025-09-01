@@ -6,6 +6,9 @@
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
+			"container": {
+				"type": "string"
+			},
 			"path": {
 				"type": "string"
 			},
@@ -29,7 +32,10 @@
 					"value": "@dataset().path",
 					"type": "Expression"
 				},
-				"fileSystem": "bronze"
+				"fileSystem": {
+					"value": "@dataset().container",
+					"type": "Expression"
+				}
 			},
 			"compressionCodec": "snappy"
 		},
