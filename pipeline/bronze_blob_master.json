@@ -17,12 +17,24 @@
 					},
 					"waitOnCompletion": true,
 					"parameters": {
+						"container": {
+							"value": "@pipeline().parameters.container",
+							"type": "Expression"
+						},
+						"dstContainer": {
+							"value": "@pipeline().parameters.dstContainer",
+							"type": "Expression"
+						},
 						"dt": {
 							"value": "@pipeline().parameters.dt",
 							"type": "Expression"
 						},
+						"daysOffset": {
+							"value": "@pipeline().parameters.daysOffset",
+							"type": "Expression"
+						},
 						"dstCatalog": {
-							"value": "@pipeline().parameters.catalog",
+							"value": "@pipeline().parameters.dstCatalog",
 							"type": "Expression"
 						}
 					}
@@ -30,14 +42,6 @@
 			}
 		],
 		"parameters": {
-			"catalog": {
-				"type": "string",
-				"defaultValue": "project_catalog"
-			},
-			"dt": {
-				"type": "string",
-				"defaultValue": "2025-01-01"
-			},
 			"container": {
 				"type": "string",
 				"defaultValue": "file-data"
@@ -45,6 +49,18 @@
 			"dstContainer": {
 				"type": "string",
 				"defaultValue": "demo"
+			},
+			"dstCatalog": {
+				"type": "string",
+				"defaultValue": "project_catalog"
+			},
+			"dt": {
+				"type": "string",
+				"defaultValue": "2025-01-01"
+			},
+			"daysOffset": {
+				"type": "string",
+				"defaultValue": "-1000"
 			}
 		},
 		"folder": {
