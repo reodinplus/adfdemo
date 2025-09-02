@@ -3,7 +3,21 @@
 	"properties": {
 		"annotations": [],
 		"runtimeState": "Stopped",
-		"pipelines": [],
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "retail_master",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"container": "file-data",
+					"dstContainer": "demo",
+					"dstCatalog": "project_catalog",
+					"dt": "gger().scheduledTime, 8),'yyyy-MM-dd'))}",
+					"daysOffset": "-1"
+				}
+			}
+		],
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
