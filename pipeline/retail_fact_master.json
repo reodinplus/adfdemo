@@ -29,6 +29,12 @@
 				}
 			}
 		],
+		"parameters": {
+			"dstCatalog": {
+				"type": "string",
+				"defaultValue": "project_catalog"
+			}
+		},
 		"folder": {
 			"name": "retail/gold"
 		},

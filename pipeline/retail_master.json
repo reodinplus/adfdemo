@@ -15,7 +15,29 @@
 						"referenceName": "bronze_blob_master",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"container": {
+							"value": "@pipeline().parameters.container",
+							"type": "Expression"
+						},
+						"dstContainer": {
+							"value": "@pipeline().parameters.dstContainer",
+							"type": "Expression"
+						},
+						"dstCatalog": {
+							"value": "@pipeline().parameters.dstCatalog",
+							"type": "Expression"
+						},
+						"dt": {
+							"value": "@pipeline().parameters.dt",
+							"type": "Expression"
+						},
+						"daysOffset": {
+							"value": "@pipeline().parameters.daysOffset",
+							"type": "Expression"
+						}
+					}
 				}
 			},
 			{
@@ -38,7 +60,13 @@
 						"referenceName": "silver_blob_master",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"dstCatalog": {
+							"value": "@pipeline().parameters.dstCatalog",
+							"type": "Expression"
+						}
+					}
 				}
 			},
 			{
@@ -61,7 +89,13 @@
 						"referenceName": "retail_dim_master",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"dstCatalog": {
+							"value": "@pipeline().parameters.dstCatalog",
+							"type": "Expression"
+						}
+					}
 				}
 			},
 			{
@@ -88,6 +122,28 @@
 				}
 			}
 		],
+		"parameters": {
+			"container": {
+				"type": "string",
+				"defaultValue": "file-data"
+			},
+			"dstContainer": {
+				"type": "string",
+				"defaultValue": "demo"
+			},
+			"dstCatalog": {
+				"type": "string",
+				"defaultValue": "project_catalog"
+			},
+			"dt": {
+				"type": "string",
+				"defaultValue": "2025-01-01"
+			},
+			"daysOffset": {
+				"type": "string",
+				"defaultValue": "-1000"
+			}
+		},
 		"folder": {
 			"name": "retail/gold"
 		},
