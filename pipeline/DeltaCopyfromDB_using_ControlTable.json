@@ -7,6 +7,8 @@
 				"name": "LookupLastWaterMark",
 				"description": "Retrieve the last high-watermark value stored in external control table",
 				"type": "Lookup",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "7.00:00:00",
@@ -33,6 +35,8 @@
 				"name": "LookupCurrentWaterMark",
 				"description": "Retrieve  the current maximum value in watermark column of source data store",
 				"type": "Lookup",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "7.00:00:00",
@@ -59,6 +63,8 @@
 				"name": "DeltaCopyfromDB",
 				"description": "Copy activity to use query to filter the delta data by > last high-watermark and <= current high-watermark from source database, and then only copy the changes to the destination store.",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "LookupCurrentWaterMark",
@@ -129,6 +135,8 @@
 				"name": "UpdateWaterMark",
 				"description": "Stored procedure activity to store the new high-watermark value into external control table for delta data loading. ",
 				"type": "SqlServerStoredProcedure",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "DeltaCopyfromDB",
