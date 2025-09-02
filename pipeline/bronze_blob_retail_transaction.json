@@ -253,7 +253,7 @@
 				]
 			},
 			{
-				"name": "anb_call_notebook",
+				"name": "nbk_call_notebook",
 				"type": "DatabricksNotebook",
 				"dependsOn": [
 					{
