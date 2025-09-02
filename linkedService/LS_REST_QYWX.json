@@ -1,5 +1,6 @@
 {
 	"name": "LS_REST_QYWX",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
 		"description": "企业微信的 REST 类型的链接服务",
 		"annotations": [],

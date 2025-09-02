@@ -76,6 +76,8 @@
 		"folder": {
 			"name": "QyWeChat/TTL"
 		},
-		"annotations": []
-	}
+		"annotations": [],
+		"lastPublishTime": "2025-09-02T10:00:17Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }

@@ -38,6 +38,8 @@
 		"folder": {
 			"name": "retail/gold"
 		},
-		"annotations": []
-	}
+		"annotations": [],
+		"lastPublishTime": "2025-09-02T10:00:16Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }

@@ -32,6 +32,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					}
 				}
@@ -90,6 +91,7 @@
 								],
 								"storeSettings": {
 									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
 									"enablePartitionDiscovery": false
 								}
 							}
@@ -126,6 +128,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
@@ -220,6 +223,7 @@
 								],
 								"storeSettings": {
 									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
@@ -234,6 +238,8 @@
 		"folder": {
 			"name": "demo"
 		},
-		"annotations": []
-	}
+		"annotations": [],
+		"lastPublishTime": "2025-09-02T10:00:16Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }

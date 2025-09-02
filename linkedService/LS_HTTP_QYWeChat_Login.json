@@ -1,5 +1,6 @@
 {
 	"name": "LS_HTTP_QYWeChat_Login",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
 		"annotations": [],
 		"type": "HttpServer",

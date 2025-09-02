@@ -1,5 +1,6 @@
 {
 	"name": "LS_WEB_QYWeChat_Login",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
 		"parameters": {
 			"corpid": {
