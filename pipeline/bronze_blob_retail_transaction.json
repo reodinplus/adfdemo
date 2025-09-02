@@ -253,7 +253,7 @@
 				]
 			},
 			{
-				"name": "nbk_call_notebook",
+				"name": "nbk_bronze_blob_retail_transaction",
 				"type": "DatabricksNotebook",
 				"dependsOn": [
 					{
