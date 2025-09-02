@@ -3,25 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
-				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"enableStaging": false
-				}
-			},
-			{
-				"name": "nbk_call_notebook",
+				"name": "nbk_silver_blob_retail_transaction",
 				"type": "DatabricksNotebook",
 				"dependsOn": [],
 				"policy": {
@@ -33,13 +15,10 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
+					"notebookPath": "/retail/dml/silver/blob_retail_transaction",
 					"baseParameters": {
 						"catalog_name": {
 							"value": "@pipeline().parameters.dstCatalog",
-							"type": "Expression"
-						},
-						"dt": {
-							"value": "@pipeline().parameters.dt",
 							"type": "Expression"
 						}
 					}
@@ -50,6 +29,12 @@
 				}
 			}
 		],
+		"parameters": {
+			"dstCatalog": {
+				"type": "string",
+				"defaultValue": "project_catalog"
+			}
+		},
 		"folder": {
 			"name": "retail/silver/blob"
 		},

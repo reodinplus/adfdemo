@@ -3,10 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
-				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
+				"name": "nbk_gold_fact_retail_transaction",
+				"type": "DatabricksNotebook",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -17,7 +15,17 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"enableStaging": false
+					"notebookPath": "/retail/dml/gold/fact_retail_transaction",
+					"baseParameters": {
+						"catalog_name": {
+							"value": "@pipeline().parameters.dstCatalog",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ADB",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
