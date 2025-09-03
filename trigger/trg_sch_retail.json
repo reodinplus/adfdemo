@@ -14,7 +14,9 @@
 					"dstContainer": "demo",
 					"dstCatalog": "project_catalog",
 					"dt": "@{string(formatDateTime(addDays(addHours(trigger().scheduledTime, 8), -1),'yyyy-MM-dd'))}",
-					"daysOffset": -1
+					"daysOffset": -1,
+					"date_start": "2020-01-01",
+					"date_end": "2024-12-31"
 				}
 			}
 		],
