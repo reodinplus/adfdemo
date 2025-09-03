@@ -242,8 +242,8 @@
 				"defaultValue": "2025-01-01"
 			},
 			"daysOffset": {
-				"type": "string",
-				"defaultValue": "-1000"
+				"type": "int",
+				"defaultValue": -1000
 			}
 		},
 		"folder": {
