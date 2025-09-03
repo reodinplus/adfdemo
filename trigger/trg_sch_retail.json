@@ -14,7 +14,7 @@
 					"dstContainer": "demo",
 					"dstCatalog": "project_catalog",
 					"dt": "@{string(formatDateTime(addDays(addHours(trigger().scheduledTime, 8), -1),'yyyy-MM-dd'))}",
-					"daysOffset": "-1"
+					"daysOffset": -1
 				}
 			}
 		],
