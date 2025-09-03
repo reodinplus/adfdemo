@@ -13,7 +13,7 @@
 					"container": "file-data",
 					"dstContainer": "demo",
 					"dstCatalog": "project_catalog",
-					"dt": "gger().scheduledTime, 8),'yyyy-MM-dd'))}",
+					"dt": "@{string(formatDateTime(addDays(addHours(trigger().scheduledTime, 8), -1),'yyyy-MM-dd'))}",
 					"daysOffset": "-1"
 				}
 			}
