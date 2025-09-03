@@ -150,7 +150,13 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"jobId": "574857699270895"
+					"jobId": "574857699270895",
+					"jobParameters": {
+						"catalog_name": "project_catalog",
+						"dt": "2025-01-01",
+						"date_start": "2020-01-01",
+						"date_end": "2024-12-31"
+					}
 				},
 				"linkedServiceName": {
 					"referenceName": "LS_ADB",
