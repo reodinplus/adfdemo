@@ -11,6 +11,24 @@
 		"AzureSqlDatabase1_connectionString": {
 			"value": ""
 		},
+		"LS_ADB_accessToken": {
+			"value": ""
+		},
+		"LS_ADB_Job_accessToken": {
+			"value": ""
+		},
+		"LS_ASQL_Demo_password": {
+			"value": ""
+		},
+		"LS_Blob_File_connectionString": {
+			"value": ""
+		},
+		"LS_Deltalake_accountKey": {
+			"value": ""
+		},
+		"LS_REST_QYWeChat_password": {
+			"value": ""
+		},
 		"adfdemo_a_sql_src_connectionString": {
 			"value": ""
 		},
@@ -26,10 +44,22 @@
 		"adfdemo_storage_connectionString": {
 			"value": ""
 		},
+		"fs_offline_password": {
+			"value": ""
+		},
+		"http_aishu_site_password": {
+			"value": ""
+		},
+		"http_onedriver_password": {
+			"value": ""
+		},
 		"mssql_adfdemo_connectionString": {
 			"value": ""
 		},
 		"mssql_demo_connectionString": {
+			"value": ""
+		},
+		"rest_qyweb_userlist_password": {
 			"value": ""
 		},
 		"sqldb_dw_connectionString": {
@@ -41,6 +71,39 @@
 		"AzureKeyVault1_properties_typeProperties_baseUrl": {
 			"value": "@{linkedService().keyVaultAccountURL}"
 		},
+		"LS_ADB_properties_typeProperties_existingClusterId": {
+			"value": "0723-022831-hgfjeows"
+		},
+		"LS_ASQL_Demo_properties_typeProperties_server": {
+			"value": "sqlserverdevswcd.database.windows.net"
+		},
+		"LS_ASQL_Demo_properties_typeProperties_database": {
+			"value": "sqldevswcd"
+		},
+		"LS_ASQL_Demo_properties_typeProperties_userName": {
+			"value": "sqladminuser01"
+		},
+		"LS_Deltalake_properties_typeProperties_url": {
+			"value": "https://databricksucextadls2.dfs.core.windows.net/"
+		},
+		"LS_HTTP_QYWeChat_Login_properties_typeProperties_url": {
+			"value": "https://qyapi.weixin.qq.com/"
+		},
+		"LS_REST_QYWX_properties_typeProperties_url": {
+			"value": "https://qyapi.weixin.qq.com/cgi-bin"
+		},
+		"LS_REST_QYWeChat_properties_typeProperties_url": {
+			"value": "https://qyapi.weixin.qq.com/cgi-bin"
+		},
+		"LS_REST_QYWeChat_properties_typeProperties_userName": {
+			"value": "rest"
+		},
+		"LS_REST_QYWeChat_Login_properties_typeProperties_url": {
+			"value": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@linkedService().corpid&corpsecret=@linkedService().corpsecret"
+		},
+		"LS_WEB_QYWeChat_Login_properties_typeProperties_url": {
+			"value": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@{linkedService().corpid}&corpsecret=@{linkedService().corpsecret}"
+		},
 		"RestService1_properties_typeProperties_url": {
 			"value": "https://cumminsxian--uat.sandbox.my.salesforce-sites.com/XCECBOM/services/apexrest/Callout_Order_BySites"
 		},
@@ -50,8 +113,56 @@
 		"adfdemo_rest_opentdb_com_properties_typeProperties_url": {
 			"value": "https://opentdb.com/api.php?amount=10&category=23&difficulty=easy&type=multiple"
 		},
+		"fs_offline_properties_typeProperties_host": {
+			"value": "\\\\10.0.0.163\\00FileDataSource"
+		},
+		"fs_offline_properties_typeProperties_userId": {
+			"value": "sw01"
+		},
+		"http_aishu_site_properties_typeProperties_url": {
+			"value": "http://share.chinaust.com:8000"
+		},
+		"http_aishu_site_properties_typeProperties_userName": {
+			"value": "lilijuan"
+		},
+		"http_onedriver_properties_typeProperties_url": {
+			"value": "https://sharewinfobi-my.sharepoint.com/"
+		},
+		"http_onedriver_properties_typeProperties_userName": {
+			"value": "zhyding@sharewinfobi.onmicrosoft.com"
+		},
 		"opentdb_api_properties_typeProperties_url": {
 			"value": "@{linkedService().baseURL}"
+		},
+		"rest_qyweb_userlist_properties_typeProperties_url": {
+			"value": "https://qyapi.weixin.qq.com/cgi-bin/user/simplelist?access_token=@{linkedService().access_token}&department_id=1&fetch_child=1&status=0"
+		},
+		"rest_qyweb_userlist_properties_typeProperties_userName": {
+			"value": "rest"
+		},
+		"Trigger_ukk_properties_CopyPipeline_ukk_parameters_windowStart": {
+			"value": "@trigger().scheduledTime"
+		},
+		"trg_sch_retail_properties_retail_master_parameters_container": {
+			"value": "file-data"
+		},
+		"trg_sch_retail_properties_retail_master_parameters_dstContainer": {
+			"value": "demo"
+		},
+		"trg_sch_retail_properties_retail_master_parameters_dstCatalog": {
+			"value": "project_catalog"
+		},
+		"trg_sch_retail_properties_retail_master_parameters_dt": {
+			"value": "@{string(formatDateTime(addDays(addHours(trigger().scheduledTime, 8), -1),'yyyy-MM-dd'))}"
+		},
+		"trg_sch_retail_properties_retail_master_parameters_daysOffset": {
+			"value": -1
+		},
+		"trg_sch_retail_properties_retail_master_parameters_date_start": {
+			"value": "2020-01-01"
+		},
+		"trg_sch_retail_properties_retail_master_parameters_date_end": {
+			"value": "2024-12-31"
 		},
 		"containerUri": {
 			"value": ""

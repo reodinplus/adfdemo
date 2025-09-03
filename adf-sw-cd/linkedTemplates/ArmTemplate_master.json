@@ -15,6 +15,30 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase1'"
 		},
+		"LS_ADB_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'LS_ADB'"
+		},
+		"LS_ADB_Job_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'LS_ADB_Job'"
+		},
+		"LS_ASQL_Demo_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_ASQL_Demo'"
+		},
+		"LS_Blob_File_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_Blob_File'"
+		},
+		"LS_Deltalake_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_Deltalake'"
+		},
+		"LS_REST_QYWeChat_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_REST_QYWeChat'"
+		},
 		"adfdemo_a_sql_src_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'adfdemo_a_sql_src'"
@@ -35,6 +59,18 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'adfdemo_storage'"
 		},
+		"fs_offline_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'fs_offline'"
+		},
+		"http_aishu_site_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'http_aishu_site'"
+		},
+		"http_onedriver_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'http_onedriver'"
+		},
 		"mssql_adfdemo_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'mssql_adfdemo'"
@@ -42,6 +78,10 @@
 		"mssql_demo_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'mssql_demo'"
+		},
+		"rest_qyweb_userlist_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'rest_qyweb_userlist'"
 		},
 		"sqldb_dw_connectionString": {
 			"type": "secureString",
@@ -56,6 +96,50 @@
 			"type": "string",
 			"defaultValue": "@{linkedService().keyVaultAccountURL}"
 		},
+		"LS_ADB_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0723-022831-hgfjeows"
+		},
+		"LS_ASQL_Demo_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sqlserverdevswcd.database.windows.net"
+		},
+		"LS_ASQL_Demo_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "sqldevswcd"
+		},
+		"LS_ASQL_Demo_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "sqladminuser01"
+		},
+		"LS_Deltalake_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://databricksucextadls2.dfs.core.windows.net/"
+		},
+		"LS_HTTP_QYWeChat_Login_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://qyapi.weixin.qq.com/"
+		},
+		"LS_REST_QYWX_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://qyapi.weixin.qq.com/cgi-bin"
+		},
+		"LS_REST_QYWeChat_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://qyapi.weixin.qq.com/cgi-bin"
+		},
+		"LS_REST_QYWeChat_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "rest"
+		},
+		"LS_REST_QYWeChat_Login_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@linkedService().corpid&corpsecret=@linkedService().corpsecret"
+		},
+		"LS_WEB_QYWeChat_Login_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@{linkedService().corpid}&corpsecret=@{linkedService().corpsecret}"
+		},
 		"RestService1_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://cumminsxian--uat.sandbox.my.salesforce-sites.com/XCECBOM/services/apexrest/Callout_Order_BySites"
@@ -68,9 +152,73 @@
 			"type": "string",
 			"defaultValue": "https://opentdb.com/api.php?amount=10&category=23&difficulty=easy&type=multiple"
 		},
+		"fs_offline_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "\\\\10.0.0.163\\00FileDataSource"
+		},
+		"fs_offline_properties_typeProperties_userId": {
+			"type": "string",
+			"defaultValue": "sw01"
+		},
+		"http_aishu_site_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "http://share.chinaust.com:8000"
+		},
+		"http_aishu_site_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "lilijuan"
+		},
+		"http_onedriver_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://sharewinfobi-my.sharepoint.com/"
+		},
+		"http_onedriver_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "zhyding@sharewinfobi.onmicrosoft.com"
+		},
 		"opentdb_api_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "@{linkedService().baseURL}"
+		},
+		"rest_qyweb_userlist_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://qyapi.weixin.qq.com/cgi-bin/user/simplelist?access_token=@{linkedService().access_token}&department_id=1&fetch_child=1&status=0"
+		},
+		"rest_qyweb_userlist_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "rest"
+		},
+		"Trigger_ukk_properties_CopyPipeline_ukk_parameters_windowStart": {
+			"type": "string",
+			"defaultValue": "@trigger().scheduledTime"
+		},
+		"trg_sch_retail_properties_retail_master_parameters_container": {
+			"type": "string",
+			"defaultValue": "file-data"
+		},
+		"trg_sch_retail_properties_retail_master_parameters_dstContainer": {
+			"type": "string",
+			"defaultValue": "demo"
+		},
+		"trg_sch_retail_properties_retail_master_parameters_dstCatalog": {
+			"type": "string",
+			"defaultValue": "project_catalog"
+		},
+		"trg_sch_retail_properties_retail_master_parameters_dt": {
+			"type": "string",
+			"defaultValue": "@{string(formatDateTime(addDays(addHours(trigger().scheduledTime, 8), -1),'yyyy-MM-dd'))}"
+		},
+		"trg_sch_retail_properties_retail_master_parameters_daysOffset": {
+			"type": "int",
+			"defaultValue": -1
+		},
+		"trg_sch_retail_properties_retail_master_parameters_date_start": {
+			"type": "string",
+			"defaultValue": "2020-01-01"
+		},
+		"trg_sch_retail_properties_retail_master_parameters_date_end": {
+			"type": "string",
+			"defaultValue": "2024-12-31"
 		},
 		"containerUri": {
 			"type": "string",
@@ -88,7 +236,7 @@
 		{
 			"name": "adf-sw-cd_ArmTemplate_0",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2018-02-01",
+			"apiVersion": "2024-03-01",
 			"properties": {
 				"mode": "incremental",
 				"templateLink": {
@@ -105,6 +253,24 @@
 					"AzureSqlDatabase1_connectionString": {
 						"value": "[parameters('AzureSqlDatabase1_connectionString')]"
 					},
+					"LS_ADB_accessToken": {
+						"value": "[parameters('LS_ADB_accessToken')]"
+					},
+					"LS_ADB_Job_accessToken": {
+						"value": "[parameters('LS_ADB_Job_accessToken')]"
+					},
+					"LS_ASQL_Demo_password": {
+						"value": "[parameters('LS_ASQL_Demo_password')]"
+					},
+					"LS_Blob_File_connectionString": {
+						"value": "[parameters('LS_Blob_File_connectionString')]"
+					},
+					"LS_Deltalake_accountKey": {
+						"value": "[parameters('LS_Deltalake_accountKey')]"
+					},
+					"LS_REST_QYWeChat_password": {
+						"value": "[parameters('LS_REST_QYWeChat_password')]"
+					},
 					"adfdemo_a_sql_src_connectionString": {
 						"value": "[parameters('adfdemo_a_sql_src_connectionString')]"
 					},
@@ -114,14 +280,53 @@
 					"adfdemo_storage_connectionString": {
 						"value": "[parameters('adfdemo_storage_connectionString')]"
 					},
-					"storage_account_connectionString": {
-						"value": "[parameters('storage_account_connectionString')]"
+					"http_onedriver_password": {
+						"value": "[parameters('http_onedriver_password')]"
 					},
 					"AzureKeyVault1_properties_typeProperties_baseUrl": {
 						"value": "[parameters('AzureKeyVault1_properties_typeProperties_baseUrl')]"
 					},
+					"LS_ADB_properties_typeProperties_existingClusterId": {
+						"value": "[parameters('LS_ADB_properties_typeProperties_existingClusterId')]"
+					},
+					"LS_ASQL_Demo_properties_typeProperties_server": {
+						"value": "[parameters('LS_ASQL_Demo_properties_typeProperties_server')]"
+					},
+					"LS_ASQL_Demo_properties_typeProperties_database": {
+						"value": "[parameters('LS_ASQL_Demo_properties_typeProperties_database')]"
+					},
+					"LS_ASQL_Demo_properties_typeProperties_userName": {
+						"value": "[parameters('LS_ASQL_Demo_properties_typeProperties_userName')]"
+					},
+					"LS_Deltalake_properties_typeProperties_url": {
+						"value": "[parameters('LS_Deltalake_properties_typeProperties_url')]"
+					},
+					"LS_HTTP_QYWeChat_Login_properties_typeProperties_url": {
+						"value": "[parameters('LS_HTTP_QYWeChat_Login_properties_typeProperties_url')]"
+					},
+					"LS_REST_QYWX_properties_typeProperties_url": {
+						"value": "[parameters('LS_REST_QYWX_properties_typeProperties_url')]"
+					},
+					"LS_REST_QYWeChat_properties_typeProperties_url": {
+						"value": "[parameters('LS_REST_QYWeChat_properties_typeProperties_url')]"
+					},
+					"LS_REST_QYWeChat_properties_typeProperties_userName": {
+						"value": "[parameters('LS_REST_QYWeChat_properties_typeProperties_userName')]"
+					},
+					"LS_REST_QYWeChat_Login_properties_typeProperties_url": {
+						"value": "[parameters('LS_REST_QYWeChat_Login_properties_typeProperties_url')]"
+					},
+					"LS_WEB_QYWeChat_Login_properties_typeProperties_url": {
+						"value": "[parameters('LS_WEB_QYWeChat_Login_properties_typeProperties_url')]"
+					},
 					"adfdemo_rest_properties_typeProperties_url": {
 						"value": "[parameters('adfdemo_rest_properties_typeProperties_url')]"
+					},
+					"http_onedriver_properties_typeProperties_url": {
+						"value": "[parameters('http_onedriver_properties_typeProperties_url')]"
+					},
+					"http_onedriver_properties_typeProperties_userName": {
+						"value": "[parameters('http_onedriver_properties_typeProperties_userName')]"
 					}
 				}
 			},
@@ -130,7 +335,7 @@
 		{
 			"name": "adf-sw-cd_ArmTemplate_1",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2018-02-01",
+			"apiVersion": "2024-03-01",
 			"properties": {
 				"mode": "incremental",
 				"templateLink": {
@@ -141,29 +346,17 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"adfdemo_asql_dst_connectionString": {
-						"value": "[parameters('adfdemo_asql_dst_connectionString')]"
+					"rest_qyweb_userlist_password": {
+						"value": "[parameters('rest_qyweb_userlist_password')]"
 					},
-					"adfdemo_mssql_connectionString": {
-						"value": "[parameters('adfdemo_mssql_connectionString')]"
+					"storage_account_connectionString": {
+						"value": "[parameters('storage_account_connectionString')]"
 					},
-					"mssql_adfdemo_connectionString": {
-						"value": "[parameters('mssql_adfdemo_connectionString')]"
+					"rest_qyweb_userlist_properties_typeProperties_url": {
+						"value": "[parameters('rest_qyweb_userlist_properties_typeProperties_url')]"
 					},
-					"mssql_demo_connectionString": {
-						"value": "[parameters('mssql_demo_connectionString')]"
-					},
-					"sqldb_dw_connectionString": {
-						"value": "[parameters('sqldb_dw_connectionString')]"
-					},
-					"RestService1_properties_typeProperties_url": {
-						"value": "[parameters('RestService1_properties_typeProperties_url')]"
-					},
-					"adfdemo_rest_opentdb_com_properties_typeProperties_url": {
-						"value": "[parameters('adfdemo_rest_opentdb_com_properties_typeProperties_url')]"
-					},
-					"opentdb_api_properties_typeProperties_url": {
-						"value": "[parameters('opentdb_api_properties_typeProperties_url')]"
+					"rest_qyweb_userlist_properties_typeProperties_userName": {
+						"value": "[parameters('rest_qyweb_userlist_properties_typeProperties_userName')]"
 					}
 				}
 			},
@@ -174,7 +367,7 @@
 		{
 			"name": "adf-sw-cd_ArmTemplate_2",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2018-02-01",
+			"apiVersion": "2024-03-01",
 			"properties": {
 				"mode": "incremental",
 				"templateLink": {
@@ -194,7 +387,7 @@
 		{
 			"name": "adf-sw-cd_ArmTemplate_3",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2018-02-01",
+			"apiVersion": "2024-03-01",
 			"properties": {
 				"mode": "incremental",
 				"templateLink": {
@@ -204,6 +397,48 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"adfdemo_asql_dst_connectionString": {
+						"value": "[parameters('adfdemo_asql_dst_connectionString')]"
+					},
+					"adfdemo_mssql_connectionString": {
+						"value": "[parameters('adfdemo_mssql_connectionString')]"
+					},
+					"fs_offline_password": {
+						"value": "[parameters('fs_offline_password')]"
+					},
+					"http_aishu_site_password": {
+						"value": "[parameters('http_aishu_site_password')]"
+					},
+					"mssql_adfdemo_connectionString": {
+						"value": "[parameters('mssql_adfdemo_connectionString')]"
+					},
+					"mssql_demo_connectionString": {
+						"value": "[parameters('mssql_demo_connectionString')]"
+					},
+					"sqldb_dw_connectionString": {
+						"value": "[parameters('sqldb_dw_connectionString')]"
+					},
+					"RestService1_properties_typeProperties_url": {
+						"value": "[parameters('RestService1_properties_typeProperties_url')]"
+					},
+					"adfdemo_rest_opentdb_com_properties_typeProperties_url": {
+						"value": "[parameters('adfdemo_rest_opentdb_com_properties_typeProperties_url')]"
+					},
+					"fs_offline_properties_typeProperties_host": {
+						"value": "[parameters('fs_offline_properties_typeProperties_host')]"
+					},
+					"fs_offline_properties_typeProperties_userId": {
+						"value": "[parameters('fs_offline_properties_typeProperties_userId')]"
+					},
+					"http_aishu_site_properties_typeProperties_url": {
+						"value": "[parameters('http_aishu_site_properties_typeProperties_url')]"
+					},
+					"http_aishu_site_properties_typeProperties_userName": {
+						"value": "[parameters('http_aishu_site_properties_typeProperties_userName')]"
+					},
+					"opentdb_api_properties_typeProperties_url": {
+						"value": "[parameters('opentdb_api_properties_typeProperties_url')]"
 					}
 				}
 			},
@@ -214,7 +449,7 @@
 		{
 			"name": "adf-sw-cd_ArmTemplate_4",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2018-02-01",
+			"apiVersion": "2024-03-01",
 			"properties": {
 				"mode": "incremental",
 				"templateLink": {
@@ -234,7 +469,7 @@
 		{
 			"name": "adf-sw-cd_ArmTemplate_5",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2018-02-01",
+			"apiVersion": "2024-03-01",
 			"properties": {
 				"mode": "incremental",
 				"templateLink": {
@@ -249,6 +484,110 @@
 			},
 			"dependsOn": [
 				"[resourceId('Microsoft.Resources/deployments', 'adf-sw-cd_ArmTemplate_4')]"
+			]
+		},
+		{
+			"name": "adf-sw-cd_ArmTemplate_6",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_6.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-sw-cd_ArmTemplate_5')]"
+			]
+		},
+		{
+			"name": "adf-sw-cd_ArmTemplate_7",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_7.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-sw-cd_ArmTemplate_6')]"
+			]
+		},
+		{
+			"name": "adf-sw-cd_ArmTemplate_8",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_8.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"Trigger_ukk_properties_CopyPipeline_ukk_parameters_windowStart": {
+						"value": "[parameters('Trigger_ukk_properties_CopyPipeline_ukk_parameters_windowStart')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-sw-cd_ArmTemplate_7')]"
+			]
+		},
+		{
+			"name": "adf-sw-cd_ArmTemplate_9",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_9.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"trg_sch_retail_properties_retail_master_parameters_container": {
+						"value": "[parameters('trg_sch_retail_properties_retail_master_parameters_container')]"
+					},
+					"trg_sch_retail_properties_retail_master_parameters_dstContainer": {
+						"value": "[parameters('trg_sch_retail_properties_retail_master_parameters_dstContainer')]"
+					},
+					"trg_sch_retail_properties_retail_master_parameters_dstCatalog": {
+						"value": "[parameters('trg_sch_retail_properties_retail_master_parameters_dstCatalog')]"
+					},
+					"trg_sch_retail_properties_retail_master_parameters_dt": {
+						"value": "[parameters('trg_sch_retail_properties_retail_master_parameters_dt')]"
+					},
+					"trg_sch_retail_properties_retail_master_parameters_daysOffset": {
+						"value": "[parameters('trg_sch_retail_properties_retail_master_parameters_daysOffset')]"
+					},
+					"trg_sch_retail_properties_retail_master_parameters_date_start": {
+						"value": "[parameters('trg_sch_retail_properties_retail_master_parameters_date_start')]"
+					},
+					"trg_sch_retail_properties_retail_master_parameters_date_end": {
+						"value": "[parameters('trg_sch_retail_properties_retail_master_parameters_date_end')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-sw-cd_ArmTemplate_8')]"
 			]
 		}
 	]

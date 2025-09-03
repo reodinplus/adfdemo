@@ -13,2593 +13,518 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/object_2')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/asql_src_object')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"activities": [
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
 					{
-						"name": "truncate table",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": {
-								"value": "@variables('truncateProcWithSchema')",
-								"type": "Expression"
-							},
-							"storedProcedureParameters": {
-								"tableNameWithSchema": {
-									"value": {
-										"value": "@variables('stgTableNameWithSchema')",
-										"type": "Expression"
-									},
-									"type": "String"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						}
+						"name": "name",
+						"type": "nvarchar"
 					},
 					{
-						"name": "get last modify date",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "truncate table",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select last_modify_date = isnull(max(modify_date), '1900-01-01') from dbo.ods_object",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "azuresql_dst",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableNameWithSchema": {
-										"value": "@variables('odsTableNameWithSchema')",
-										"type": "Expression"
-									}
-								}
-							}
-						}
+						"name": "object_id",
+						"type": "int",
+						"precision": 10
 					},
 					{
-						"name": "stg to ods",
-						"description": "",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [
-							{
-								"activity": "Data flow1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": {
-								"value": "@variables('odsProcWithSchema')",
-								"type": "Expression"
-							},
-							"storedProcedureParameters": {
-								"batch_id": {
-									"value": {
-										"value": "@pipeline().parameters.batch_id",
-										"type": "Expression"
-									},
-									"type": "Int32"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						}
+						"name": "principal_id",
+						"type": "int",
+						"precision": 10
 					},
 					{
-						"name": "Data flow1",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "get last modify date",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow2",
-								"type": "DataFlowReference",
-								"parameters": {
-									"srcTableSQL": {
-										"value": "'@{concat(variables('srcTableSQL'),  ' where modify_date>\\''', activity('get last modify date').output.firstRow.last_modify_date,  '\\''')}'",
-										"type": "Expression"
-									},
-									"dstTableNameWithSchema": {
-										"value": "'@{variables('stgTableNameWithSchema')}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"source1": {},
-									"sink1": {}
-								},
-								"linkedServiceParameters": {
-									"source1": {
-										"linkedService": {
-											"dbName": "sqldevswcd",
-											"dbUserName": "sqladminuser01",
-											"dbUserPwd": "1qaz!QAZ",
-											"dbServerName": "sqlserverdevswcd.database.windows.net"
-										}
-									},
-									"sink1": {
-										"linkedService": {
-											"dbName": "sqldevswcd",
-											"dbUserName": "sqladminuser01",
-											"dbUserPwd": "1qaz!QAZ",
-											"dbServerName": "sqlserverdevswcd.database.windows.net"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
+						"name": "schema_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "parent_object_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "type",
+						"type": "char"
+					},
+					{
+						"name": "type_desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "create_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "modify_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "is_ms_shipped",
+						"type": "bit"
+					},
+					{
+						"name": "is_published",
+						"type": "bit"
+					},
+					{
+						"name": "is_schema_published",
+						"type": "bit"
 					}
 				],
-				"policy": {
-					"elapsedTimeMetric": {}
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "src_object"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/asql_stg_object')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "object_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "principal_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "schema_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "parent_object_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "type",
+						"type": "char"
+					},
+					{
+						"name": "type_desc",
+						"type": "nvarchar"
+					},
+					{
+						"name": "create_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "modify_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "is_ms_shipped",
+						"type": "bit"
+					},
+					{
+						"name": "is_published",
+						"type": "bit"
+					},
+					{
+						"name": "is_schema_published",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "stg_object"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/azuresql_dst')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
 				},
 				"parameters": {
-					"batch_id": {
+					"tableNameWithSchema": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "insert_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "update_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "file_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "file_last_modifty_time",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "product_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "qty",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "unit_price",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "subtotal",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					}
+				],
+				"typeProperties": {
+					"schema": {
+						"value": "@first(array(split(dataset().tableNameWithSchema, '.')))",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@last(array(split(dataset().tableNameWithSchema, '.')))",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/azuresql_dst1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sqldb_dw",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": "sqldevswcd",
+						"dbUserName": "sqladminuser01",
+						"dbUserPwd": "1qaz!QAZ",
+						"dbServerName": "sqlserverdevswcd.database.windows.net"
+					}
+				},
+				"parameters": {
+					"tableNameWithSchema": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "insert_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "update_dt",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "file_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "file_last_modifty_time",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "product_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "qty",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "unit_price",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "subtotal",
+						"type": "decimal",
+						"precision": 19,
+						"scale": 4
+					}
+				],
+				"typeProperties": {
+					"schema": {
+						"value": "@first(array(split(dataset().tableNameWithSchema, '.')))",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@last(array(split(dataset().tableNameWithSchema, '.')))",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/cummins_restapi_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RestService1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/filesystem_ds_excel')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "fs_offline",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"directory": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					},
+					"sheet": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": {
+						"value": "@dataset().sheet",
+						"type": "Expression"
+					},
+					"location": {
+						"type": "FileServerLocation",
+						"fileName": {
+							"value": "@dataset().file",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().directory",
+							"type": "Expression"
+						}
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/msql_demo_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "mssql_demo",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"dbName": {
+							"value": "@dataset().dbName",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"schemaName": {
 						"type": "string",
-						"defaultValue": "0"
+						"defaultValue": "dbo"
+					},
+					"tableName": {
+						"type": "string",
+						"defaultValue": "b"
+					},
+					"dbName": {
+						"type": "string",
+						"defaultValue": "TestDataSource"
 					}
 				},
-				"variables": {
-					"truncateProcWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.p_truncate_table"
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schemaName",
+						"type": "Expression"
 					},
-					"stgTableNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.stg_object"
-					},
-					"odsTableNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.ods_object"
-					},
-					"srcTableSQL": {
-						"type": "String",
-						"defaultValue": "select name, object_id,principal_id,schema_id,parent_object_id,type,type_desc,create_date,modify_date,is_ms_shipped,is_published,is_schema_published from dbo.src_object"
-					},
-					"srcTableNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.src_object"
-					},
-					"odsProcWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.p_etl_ods_object"
+					"table": {
+						"value": "@dataset().tableName",
+						"type": "Expression"
 					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/mssql_adfemo_employee')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "mssql_adfdemo",
+					"type": "LinkedServiceReference"
 				},
 				"folder": {
 					"name": "demo"
 				},
 				"annotations": [],
-				"lastPublishTime": "2023-08-29T02:32:27Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/rest_to_asql_adfdemo_rest_one')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
+				"type": "SqlServerTable",
+				"schema": [
 					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [
-							{
-								"name": "Destination",
-								"value": "@{'dbo'}.@{'adfdemo_rest_one'}"
-							}
-						],
-						"typeProperties": {
-							"source": {
-								"type": "RestSource",
-								"httpRequestTimeout": "00:01:40",
-								"requestInterval": "00.00:00:00.010",
-								"requestMethod": "GET",
-								"paginationRules": {
-									"supportRFC5988": "false"
-								}
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"path": "$['data']['id']"
-										},
-										"sink": {
-											"name": "id",
-											"type": "Int32"
-										}
-									},
-									{
-										"source": {
-											"path": "$['data']['tag']"
-										},
-										"sink": {
-											"name": "tag",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['data']['name']"
-										},
-										"sink": {
-											"name": "name",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['data']['origin']"
-										},
-										"sink": {
-											"name": "origin",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['data']['content']"
-										},
-										"sink": {
-											"name": "content",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['data']['created_at']"
-										},
-										"sink": {
-											"name": "created_at",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['data']['updated_at']"
-										},
-										"sink": {
-											"name": "updated_at",
-											"type": "String"
-										}
-									}
-								],
-								"collectionReference": ""
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "adfdemo_rest_ds",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "adfdemo_asql_ds",
-								"type": "DatasetReference",
-								"parameters": {
-									"schema": "dbo",
-									"table": "adfdemo_rest_one"
-								}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "ADFDemo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-10-20T03:19:50Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/rest_to_asql_adfdemo_rest_two')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [
-							{
-								"name": "Destination",
-								"value": "@{'dbo'}.@{'adfdemo_rest_two'}"
-							}
-						],
-						"typeProperties": {
-							"source": {
-								"type": "RestSource",
-								"httpRequestTimeout": "00:01:40",
-								"requestInterval": "00.00:00:00.010",
-								"requestMethod": "GET",
-								"paginationRules": {
-									"supportRFC5988": "true"
-								}
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"path": "[['category']"
-										},
-										"sink": {
-											"name": "category",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "[['type']"
-										},
-										"sink": {
-											"name": "type",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "[['difficulty']"
-										},
-										"sink": {
-											"name": "difficulty",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "[['question']"
-										},
-										"sink": {
-											"name": "question",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "[['correct_answer']"
-										},
-										"sink": {
-											"name": "correct_answer",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "[['incorrect_answers']"
-										},
-										"sink": {
-											"name": "incorrect_answers",
-											"type": "String"
-										}
-									}
-								],
-								"collectionReference": "$['results']",
-								"mapComplexValuesToString": true
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "adfdemo_rest_opentdb_com",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "adfdemo_asql_ds",
-								"type": "DatasetReference",
-								"parameters": {
-									"schema": "dbo",
-									"table": "adfdemo_rest_two"
-								}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "ADFDemo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-10-20T03:19:49Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/sales')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "通过文件的lastModified实现增量",
-				"activities": [
-					{
-						"name": "Get Files",
-						"type": "GetMetadata",
-						"dependsOn": [
-							{
-								"activity": "LK_Get File Max Last Modified Datetime",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "storage_excel_src",
-								"type": "DatasetReference",
-								"parameters": {
-									"containerName": {
-										"value": "@variables('srcContainerName')",
-										"type": "Expression"
-									},
-									"directoryName": {
-										"value": "@variables('srcDirecotryName')",
-										"type": "Expression"
-									},
-									"fileName": " ",
-									"sheetName": " "
-								}
-							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "AzureBlobStorageReadSettings",
-								"recursive": true,
-								"modifiedDatetimeStart": {
-									"value": "@addSeconds(addHours(activity('LK_Get File Max Last Modified Datetime').output.firstRow.last_modified_time, -8), 1)",
-									"type": "Expression"
-								},
-								"enablePartitionDiscovery": false
-							}
-						}
-					},
-					{
-						"name": "ForEach Files",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Filter Valid Files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Filter Valid Files').output.value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "COPY_Extract Data From File And Load Into STG",
-									"type": "Copy",
-									"dependsOn": [
-										{
-											"activity": "Get File Metadata",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "ExcelSource",
-											"additionalColumns": [
-												{
-													"name": "FileName",
-													"value": {
-														"value": "@item().name",
-														"type": "Expression"
-													}
-												},
-												{
-													"name": "FileLastModifyDate",
-													"value": {
-														"value": "@addHours(activity('Get File Metadata').output.lastModified, 8)",
-														"type": "Expression"
-													}
-												}
-											],
-											"storeSettings": {
-												"type": "AzureBlobStorageReadSettings",
-												"recursive": false,
-												"enablePartitionDiscovery": false
-											}
-										},
-										"sink": {
-											"type": "AzureSqlSink",
-											"writeBehavior": "insert",
-											"sqlWriterUseTableLock": false,
-											"disableMetricsCollection": false
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"mappings": [
-												{
-													"source": {
-														"name": "FileName"
-													},
-													"sink": {
-														"name": "file_name",
-														"type": "String",
-														"physicalType": "nvarchar"
-													}
-												},
-												{
-													"source": {
-														"name": "FileLastModifyDate"
-													},
-													"sink": {
-														"name": "file_last_modifty_time",
-														"type": "DateTime",
-														"physicalType": "datetime"
-													}
-												},
-												{
-													"source": {
-														"name": "ProdunctId",
-														"physicalType": "String"
-													},
-													"sink": {
-														"name": "product_id",
-														"type": "Int32",
-														"physicalType": "int"
-													}
-												},
-												{
-													"source": {
-														"name": "Qty",
-														"physicalType": "String"
-													},
-													"sink": {
-														"name": "qty",
-														"type": "Int32",
-														"physicalType": "int"
-													}
-												},
-												{
-													"source": {
-														"name": "UnitPrice",
-														"physicalType": "String"
-													},
-													"sink": {
-														"name": "unit_price",
-														"type": "Decimal",
-														"physicalType": "decimal",
-														"scale": 4,
-														"precision": 19
-													}
-												},
-												{
-													"source": {
-														"name": "SubTotal",
-														"physicalType": "String"
-													},
-													"sink": {
-														"name": "subtotal",
-														"type": "Decimal",
-														"physicalType": "decimal",
-														"scale": 4,
-														"precision": 19
-													}
-												}
-											],
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "storage_excel_src",
-											"type": "DatasetReference",
-											"parameters": {
-												"containerName": {
-													"value": "@variables('srcContainerName')",
-													"type": "Expression"
-												},
-												"directoryName": {
-													"value": "@variables('srcDirecotryName')",
-													"type": "Expression"
-												},
-												"fileName": {
-													"value": "@item().name",
-													"type": "Expression"
-												},
-												"sheetName": {
-													"value": "@variables('srcSheetName')",
-													"type": "Expression"
-												}
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "azuresql_dst",
-											"type": "DatasetReference",
-											"parameters": {
-												"tableNameWithSchema": {
-													"value": "@variables('stgTableNameWithSchema')",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								},
-								{
-									"name": "Get File Metadata",
-									"type": "GetMetadata",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataset": {
-											"referenceName": "storage_excel_src",
-											"type": "DatasetReference",
-											"parameters": {
-												"containerName": {
-													"value": "@variables('srcContainerName')",
-													"type": "Expression"
-												},
-												"directoryName": {
-													"value": "@variables('srcDirecotryName')",
-													"type": "Expression"
-												},
-												"fileName": {
-													"value": "@item().name",
-													"type": "Expression"
-												},
-												"sheetName": " "
-											}
-										},
-										"fieldList": [
-											"lastModified"
-										],
-										"storeSettings": {
-											"type": "AzureBlobStorageReadSettings",
-											"recursive": true,
-											"enablePartitionDiscovery": false
-										}
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Filter Valid Files",
-						"type": "Filter",
-						"dependsOn": [
-							{
-								"activity": "Get Files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Get Files').output.childItems",
-								"type": "Expression"
-							},
-							"condition": {
-								"value": "@endswith(item().name, variables('srcFileExtendName'))",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "SP_Truncate Table",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": {
-								"value": "@variables('truncateProcWithSchema')",
-								"type": "Expression"
-							},
-							"storedProcedureParameters": {
-								"tableNameWithSchema": {
-									"value": {
-										"value": "@variables('stgTableNameWithSchema')",
-										"type": "Expression"
-									},
-									"type": "String"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						}
-					},
-					{
-						"name": "SP_Move STG To ODS",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [
-							{
-								"activity": "ForEach Files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": {
-								"value": "@variables('odsProcNameWithSchema')",
-								"type": "Expression"
-							},
-							"storedProcedureParameters": {
-								"batch_id": {
-									"value": {
-										"value": "@pipeline().parameters.batch_id",
-										"type": "Expression"
-									},
-									"type": "Int32"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						}
-					},
-					{
-						"name": "LK_Get File Max Last Modified Datetime",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "SP_Truncate Table",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select last_modified_time = ISNULL(MAX(file_last_modifty_time), '1900-01-01') from dbo.ods_sales",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "azuresql_dst",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableNameWithSchema": {
-										"value": "@variables('stgTableNameWithSchema')",
-										"type": "Expression"
-									}
-								}
-							},
-							"firstRowOnly": true
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"batch_id": {
+						"name": "ID",
 						"type": "int",
-						"defaultValue": 0
-					}
-				},
-				"variables": {
-					"srcContainerName": {
-						"type": "String",
-						"defaultValue": "file-data"
-					},
-					"srcDirecotryName": {
-						"type": "String",
-						"defaultValue": "demo/sales"
-					},
-					"srcSheetName": {
-						"type": "String",
-						"defaultValue": "sheet1"
-					},
-					"stgTableNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.stg_sales"
-					},
-					"odsProcNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.p_etl_ods_sales"
-					},
-					"srcFileExtendName": {
-						"type": "String",
-						"defaultValue": ".xlsx"
-					},
-					"truncateProcWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.p_truncate_table"
-					}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-09-21T05:38:03Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/sales1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "通过文件的lastModified实现增量",
-				"activities": [
-					{
-						"name": "Get Files",
-						"type": "GetMetadata",
-						"dependsOn": [
-							{
-								"activity": "LK_Get File Max Last Modified Datetime",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "storage_excel_src2",
-								"type": "DatasetReference",
-								"parameters": {
-									"containerName": {
-										"value": "@variables('srcContainerName')",
-										"type": "Expression"
-									},
-									"directoryName": {
-										"value": "@variables('srcDirecotryName')",
-										"type": "Expression"
-									},
-									"fileName": " ",
-									"sheetName": " "
-								}
-							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "AzureBlobStorageReadSettings",
-								"recursive": true,
-								"modifiedDatetimeStart": {
-									"value": "@addSeconds(addHours(activity('LK_Get File Max Last Modified Datetime').output.firstRow.last_modified_time, -8), 1)",
-									"type": "Expression"
-								},
-								"enablePartitionDiscovery": false
-							}
-						}
+						"precision": 10
 					},
 					{
-						"name": "ForEach Files",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Filter Valid Files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Filter Valid Files').output.value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "COPY_Extract Data From File And Load Into STG",
-									"type": "Copy",
-									"dependsOn": [
-										{
-											"activity": "Get File Metadata",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "ExcelSource",
-											"additionalColumns": [
-												{
-													"name": "FileName",
-													"value": {
-														"value": "@item().name",
-														"type": "Expression"
-													}
-												},
-												{
-													"name": "FileLastModifyDate",
-													"value": {
-														"value": "@addHours(activity('Get File Metadata').output.lastModified, 8)",
-														"type": "Expression"
-													}
-												}
-											],
-											"storeSettings": {
-												"type": "AzureBlobStorageReadSettings",
-												"recursive": false,
-												"enablePartitionDiscovery": false
-											}
-										},
-										"sink": {
-											"type": "AzureSqlSink",
-											"writeBehavior": "insert",
-											"sqlWriterUseTableLock": false,
-											"disableMetricsCollection": false
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"mappings": [
-												{
-													"source": {
-														"name": "FileName"
-													},
-													"sink": {
-														"name": "file_name",
-														"type": "String",
-														"physicalType": "nvarchar"
-													}
-												},
-												{
-													"source": {
-														"name": "FileLastModifyDate"
-													},
-													"sink": {
-														"name": "file_last_modifty_time",
-														"type": "DateTime",
-														"physicalType": "datetime"
-													}
-												},
-												{
-													"source": {
-														"name": "ProdunctId",
-														"physicalType": "String"
-													},
-													"sink": {
-														"name": "product_id",
-														"type": "Int32",
-														"physicalType": "int"
-													}
-												},
-												{
-													"source": {
-														"name": "Qty",
-														"physicalType": "String"
-													},
-													"sink": {
-														"name": "qty",
-														"type": "Int32",
-														"physicalType": "int"
-													}
-												},
-												{
-													"source": {
-														"name": "UnitPrice",
-														"physicalType": "String"
-													},
-													"sink": {
-														"name": "unit_price",
-														"type": "Decimal",
-														"physicalType": "decimal",
-														"scale": 4,
-														"precision": 19
-													}
-												},
-												{
-													"source": {
-														"name": "SubTotal",
-														"physicalType": "String"
-													},
-													"sink": {
-														"name": "subtotal",
-														"type": "Decimal",
-														"physicalType": "decimal",
-														"scale": 4,
-														"precision": 19
-													}
-												}
-											],
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "storage_excel_src2",
-											"type": "DatasetReference",
-											"parameters": {
-												"containerName": {
-													"value": "@variables('srcContainerName')",
-													"type": "Expression"
-												},
-												"directoryName": {
-													"value": "@variables('srcDirecotryName')",
-													"type": "Expression"
-												},
-												"fileName": {
-													"value": "@item().name",
-													"type": "Expression"
-												},
-												"sheetName": {
-													"value": "@variables('srcSheetName')",
-													"type": "Expression"
-												}
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "azuresql_dst1",
-											"type": "DatasetReference",
-											"parameters": {
-												"tableNameWithSchema": {
-													"value": "@variables('stgTableNameWithSchema')",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								},
-								{
-									"name": "Get File Metadata",
-									"type": "GetMetadata",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataset": {
-											"referenceName": "storage_excel_src2",
-											"type": "DatasetReference",
-											"parameters": {
-												"containerName": {
-													"value": "@variables('srcContainerName')",
-													"type": "Expression"
-												},
-												"directoryName": {
-													"value": "@variables('srcDirecotryName')",
-													"type": "Expression"
-												},
-												"fileName": {
-													"value": "@item().name",
-													"type": "Expression"
-												},
-												"sheetName": " "
-											}
-										},
-										"fieldList": [
-											"lastModified"
-										],
-										"storeSettings": {
-											"type": "AzureBlobStorageReadSettings",
-											"recursive": true,
-											"enablePartitionDiscovery": false
-										}
-									}
-								}
-							]
-						}
+						"name": "FirstName",
+						"type": "varchar"
 					},
 					{
-						"name": "Filter Valid Files",
-						"type": "Filter",
-						"dependsOn": [
-							{
-								"activity": "Get Files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Get Files').output.childItems",
-								"type": "Expression"
-							},
-							"condition": {
-								"value": "@endswith(item().name, variables('srcFileExtendName'))",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "SP_Truncate Table",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": {
-								"value": "@variables('truncateProcWithSchema')",
-								"type": "Expression"
-							},
-							"storedProcedureParameters": {
-								"tableNameWithSchema": {
-									"value": {
-										"value": "@variables('stgTableNameWithSchema')",
-										"type": "Expression"
-									},
-									"type": "String"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						}
-					},
-					{
-						"name": "SP_Move STG To ODS",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [
-							{
-								"activity": "ForEach Files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": {
-								"value": "@variables('odsProcNameWithSchema')",
-								"type": "Expression"
-							},
-							"storedProcedureParameters": {
-								"batch_id": {
-									"value": {
-										"value": "@pipeline().parameters.batch_id",
-										"type": "Expression"
-									},
-									"type": "Int32"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						}
-					},
-					{
-						"name": "LK_Get File Max Last Modified Datetime",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "SP_Truncate Table",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select last_modified_time = ISNULL(MAX(file_last_modifty_time), '1900-01-01') from dbo.ods_sales",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "azuresql_dst1",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableNameWithSchema": {
-										"value": "@variables('stgTableNameWithSchema')",
-										"type": "Expression"
-									}
-								}
-							},
-							"firstRowOnly": true
-						}
+						"name": "LastName",
+						"type": "varchar"
 					}
 				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"batch_id": {
-						"type": "int",
-						"defaultValue": 0
-					}
-				},
-				"variables": {
-					"srcContainerName": {
-						"type": "String",
-						"defaultValue": "file-data"
-					},
-					"srcDirecotryName": {
-						"type": "String",
-						"defaultValue": "demo/sales"
-					},
-					"srcSheetName": {
-						"type": "String",
-						"defaultValue": "sheet1"
-					},
-					"stgTableNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.stg_sales"
-					},
-					"odsProcNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.p_etl_ods_sales"
-					},
-					"srcFileExtendName": {
-						"type": "String",
-						"defaultValue": ".xlsx"
-					},
-					"truncateProcWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.p_truncate_table"
-					}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-09-07T08:45:32Z"
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "employee"
+				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/sales_2')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/pbi_xuqiu_ds_excel')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"description": "通过文件的lastModified过滤实现增量",
-				"activities": [
-					{
-						"name": "Get Files",
-						"type": "GetMetadata",
-						"dependsOn": [
-							{
-								"activity": "LK_Get File Max Last Modified Datetime",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "storage_excel_src",
-								"type": "DatasetReference",
-								"parameters": {
-									"containerName": {
-										"value": "@variables('srcContainerName')",
-										"type": "Expression"
-									},
-									"directoryName": {
-										"value": "@variables('srcDirecotryName')",
-										"type": "Expression"
-									},
-									"fileName": " ",
-									"sheetName": " "
-								}
-							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "AzureBlobStorageReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							}
-						}
-					},
-					{
-						"name": "ForEach Files",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Filter Valid Files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Filter Valid Files').output.value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Get File Metadata",
-									"type": "GetMetadata",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataset": {
-											"referenceName": "storage_excel_src",
-											"type": "DatasetReference",
-											"parameters": {
-												"containerName": {
-													"value": "@variables('srcContainerName')",
-													"type": "Expression"
-												},
-												"directoryName": {
-													"value": "@variables('srcDirecotryName')",
-													"type": "Expression"
-												},
-												"fileName": {
-													"value": "@item().name",
-													"type": "Expression"
-												},
-												"sheetName": " "
-											}
-										},
-										"fieldList": [
-											"lastModified"
-										],
-										"storeSettings": {
-											"type": "AzureBlobStorageReadSettings",
-											"recursive": true,
-											"enablePartitionDiscovery": false
-										}
-									}
-								},
-								{
-									"name": "If Condition1",
-									"type": "IfCondition",
-									"dependsOn": [
-										{
-											"activity": "Get File Metadata",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"expression": {
-											"value": "@greater(addHours(activity('Get File Metadata').output.lastModified, 8), activity('LK_Get File Max Last Modified Datetime').output.firstRow.last_modified_time)",
-											"type": "Expression"
-										},
-										"ifTrueActivities": [
-											{
-												"name": "COPY_Extract Data From File And Load Into STG",
-												"type": "Copy",
-												"dependsOn": [],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"source": {
-														"type": "ExcelSource",
-														"additionalColumns": [
-															{
-																"name": "FileName",
-																"value": {
-																	"value": "@item().name",
-																	"type": "Expression"
-																}
-															},
-															{
-																"name": "FileLastModifyDate",
-																"value": {
-																	"value": "@addHours(activity('Get File Metadata').output.lastModified, 8)",
-																	"type": "Expression"
-																}
-															}
-														],
-														"storeSettings": {
-															"type": "AzureBlobStorageReadSettings",
-															"recursive": false,
-															"enablePartitionDiscovery": false
-														}
-													},
-													"sink": {
-														"type": "AzureSqlSink",
-														"writeBehavior": "insert",
-														"sqlWriterUseTableLock": false,
-														"disableMetricsCollection": false
-													},
-													"enableStaging": false,
-													"translator": {
-														"type": "TabularTranslator",
-														"mappings": [
-															{
-																"source": {
-																	"name": "FileName",
-																	"type": "String"
-																},
-																"sink": {
-																	"name": "file_name",
-																	"type": "String",
-																	"physicalType": "nvarchar"
-																}
-															},
-															{
-																"source": {
-																	"name": "FileLastModifyDate",
-																	"type": "String"
-																},
-																"sink": {
-																	"name": "file_last_modifty_time",
-																	"type": "DateTime",
-																	"physicalType": "datetime"
-																}
-															},
-															{
-																"source": {
-																	"name": "ProdunctId",
-																	"type": "String",
-																	"physicalType": "String"
-																},
-																"sink": {
-																	"name": "product_id",
-																	"type": "Int32",
-																	"physicalType": "int"
-																}
-															},
-															{
-																"source": {
-																	"name": "Qty",
-																	"type": "String",
-																	"physicalType": "String"
-																},
-																"sink": {
-																	"name": "qty",
-																	"type": "Int32",
-																	"physicalType": "int"
-																}
-															},
-															{
-																"source": {
-																	"name": "UnitPrice",
-																	"type": "String",
-																	"physicalType": "String"
-																},
-																"sink": {
-																	"name": "unit_price",
-																	"type": "Decimal",
-																	"physicalType": "decimal",
-																	"scale": 4,
-																	"precision": 19
-																}
-															},
-															{
-																"source": {
-																	"name": "SubTotal",
-																	"type": "String",
-																	"physicalType": "String"
-																},
-																"sink": {
-																	"name": "subtotal",
-																	"type": "Decimal",
-																	"physicalType": "decimal",
-																	"scale": 4,
-																	"precision": 19
-																}
-															}
-														],
-														"typeConversion": true,
-														"typeConversionSettings": {
-															"allowDataTruncation": true,
-															"treatBooleanAsNumber": false
-														}
-													}
-												},
-												"inputs": [
-													{
-														"referenceName": "storage_excel_src",
-														"type": "DatasetReference",
-														"parameters": {
-															"containerName": {
-																"value": "@variables('srcContainerName')",
-																"type": "Expression"
-															},
-															"directoryName": {
-																"value": "@variables('srcDirecotryName')",
-																"type": "Expression"
-															},
-															"fileName": {
-																"value": "@item().name",
-																"type": "Expression"
-															},
-															"sheetName": {
-																"value": "@variables('srcSheetName')",
-																"type": "Expression"
-															}
-														}
-													}
-												],
-												"outputs": [
-													{
-														"referenceName": "azuresql_dst",
-														"type": "DatasetReference",
-														"parameters": {
-															"tableNameWithSchema": {
-																"value": "@variables('stgTableNameWithSchema')",
-																"type": "Expression"
-															}
-														}
-													}
-												]
-											}
-										]
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Filter Valid Files",
-						"type": "Filter",
-						"dependsOn": [
-							{
-								"activity": "Get Files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Get Files').output.childItems",
-								"type": "Expression"
-							},
-							"condition": {
-								"value": "@endswith(item().name, variables('srcFileExtendName'))",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "SP_Truncate Table",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": {
-								"value": "@variables('truncateProcWithSchema')",
-								"type": "Expression"
-							},
-							"storedProcedureParameters": {
-								"tableNameWithSchema": {
-									"value": {
-										"value": "@variables('stgTableNameWithSchema')",
-										"type": "Expression"
-									},
-									"type": "String"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						}
-					},
-					{
-						"name": "SP_Move STG To ODS",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [
-							{
-								"activity": "ForEach Files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": {
-								"value": "@variables('odsProcNameWithSchema')",
-								"type": "Expression"
-							},
-							"storedProcedureParameters": {
-								"batch_id": {
-									"value": {
-										"value": "@pipeline().parameters.batch_id",
-										"type": "Expression"
-									},
-									"type": "Int32"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						}
-					},
-					{
-						"name": "LK_Get File Max Last Modified Datetime",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "SP_Truncate Table",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select last_modified_time = MAX(file_last_modifty_time) from dbo.ods_sales",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "azuresql_dst",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableNameWithSchema": {
-										"value": "@variables('stgTableNameWithSchema')",
-										"type": "Expression"
-									}
-								}
-							},
-							"firstRowOnly": true
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"batch_id": {
-						"type": "int",
-						"defaultValue": 0
-					}
-				},
-				"variables": {
-					"srcContainerName": {
-						"type": "String",
-						"defaultValue": "file-data"
-					},
-					"srcDirecotryName": {
-						"type": "String",
-						"defaultValue": "demo/sales"
-					},
-					"srcSheetName": {
-						"type": "String",
-						"defaultValue": "sheet1"
-					},
-					"stgTableNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.stg_sales"
-					},
-					"odsProcNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.p_etl_ods_sales"
-					},
-					"srcFileExtendName": {
-						"type": "String",
-						"defaultValue": ".xlsx"
-					},
-					"truncateProcWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.p_truncate_table"
-					}
+				"linkedServiceName": {
+					"referenceName": "http_aishu_site",
+					"type": "LinkedServiceReference"
 				},
 				"folder": {
 					"name": "demo"
 				},
 				"annotations": [],
-				"lastPublishTime": "2023-08-24T02:38:42Z"
+				"type": "Excel",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation",
+						"relativeUrl": "/#/preview/customdoc/信息化体系库/信息化项目/BI项目/BI项目实施/BI项目组成员通讯录@20231016.xlsx"
+					},
+					"sheetIndex": 1,
+					"firstRowAsHeader": true
+				},
+				"schema": []
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/sales_3')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "包含完整的文件备份，不增量",
-				"activities": [
-					{
-						"name": "Get Files",
-						"type": "GetMetadata",
-						"dependsOn": [
-							{
-								"activity": "SP_Truncate Table",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "storage_excel_src",
-								"type": "DatasetReference",
-								"parameters": {
-									"containerName": {
-										"value": "@variables('srcContainerName')",
-										"type": "Expression"
-									},
-									"directoryName": {
-										"value": "@variables('srcDirecotryName')",
-										"type": "Expression"
-									},
-									"fileName": " ",
-									"sheetName": " "
-								}
-							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "AzureBlobStorageReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							}
-						}
-					},
-					{
-						"name": "ForEach Files",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Filter Valid Files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Filter Valid Files').output.value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Get File Metadata",
-									"type": "GetMetadata",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataset": {
-											"referenceName": "storage_excel_src",
-											"type": "DatasetReference",
-											"parameters": {
-												"containerName": {
-													"value": "@variables('srcContainerName')",
-													"type": "Expression"
-												},
-												"directoryName": {
-													"value": "@variables('srcDirecotryName')",
-													"type": "Expression"
-												},
-												"fileName": {
-													"value": "@item().name",
-													"type": "Expression"
-												},
-												"sheetName": " "
-											}
-										},
-										"fieldList": [
-											"lastModified"
-										],
-										"storeSettings": {
-											"type": "AzureBlobStorageReadSettings",
-											"recursive": true,
-											"enablePartitionDiscovery": false
-										}
-									}
-								},
-								{
-									"name": "Backup file by copy file",
-									"type": "Copy",
-									"dependsOn": [
-										{
-											"activity": "Extract Source Data To STG",
-											"dependencyConditions": [
-												"Completed"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "BinarySource",
-											"storeSettings": {
-												"type": "AzureBlobStorageReadSettings",
-												"recursive": false
-											},
-											"formatSettings": {
-												"type": "BinaryReadSettings"
-											}
-										},
-										"sink": {
-											"type": "BinarySink",
-											"storeSettings": {
-												"type": "AzureBlobStorageWriteSettings"
-											}
-										},
-										"enableStaging": false
-									},
-									"inputs": [
-										{
-											"referenceName": "storage_binary",
-											"type": "DatasetReference",
-											"parameters": {
-												"contrainerName": {
-													"value": "@variables('srcContainerName')",
-													"type": "Expression"
-												},
-												"directoryName": {
-													"value": "@variables('srcDirecotryName')",
-													"type": "Expression"
-												},
-												"fileName": "@item().name"
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "storage_binary",
-											"type": "DatasetReference",
-											"parameters": {
-												"contrainerName": {
-													"value": "@variables('srcContainerName')",
-													"type": "Expression"
-												},
-												"directoryName": {
-													"value": "@concat(\n    variables('srcDirecotryName'),\n    if(equals(variables('isSuccess'), 1), '/success', '/failed')\n)",
-													"type": "Expression"
-												},
-												"fileName": {
-													"value": "@concat(\n    substring(item().name, 0, indexOf(item().name, variables('srcFileExtendName'))), \n    '_',\n    formatDateTime(addHours(utcNow(), 8), 'yyyyMMddHHmmss'),variables('srcFileExtendName')\n)",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								},
-								{
-									"name": "Delete Source File",
-									"type": "Delete",
-									"dependsOn": [
-										{
-											"activity": "Backup file by copy file",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataset": {
-											"referenceName": "storage_binary",
-											"type": "DatasetReference",
-											"parameters": {
-												"contrainerName": {
-													"value": "@variables('srcContainerName')",
-													"type": "Expression"
-												},
-												"directoryName": {
-													"value": "@variables('srcDirecotryName')",
-													"type": "Expression"
-												},
-												"fileName": {
-													"value": "@item().name",
-													"type": "Expression"
-												}
-											}
-										},
-										"enableLogging": false,
-										"storeSettings": {
-											"type": "AzureBlobStorageReadSettings",
-											"recursive": true,
-											"enablePartitionDiscovery": false
-										}
-									}
-								},
-								{
-									"name": "Extract Source Data To STG",
-									"type": "IfCondition",
-									"dependsOn": [
-										{
-											"activity": "Get File Metadata",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"expression": {
-											"value": "@equals(1,1)",
-											"type": "Expression"
-										},
-										"ifTrueActivities": [
-											{
-												"name": "COPY_Extract Data From File And Load Into STG",
-												"type": "Copy",
-												"dependsOn": [
-													{
-														"activity": "Init isSuccess Success",
-														"dependencyConditions": [
-															"Succeeded"
-														]
-													}
-												],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"source": {
-														"type": "ExcelSource",
-														"additionalColumns": [
-															{
-																"name": "FileName",
-																"value": {
-																	"value": "@item().name",
-																	"type": "Expression"
-																}
-															},
-															{
-																"name": "FileLastModifyDate",
-																"value": {
-																	"value": "@addHours(activity('Get File Metadata').output.lastModified, 8)",
-																	"type": "Expression"
-																}
-															}
-														],
-														"storeSettings": {
-															"type": "AzureBlobStorageReadSettings",
-															"recursive": false,
-															"enablePartitionDiscovery": false
-														}
-													},
-													"sink": {
-														"type": "AzureSqlSink",
-														"writeBehavior": "insert",
-														"sqlWriterUseTableLock": false,
-														"disableMetricsCollection": false
-													},
-													"enableStaging": false,
-													"translator": {
-														"type": "TabularTranslator",
-														"mappings": [
-															{
-																"source": {
-																	"name": "FileName",
-																	"type": "String"
-																},
-																"sink": {
-																	"name": "file_name",
-																	"type": "String",
-																	"physicalType": "nvarchar"
-																}
-															},
-															{
-																"source": {
-																	"name": "FileLastModifyDate",
-																	"type": "String"
-																},
-																"sink": {
-																	"name": "file_last_modifty_time",
-																	"type": "DateTime",
-																	"physicalType": "datetime"
-																}
-															},
-															{
-																"source": {
-																	"name": "ProdunctId",
-																	"type": "String",
-																	"physicalType": "String"
-																},
-																"sink": {
-																	"name": "product_id",
-																	"type": "Int32",
-																	"physicalType": "int"
-																}
-															},
-															{
-																"source": {
-																	"name": "Qty",
-																	"type": "String",
-																	"physicalType": "String"
-																},
-																"sink": {
-																	"name": "qty",
-																	"type": "Int32",
-																	"physicalType": "int"
-																}
-															},
-															{
-																"source": {
-																	"name": "UnitPrice",
-																	"type": "String",
-																	"physicalType": "String"
-																},
-																"sink": {
-																	"name": "unit_price",
-																	"type": "Decimal",
-																	"physicalType": "decimal",
-																	"scale": 4,
-																	"precision": 19
-																}
-															},
-															{
-																"source": {
-																	"name": "SubTotal",
-																	"type": "String",
-																	"physicalType": "String"
-																},
-																"sink": {
-																	"name": "subtotal",
-																	"type": "Decimal",
-																	"physicalType": "decimal",
-																	"scale": 4,
-																	"precision": 19
-																}
-															}
-														],
-														"typeConversion": true,
-														"typeConversionSettings": {
-															"allowDataTruncation": true,
-															"treatBooleanAsNumber": false
-														}
-													}
-												},
-												"inputs": [
-													{
-														"referenceName": "storage_excel_src",
-														"type": "DatasetReference",
-														"parameters": {
-															"containerName": {
-																"value": "@variables('srcContainerName')",
-																"type": "Expression"
-															},
-															"directoryName": {
-																"value": "@variables('srcDirecotryName')",
-																"type": "Expression"
-															},
-															"fileName": {
-																"value": "@item().name",
-																"type": "Expression"
-															},
-															"sheetName": {
-																"value": "@variables('srcSheetName')",
-																"type": "Expression"
-															}
-														}
-													}
-												],
-												"outputs": [
-													{
-														"referenceName": "azuresql_dst",
-														"type": "DatasetReference",
-														"parameters": {
-															"tableNameWithSchema": {
-																"value": "@variables('stgTableNameWithSchema')",
-																"type": "Expression"
-															}
-														}
-													}
-												]
-											},
-											{
-												"name": "Set isSuccess Failed",
-												"type": "SetVariable",
-												"dependsOn": [
-													{
-														"activity": "COPY_Extract Data From File And Load Into STG",
-														"dependencyConditions": [
-															"Failed"
-														]
-													}
-												],
-												"policy": {
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"variableName": "isSuccess",
-													"value": 0
-												}
-											},
-											{
-												"name": "Init isSuccess Success",
-												"type": "SetVariable",
-												"dependsOn": [],
-												"policy": {
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"variableName": "isSuccess",
-													"value": 1
-												}
-											}
-										]
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Filter Valid Files",
-						"type": "Filter",
-						"dependsOn": [
-							{
-								"activity": "Get Files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Get Files').output.childItems",
-								"type": "Expression"
-							},
-							"condition": {
-								"value": "@endswith(item().name, variables('srcFileExtendName'))",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "SP_Truncate Table",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": {
-								"value": "@variables('truncateProcWithSchema')",
-								"type": "Expression"
-							},
-							"storedProcedureParameters": {
-								"tableNameWithSchema": {
-									"value": {
-										"value": "@variables('stgTableNameWithSchema')",
-										"type": "Expression"
-									},
-									"type": "String"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						}
-					},
-					{
-						"name": "SP_Move STG To ODS",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [
-							{
-								"activity": "ForEach Files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": {
-								"value": "@variables('odsProcNameWithSchema')",
-								"type": "Expression"
-							},
-							"storedProcedureParameters": {
-								"batch_id": {
-									"value": {
-										"value": "@pipeline().parameters.batch_id",
-										"type": "Expression"
-									},
-									"type": "Int32"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"batch_id": {
-						"type": "int",
-						"defaultValue": 0
-					}
-				},
-				"variables": {
-					"srcContainerName": {
-						"type": "String",
-						"defaultValue": "file-data"
-					},
-					"srcDirecotryName": {
-						"type": "String",
-						"defaultValue": "demo/sales"
-					},
-					"srcSheetName": {
-						"type": "String",
-						"defaultValue": "sheet1"
-					},
-					"stgTableNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.stg_sales"
-					},
-					"odsProcNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.p_etl_ods_sales"
-					},
-					"srcFileExtendName": {
-						"type": "String",
-						"defaultValue": ".xlsx"
-					},
-					"truncateProcWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.p_truncate_table"
-					},
-					"isSuccess": {
-						"type": "Integer"
-					}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-08-24T02:37:05Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow3')]",
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -2611,7 +536,7 @@
 					"sources": [
 						{
 							"linkedService": {
-								"referenceName": "storage_account",
+								"referenceName": "sqldb_dw",
 								"type": "LinkedServiceReference"
 							},
 							"name": "source1"
@@ -2628,33 +553,197 @@
 					],
 					"transformations": [
 						{
-							"name": "compose1",
-							"flowlet": {
-								"referenceName": "flowlet2",
-								"type": "DataFlowReference",
-								"parameters": {}
-							}
+							"name": "derivedColumn1"
 						}
 					],
 					"scriptLines": [
+						"parameters{",
+						"     srcTableNameWithSchema as string ('dbo.src_object'),",
+						"     dstTableNameWithSchema as string ('dbo.stg_object')",
+						"}",
 						"source(allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     enableCdc: true,",
-						"     mode: 'read',",
-						"     skipInitialLoad: true,",
-						"     format: 'excel',",
-						"     container: 'file-data',",
-						"     folderPath: 'demo/ssiswork/地点数据',",
-						"     sheetName: 'Sheet1',",
-						"     firstRowAsHeader: true) ~> source1",
-						"compose(composition: 'flowlet2') ~> compose1@(output1)",
-						"source1 sink(allowSchemaDrift: true,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: (split($srcTableNameWithSchema, '.')[1]),",
+						"     tableName: (split($srcTableNameWithSchema, '.')[2]),",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"source1 derive(flle_name = 123) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: true,",
+						"     input(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: (split($dstTableNameWithSchema, '.')[1]),",
+						"     tableName: (split($dstTableNameWithSchema, '.')[2]),",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 1,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow2')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "demo"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     srcTableSQL as string ('select name, object_id,principal_id,schema_id,parent_object_id,type,type_desc,create_date,modify_date,is_ms_shipped,is_published,is_schema_published from dbo.src_object where modify_date>\\'1900-01-01\\''),",
+						"     dstTableNameWithSchema as string ('dbo.stg_object')",
+						"}",
+						"source(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'query',",
+						"     store: 'sqlserver',",
+						"     query: ($srcTableSQL),",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"source1 derive(file_name = 123) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: true,",
+						"     input(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: (split($dstTableNameWithSchema, '.')[1]),",
+						"     tableName: (split($dstTableNameWithSchema, '.')[2]),",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 1,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_aggregate')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "demo"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "aggregate1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'table',",
 						"     store: 'sqlserver',",
 						"     schemaName: 'dbo',",
-						"     tableName: 'city',",
+						"     tableName: 'src_object',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"source1 aggregate(cnt = count(object_id),",
+						"          each(patternMatch(`(name)` , type=='string'), $$ = count(object_id)),",
+						"          each(match(in(['type','type_desc'],name)), $$ = first($$))) ~> aggregate1",
+						"aggregate1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'stg_object',",
 						"     insertable: true,",
 						"     updateable: false,",
 						"     deletable: false,",
@@ -2668,763 +757,716 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pq_employee')]",
+			"name": "[concat(parameters('factoryName'), '/dataflow_conditionalsplit')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"type": "WranglingDataFlow",
 				"folder": {
 					"name": "demo"
 				},
+				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
 						{
-							"name": "adfdemo_asql_dataset_employee",
-							"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> adfdemo_asql_dataset_employee",
-							"dataset": {
-								"referenceName": "adfdemo_asql_dataset_employee",
-								"type": "DatasetReference"
-							}
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
 						}
 					],
-					"script": "section Section1;\r\nshared adfdemo_asql_dataset_employee = let AdfDoc = Sql.Database(\"sqlserverdevswcd.database.windows.net\", \"sqldevswcd\", [CreateNavigationProperties = false]), InputTable = AdfDoc{[Schema=\"dbo\",Item=\"employee\"]}[Data] in InputTable;\r\nshared UserQuery = let Source = #\"adfdemo_asql_dataset_employee\" in Source;\r\n",
-					"documentLocale": "en-us"
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "splitByTypeDesc"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'src_object',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"source1 split(type_desc == 'USER_TABLE' || type_desc == 'VIEW',",
+						"     type_desc == 'SQL_STORED_PROCEDURE' ||  type_desc == 'SQL_SCALAR_FUNCTION' || type_desc == 'SQL_TABLE_VALUED_FUNCTION' || type == 'SQL_INLINE_TABLE_VALUED_FUNCTION',",
+						"     disjoint: false) ~> splitByTypeDesc@(typeIsTableView, typeIsProgramingObject, typeOther)",
+						"splitByTypeDesc@typeIsTableView sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'stg_object',",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/qp_sales')]",
+			"name": "[concat(parameters('factoryName'), '/dataflow_derivedcolumn')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"type": "WranglingDataFlow",
 				"folder": {
 					"name": "demo"
 				},
+				"type": "MappingDataFlow",
 				"typeProperties": {
 					"sources": [
 						{
-							"name": "adfdemo_asql_dataset",
-							"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> adfdemo_asql_dataset",
-							"dataset": {
-								"referenceName": "adfdemo_asql_dataset",
-								"type": "DatasetReference"
-							}
-						},
-						{
-							"name": "adfdemo_asql_ds",
-							"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> adfdemo_asql_ds",
-							"dataset": {
-								"referenceName": "adfdemo_asql_ds",
-								"type": "DatasetReference"
-							}
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
 						}
 					],
-					"script": "section Section1;\r\nshared adfdemo_asql_dataset = let AdfDoc = Sql.Database(\"sqlserverdevswcd.database.windows.net\", \"sqldevswcd\", [CreateNavigationProperties = false]), InputTable = AdfDoc{[Schema=\"dbo\",Item=\"EmployeeDemo\"]}[Data] in InputTable;\r\nshared adfdemo_asql_ds = let AdfDoc = Sql.Database(\"sqlserverdevswcd.database.windows.net\", \"sqldevswcd\", [CreateNavigationProperties = false]), InputTable = AdfDoc{[Schema=\"dbo\",Item=\"stg_sales\"]}[Data] in InputTable;\r\nshared UserQuery = let Source = #\"adfdemo_asql_dataset\" in Source;\r\n",
-					"documentLocale": "en-us"
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "filter1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'src_object',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"derivedColumn1 filter(type =='P') ~> filter1",
+						"source1 derive(column1 = 'a column value',",
+						"          each(match(type=='integer'), $$ = $$ + 2),",
+						"          each(match(type=='string'), $$ = $$ + 'kk'),",
+						"          column2 = 'ldsfds',",
+						"          each(match(type=='string'), $$+'short' = $$+'123')) ~> derivedColumn1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'stg_object',",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/control_activity_other')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/dataflow_exists')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"activities": [
-					{
-						"name": "Execute Pipeline1",
-						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "control_activity_common",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "Web1",
-						"type": "WebActivity",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"url": "https://www.baidu.com",
-							"connectVia": {
-								"referenceName": "TutorialIntegrationRuntime",
-								"type": "IntegrationRuntimeReference"
-							},
-							"method": "GET",
-							"headers": {}
-						}
-					},
-					{
-						"name": "Fail1",
-						"type": "Fail",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"message": "",
-							"errorCode": ""
-						}
-					},
-					{
-						"name": "WebHook1",
-						"type": "WebHook",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"url": "https://www.baidu.com",
-							"method": "POST",
-							"headers": {},
-							"timeout": "00:10:00",
-							"reportStatusOnCallBack": false
-						}
-					},
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "SqlServerSink"
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "asql_dataset",
-								"type": "DatasetReference",
-								"parameters": {
-									"schemaName": " ",
-									"tableName": " "
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "msql_demo_dataset",
-								"type": "DatasetReference",
-								"parameters": {
-									"schemaName": "dbo",
-									"tableName": "b",
-									"dbName": "TestDataSource"
-								}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
 				"folder": {
-					"name": "ADFDemo"
+					"name": "demo"
 				},
-				"annotations": [],
-				"lastPublishTime": "2023-09-23T04:49:11Z"
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						},
+						{
+							"linkedService": {
+								"referenceName": "adfdemo_asql_dst",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source2"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "exists1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'src_object',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"source(output(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'query',",
+						"     store: 'sqlserver',",
+						"     query: 'select * from sys.objects where is_ms_shipped = 0',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source2",
+						"source1, source2 exists(source1@name == source2@name,",
+						"     negate:true,",
+						"     broadcast: 'auto')~> exists1",
+						"exists1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'stg_object',",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/demo_mater')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/dataflow_filter')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"activities": [
-					{
-						"name": "ep_sales_pip",
-						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "sales",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"batch_id": 1
-							}
-						}
-					},
-					{
-						"name": "Data flow1",
-						"type": "ExecuteDataFlow",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow1",
-								"type": "DataFlowReference",
-								"parameters": {
-									"srcTableNameWithSchema": {
-										"value": "'@{variables('dtSrcTableNameWithSchema')}'",
-										"type": "Expression"
-									},
-									"dstTableNameWithSchema": {
-										"value": "'@{variables('dfDstTableNameWithSchema')}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"source1": {},
-									"sink1": {}
-								},
-								"linkedServiceParameters": {
-									"source1": {
-										"linkedService": {
-											"dbName": "sqldevswcd",
-											"dbUserName": "sqladminuser01",
-											"dbUserPwd": "1qaz!QAZ",
-											"dbServerName": "sqlserverdevswcd.database.windows.net"
-										}
-									},
-									"sink1": {
-										"linkedService": {
-											"dbName": "sqldevswcd",
-											"dbUserName": "sqladminuser01",
-											"dbUserPwd": "1qaz!QAZ",
-											"dbServerName": "sqlserverdevswcd.database.windows.net"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "powerquery1",
-						"type": "ExecuteWranglingDataflow",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"queries": [
-								{
-									"queryName": "UserQuery",
-									"dataflowSinks": [
-										{
-											"name": "UserQueryasqldataset",
-											"dataset": {
-												"referenceName": "asql_dataset",
-												"type": "DatasetReference",
-												"parameters": {}
-											},
-											"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tinsert_dt as timestamp,\n\t\tupdate_dt as timestamp,\n\t\tfile_name as string,\n\t\tfile_last_modifty_time as timestamp,\n\t\tproduct_id as integer,\n\t\tqty as integer,\n\t\tunit_price as decimal(19,4),\n\t\tsubtotal as decimal(19,4)\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> UserQueryasqldataset"
-										}
-									]
-								}
-							]
-						}
-					},
-					{
-						"name": "dataflow3",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow3",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"source1": {},
-									"sink1": {}
-								},
-								"linkedServiceParameters": {
-									"source1": {
-										"linkedService": {
-											"storageAccountName": "storageswcd"
-										}
-									},
-									"sink1": {
-										"linkedService": {
-											"dbName": "sqldevswcd",
-											"dbUserName": "sqladminuser01",
-											"dbUserPwd": "1qaz!QAZ",
-											"dbServerName": "sqlserverdevswcd.database.windows.net"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine",
-							"continuationSettings": {
-								"customizedCheckpointKey": "5bfaa0a5-c173-40b9-a4bd-87736bdefe7a"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"dfDstTableNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.stg_object"
-					},
-					"dtSrcTableNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.src_object"
-					}
-				},
 				"folder": {
 					"name": "demo"
 				},
-				"annotations": [],
-				"lastPublishTime": "2023-10-20T03:19:49Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/sales')]",
-				"[concat(variables('factoryId'), '/dataflows/dataflow3')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/file_src_stg')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Lookup1",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select *\nfrom (values\n\t(N'file-data', N'demo/ssiswork/地点数据', N'Sheet1', N'dbo.City'),\n\t(N'file-data', N'demo/ssiswork/产品数据', N'Sheet1', N'dbo.Product'),\n\t(N'file-data', N'demo/ssiswork/客户数据', N'Sheet1', N'dbo.Customer'),\n\t(N'file-data', N'demo/ssiswork/订单数据', N'Sheet1', N'dbo.[Order]')\n) t1(container_name,direcotry_name,sheet_name, stg);",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
 							},
-							"dataset": {
-								"referenceName": "azuresql_dst",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableNameWithSchema": " "
-								}
-							},
-							"firstRowOnly": false
+							"name": "source1"
 						}
-					},
-					{
-						"name": "ForEach1",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Lookup1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Lookup1').output.value",
-								"type": "Expression"
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
 							},
-							"isSequential": false,
-							"activities": [
-								{
-									"name": "Execute Pipeline1",
-									"type": "ExecutePipeline",
-									"dependsOn": [],
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "file_excel_data_load",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"containerName": {
-												"value": "@item().container_name",
-												"type": "Expression"
-											},
-											"directoryName": {
-												"value": "@item().direcotry_name",
-												"type": "Expression"
-											},
-											"sheetName": {
-												"value": "@item().sheet_name",
-												"type": "Expression"
-											},
-											"stgTableNameWithSchema": {
-												"value": "@item().stg",
-												"type": "Expression"
-											}
-										}
-									}
-								}
-							]
+							"name": "sink1"
 						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-08-29T08:05:40Z"
+					],
+					"transformations": [
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'src_object',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"source1 filter(type_desc == 'SQL_STORED_PROCEDURE' || type_desc == 'USER_TABLE') ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'stg_object',",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/dataflow_join')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"activities": [
-					{
-						"name": "Script1",
-						"type": "Script",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						},
-						"typeProperties": {
-							"scripts": [
-								{
-									"type": "Query",
-									"text": "select name from sys.objects"
-								}
-							],
-							"scriptBlockExecutionTimeout": "02:00:00"
-						}
-					},
-					{
-						"name": "Notebook1",
-						"type": "DatabricksNotebook",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {}
-					},
-					{
-						"name": "Jar1",
-						"type": "DatabricksSparkJar",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"parameters": []
-						}
-					},
-					{
-						"name": "Python1",
-						"type": "DatabricksSparkPython",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"parameters": []
-						}
-					},
-					{
-						"name": "Custom1",
-						"type": "Custom",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						}
-					},
-					{
-						"name": "Web1",
-						"type": "WebActivity",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"headers": {}
-						}
-					},
-					{
-						"name": "WebHook1",
-						"type": "WebHook",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "POST",
-							"headers": {},
-							"timeout": "00:10:00"
-						}
-					},
-					{
-						"name": "Power Query1",
-						"type": "ExecuteWranglingDataflow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "pq_employee",
-								"type": "DataFlowReference",
-								"datasetParameters": {
-									"adfdemo_asql_dataset_employee": {},
-									"UserQueryadfdemoasqldatasetemployee": {}
-								}
-							},
-							"staging": {},
-							"integrationRuntime": {
-								"referenceName": "AzureIntegrationRuntime",
-								"type": "IntegrationRuntimeReference"
-							},
-							"queries": [
-								{
-									"queryName": "UserQuery",
-									"dataflowSinks": [
-										{
-											"name": "UserQueryadfdemoasqldatasetemployee",
-											"dataset": {
-												"referenceName": "adfdemo_asql_dataset_employee",
-												"type": "DatasetReference",
-												"parameters": {}
-											},
-											"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tID as integer,\n\t\tFirstName as string,\n\t\tLastName as string\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tFirstName,\n\t\tLastName\n\t)) ~> UserQueryadfdemoasqldatasetemployee"
-										}
-									]
-								}
-							]
-						}
-					},
-					{
-						"name": "Power Query2",
-						"type": "ExecuteWranglingDataflow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "qp_sales",
-								"type": "DataFlowReference",
-								"datasetParameters": {
-									"adfdemo_asql_dataset": {},
-									"adfdemo_asql_ds": {
-										"schema": "dbo",
-										"table": "stg_sales"
-									},
-									"UserQueryadfdemoasqlds": {
-										"schema": "dbo",
-										"table": "ods_sales"
-									}
-								}
-							},
-							"staging": {},
-							"integrationRuntime": {
-								"referenceName": "AzureIntegrationRuntime",
-								"type": "IntegrationRuntimeReference"
-							},
-							"queries": [
-								{
-									"queryName": "UserQuery",
-									"dataflowSinks": [
-										{
-											"name": "UserQueryadfdemoasqlds",
-											"dataset": {
-												"referenceName": "adfdemo_asql_ds",
-												"type": "DatasetReference",
-												"parameters": {
-													"schema": "dbo",
-													"table": "ods_sales"
-												}
-											},
-											"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tinsert_dt as timestamp,\n\t\tupdate_dt as timestamp,\n\t\tfile_name as string,\n\t\tfile_last_modifty_time as timestamp,\n\t\tproduct_id as integer,\n\t\tqty as integer,\n\t\tunit_price as decimal(19,4),\n\t\tsubtotal as decimal(19,4)\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> UserQueryadfdemoasqlds"
-										}
-									]
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
 				"folder": {
 					"name": "demo"
 				},
-				"annotations": [],
-				"lastPublishTime": "2023-10-20T05:55:19Z"
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						},
+						{
+							"linkedService": {
+								"referenceName": "adfdemo_asql_dst",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source2"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'src_object',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"source(output(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'query',",
+						"     store: 'sqlserver',",
+						"     query: 'select * from sys.objects where is_ms_shipped = 0',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source2",
+						"source1, source2 join(fuzzyCompare(source1@name, source2@name, 80.00),",
+						"     joinType:'inner',",
+						"     matchType:'fuzzy',",
+						"     ignoreSpaces: true,",
+						"     scoreColumn:'60',",
+						"     broadcast: 'off')~> join1",
+						"join1 select(mapColumn(",
+						"          each(match(instr(name,'source1@')==0))",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'stg_object',",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          name,",
+						"          object_id,",
+						"          principal_id,",
+						"          schema_id,",
+						"          parent_object_id,",
+						"          type,",
+						"          type_desc,",
+						"          create_date,",
+						"          modify_date,",
+						"          is_ms_shipped,",
+						"          is_published,",
+						"          is_schema_published",
+						"     )) ~> sink1"
+					]
+				}
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/pq_employee')]",
-				"[concat(variables('factoryId'), '/dataflows/qp_sales')]"
-			]
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_lookup')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "demo"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						},
+						{
+							"linkedService": {
+								"referenceName": "adfdemo_asql_dst",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source2"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "select1"
+						},
+						{
+							"name": "lookup1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'src_object',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"source(output(",
+						"          name as string,",
+						"          object_key as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'query',",
+						"     store: 'sqlserver',",
+						"     query: 'select name, object_id object_key from sys.objects where is_ms_shipped = 0',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source2",
+						"lookup1 select(mapColumn(",
+						"          each(match(instr(name,'source1@')==0))",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"source1, source2 lookup(source1@name == source2@name,",
+						"     multiple: true,",
+						"     broadcast: 'auto')~> lookup1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'stg_object',",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          name,",
+						"          object_id,",
+						"          principal_id,",
+						"          schema_id,",
+						"          parent_object_id,",
+						"          type,",
+						"          type_desc,",
+						"          create_date,",
+						"          modify_date,",
+						"          is_ms_shipped,",
+						"          is_published,",
+						"          is_schema_published",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_pivot')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "demo"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "pivot1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          name as string,",
+						"          class as string,",
+						"          score as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'query',",
+						"     store: 'sqlserver',",
+						"     query: 'select *\\nfrom (values\\n     (N\\'张三\\', N\\'语文\\', 80),\\n     (N\\'张三\\', N\\'数学\\', 89),\\n     (N\\'张三\\', N\\'英语\\', 88),\\n     (N\\'李四\\', N\\'语文\\', 89),\\n     (N\\'李四\\', N\\'数学\\', 90),\\n     (N\\'李四\\', N\\'英语\\', 91)\\n) t1 ([name], class, score)',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"source1 pivot(groupBy(name),",
+						"     pivotBy(class, ['语文', '数学', '英语', null]),",
+						"     sum = sum(score),",
+						"     columnNaming: 'a$Nb$Vc',",
+						"     lateral: true) ~> pivot1",
+						"pivot1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'stg_object',",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_pivot2')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "demo"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "pivot1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          type as string,",
+						"          cnt as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'query',",
+						"     store: 'sqlserver',",
+						"     query: 'select * from (values(N\\'type1\\', 2), (N\\'type2\\', 3)) as t1([type], cnt)',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"source1 pivot(pivotBy(type, ['type1', 'type2', 'D', null]),",
+						"     {} = sum(cnt),",
+						"     columnNaming: '$N$V',",
+						"     lateral: true) ~> pivot1",
+						"pivot1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'stg_object',",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
 		}
 	]
 }

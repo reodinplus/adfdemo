@@ -15,6 +15,30 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase1'"
 		},
+		"LS_ADB_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'LS_ADB'"
+		},
+		"LS_ADB_Job_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'LS_ADB_Job'"
+		},
+		"LS_ASQL_Demo_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_ASQL_Demo'"
+		},
+		"LS_Blob_File_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_Blob_File'"
+		},
+		"LS_Deltalake_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_Deltalake'"
+		},
+		"LS_REST_QYWeChat_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_REST_QYWeChat'"
+		},
 		"adfdemo_a_sql_src_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'adfdemo_a_sql_src'"
@@ -27,23 +51,110 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'adfdemo_storage'"
 		},
-		"storage_account_connectionString": {
+		"http_onedriver_password": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'storage_account'"
+			"metadata": "Secure string for 'password' of 'http_onedriver'"
 		},
 		"AzureKeyVault1_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "@{linkedService().keyVaultAccountURL}"
 		},
+		"LS_ADB_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0723-022831-hgfjeows"
+		},
+		"LS_ASQL_Demo_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sqlserverdevswcd.database.windows.net"
+		},
+		"LS_ASQL_Demo_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "sqldevswcd"
+		},
+		"LS_ASQL_Demo_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "sqladminuser01"
+		},
+		"LS_Deltalake_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://databricksucextadls2.dfs.core.windows.net/"
+		},
+		"LS_HTTP_QYWeChat_Login_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://qyapi.weixin.qq.com/"
+		},
+		"LS_REST_QYWX_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://qyapi.weixin.qq.com/cgi-bin"
+		},
+		"LS_REST_QYWeChat_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://qyapi.weixin.qq.com/cgi-bin"
+		},
+		"LS_REST_QYWeChat_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "rest"
+		},
+		"LS_REST_QYWeChat_Login_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@linkedService().corpid&corpsecret=@linkedService().corpsecret"
+		},
+		"LS_WEB_QYWeChat_Login_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@{linkedService().corpid}&corpsecret=@{linkedService().corpsecret}"
+		},
 		"adfdemo_rest_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://api.xygeng.cn/one"
+		},
+		"http_onedriver_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://sharewinfobi-my.sharepoint.com/"
+		},
+		"http_onedriver_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "zhyding@sharewinfobi.onmicrosoft.com"
 		}
 	},
 	"variables": {
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/blob_to_stg_sales')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"enableStaging": false
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "sales"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/depency demo')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
@@ -294,6 +405,195 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/LS_ADB')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-1415684505735454.14.azuredatabricks.net/",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('LS_ADB_accessToken')]"
+					},
+					"existingClusterId": "[parameters('LS_ADB_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_ADB_Job')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-1415684505735454.14.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('LS_ADB_Job_accessToken')]"
+					},
+					"newClusterNodeType": "Standard_DS3_v2",
+					"newClusterNumOfWorker": "1:4",
+					"newClusterVersion": "17.0.x-cpu-ml-scala2.13",
+					"clusterOption": "Autoscaling",
+					"newClusterInitScripts": []
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_ASQL_Demo')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('LS_ASQL_Demo_properties_typeProperties_server')]",
+					"database": "[parameters('LS_ASQL_Demo_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('LS_ASQL_Demo_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('LS_ASQL_Demo_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_Blob_File')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('LS_Blob_File_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_Deltalake')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('LS_Deltalake_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('LS_Deltalake_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_HTTP_QYWeChat_Login')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('LS_HTTP_QYWeChat_Login_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_REST_QYWX')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "企业微信的 REST 类型的链接服务",
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('LS_REST_QYWX_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_REST_QYWeChat')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('LS_REST_QYWeChat_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('LS_REST_QYWeChat_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('LS_REST_QYWeChat_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_REST_QYWeChat_Login')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"corpid": {
+						"type": "string"
+					},
+					"corpsecret": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('LS_REST_QYWeChat_Login_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_WEB_QYWeChat_Login')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "WebConnection",
+				"parameters": {
+					"corpid": {
+						"type": "string"
+					},
+					"corpsecret": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"typeProperties": {
+					"url": "[parameters('LS_WEB_QYWeChat_Login_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/adfdemo_a_sql_src')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -348,473 +648,24 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/storage_account')]",
+			"name": "[concat(parameters('factoryName'), '/http_onedriver')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"parameters": {
-					"storageAccountName": {
-						"type": "string",
-						"defaultValue": "storageswcd"
-					}
-				},
 				"annotations": [],
-				"type": "AzureBlobStorage",
+				"type": "HttpServer",
 				"typeProperties": {
-					"connectionString": "[parameters('storage_account_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureIntegrationRuntime')]",
-			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "Managed",
-				"typeProperties": {
-					"computeProperties": {
-						"location": "AutoResolve",
-						"dataFlowProperties": {
-							"computeType": "General",
-							"coreCount": 8,
-							"timeToLive": 10,
-							"cleanup": false,
-							"customProperties": []
-						}
+					"url": "[parameters('http_onedriver_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('http_onedriver_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('http_onedriver_password')]"
 					}
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/TutorialIntegrationRuntime')]",
-			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "SelfHosted",
-				"typeProperties": {}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/BlobDateset')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "storage_account",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"storageAccountName": "storageswcd"
-					}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/storage_account')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DestinationDataset_re3')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfdemo_a_sql_src",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "Order"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfdemo_a_sql_src')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SourceDataset_re3')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage1",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Excel",
-				"typeProperties": {
-					"sheetName": "Sheet1",
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"folderPath": "demo/ssiswork/订单数据",
-						"container": "file-data"
-					},
-					"firstRowAsHeader": false
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adfdemo_asql_dataset_src_adfdemo_object')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfdemo_asql_src",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "adfdemo"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "name",
-						"type": "nvarchar"
-					},
-					{
-						"name": "object_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "principal_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "schema_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "parent_object_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "type",
-						"type": "char"
-					},
-					{
-						"name": "type_desc",
-						"type": "nvarchar"
-					},
-					{
-						"name": "create_date",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "modify_date",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "is_ms_shipped",
-						"type": "bit"
-					},
-					{
-						"name": "is_published",
-						"type": "bit"
-					},
-					{
-						"name": "is_schema_published",
-						"type": "bit"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "src_adfdemo_object"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfdemo_asql_src')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adfdemo_asql_dataset_src_adfdemo_object1')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfdemo_asql_src",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "adfdemo"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "name",
-						"type": "nvarchar"
-					},
-					{
-						"name": "object_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "principal_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "schema_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "parent_object_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "type",
-						"type": "char"
-					},
-					{
-						"name": "type_desc",
-						"type": "nvarchar"
-					},
-					{
-						"name": "create_date",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "modify_date",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "is_ms_shipped",
-						"type": "bit"
-					},
-					{
-						"name": "is_published",
-						"type": "bit"
-					},
-					{
-						"name": "is_schema_published",
-						"type": "bit"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "src_adfdemo_object"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfdemo_asql_src')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adfdemo_asql_dataset_src_adfdemo_object2')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfdemo_asql_src",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "adfdemo"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "name",
-						"type": "nvarchar"
-					},
-					{
-						"name": "object_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "principal_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "schema_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "parent_object_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "type",
-						"type": "char"
-					},
-					{
-						"name": "type_desc",
-						"type": "nvarchar"
-					},
-					{
-						"name": "create_date",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "modify_date",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "is_ms_shipped",
-						"type": "bit"
-					},
-					{
-						"name": "is_published",
-						"type": "bit"
-					},
-					{
-						"name": "is_schema_published",
-						"type": "bit"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "src_adfdemo_object"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfdemo_asql_src')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adfdemo_asql_ds_src')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfdemo_asql_src",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"schema": {
-						"type": "string"
-					},
-					"table": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "adfdemo"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {
-					"schema": {
-						"value": "@dataset().schema",
-						"type": "Expression"
-					},
-					"table": {
-						"value": "@dataset().table",
-						"type": "Expression"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfdemo_asql_src')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adfdemo_blob_dataset_excel')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfdemo_storage",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "adfdemo"
-				},
-				"annotations": [],
-				"type": "Excel",
-				"typeProperties": {
-					"sheetName": "Sheet1",
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "Employee Demo.xlsx",
-						"container": "adfdemo"
-					},
-					"firstRowAsHeader": true
-				},
-				"schema": [
-					{
-						"name": "FirsrtName",
-						"type": "String"
-					},
-					{
-						"name": "LastName",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfdemo_storage')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adfdemo_rest_ds')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfdemo_rest",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "adfdemo"
-				},
-				"annotations": [],
-				"type": "RestResource",
-				"typeProperties": {},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfdemo_rest')]"
-			]
 		}
 	]
 }

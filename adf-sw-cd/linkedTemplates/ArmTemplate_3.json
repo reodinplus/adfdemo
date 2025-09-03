@@ -6,6 +6,63 @@
 			"type": "string",
 			"metadata": "Data Factory name",
 			"defaultValue": "adf-sw-cd"
+		},
+		"adfdemo_asql_dst_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'adfdemo_asql_dst'"
+		},
+		"adfdemo_mssql_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'adfdemo_mssql'"
+		},
+		"fs_offline_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'fs_offline'"
+		},
+		"http_aishu_site_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'http_aishu_site'"
+		},
+		"mssql_adfdemo_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'mssql_adfdemo'"
+		},
+		"mssql_demo_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'mssql_demo'"
+		},
+		"sqldb_dw_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'sqldb_dw'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().dbServerName};Initial Catalog=@{linkedService().dbName};User ID=@{linkedService().dbUserName};Password=@{linkedService().dbUserPwd}"
+		},
+		"RestService1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://cumminsxian--uat.sandbox.my.salesforce-sites.com/XCECBOM/services/apexrest/Callout_Order_BySites"
+		},
+		"adfdemo_rest_opentdb_com_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://opentdb.com/api.php?amount=10&category=23&difficulty=easy&type=multiple"
+		},
+		"fs_offline_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "\\\\10.0.0.163\\00FileDataSource"
+		},
+		"fs_offline_properties_typeProperties_userId": {
+			"type": "string",
+			"defaultValue": "sw01"
+		},
+		"http_aishu_site_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "http://share.chinaust.com:8000"
+		},
+		"http_aishu_site_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "lilijuan"
+		},
+		"opentdb_api_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{linkedService().baseURL}"
 		}
 	},
 	"variables": {
@@ -13,1456 +70,384 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/storge_excel_customer')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"linkedServiceName": {
+					"referenceName": "storage_account",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"storageAccountName": "storageswcd"
+					}
+				},
 				"folder": {
 					"name": "demo"
 				},
-				"type": "MappingDataFlow",
+				"annotations": [],
+				"type": "Excel",
 				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
+					"sheetName": "Sheet1",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Employee Demo.xlsx",
+						"folderPath": "adfdemo",
+						"container": "file-data"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "FirsrtName",
+						"type": "String"
+					},
+					{
+						"name": "LastName",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestService1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('RestService1_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": false,
+					"authenticationType": "Anonymous",
+					"authHeaders": {
+						"Secret": {
+							"type": "SecureString",
+							"value": "**********"
 						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     srcTableNameWithSchema as string ('dbo.src_object'),",
-						"     dstTableNameWithSchema as string ('dbo.stg_object')",
-						"}",
-						"source(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: (split($srcTableNameWithSchema, '.')[1]),",
-						"     tableName: (split($srcTableNameWithSchema, '.')[2]),",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source1 derive(flle_name = 123) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: true,",
-						"     input(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: (split($dstTableNameWithSchema, '.')[1]),",
-						"     tableName: (split($dstTableNameWithSchema, '.')[2]),",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     saveOrder: 1,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
+					}
+				},
+				"connectVia": {
+					"referenceName": "TutorialIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow2')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/adfdemo_asql_dst')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "demo"
-				},
-				"type": "MappingDataFlow",
+				"annotations": [],
+				"type": "AzureSqlDatabase",
 				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     srcTableSQL as string ('select name, object_id,principal_id,schema_id,parent_object_id,type,type_desc,create_date,modify_date,is_ms_shipped,is_published,is_schema_published from dbo.src_object where modify_date>\\'1900-01-01\\''),",
-						"     dstTableNameWithSchema as string ('dbo.stg_object')",
-						"}",
-						"source(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'query',",
-						"     store: 'sqlserver',",
-						"     query: ($srcTableSQL),",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source1 derive(file_name = 123) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: true,",
-						"     input(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: (split($dstTableNameWithSchema, '.')[1]),",
-						"     tableName: (split($dstTableNameWithSchema, '.')[2]),",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     saveOrder: 1,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
+					"connectionString": "[parameters('adfdemo_asql_dst_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AzureIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_aggregate')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/adfdemo_mssql')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "demo"
-				},
-				"type": "MappingDataFlow",
+				"annotations": [],
+				"type": "SqlServer",
 				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "aggregate1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'src_object',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source1 aggregate(cnt = count(object_id),",
-						"          each(patternMatch(`(name)` , type=='string'), $$ = count(object_id)),",
-						"          each(match(in(['type','type_desc'],name)), $$ = first($$))) ~> aggregate1",
-						"aggregate1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'stg_object',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
+					"connectionString": "[parameters('adfdemo_mssql_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "TutorialIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_conditionalsplit')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/adfdemo_rest_opentdb_com')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "demo"
-				},
-				"type": "MappingDataFlow",
+				"annotations": [],
+				"type": "RestService",
 				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "splitByTypeDesc"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'src_object',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source1 split(type_desc == 'USER_TABLE' || type_desc == 'VIEW',",
-						"     type_desc == 'SQL_STORED_PROCEDURE' ||  type_desc == 'SQL_SCALAR_FUNCTION' || type_desc == 'SQL_TABLE_VALUED_FUNCTION' || type == 'SQL_INLINE_TABLE_VALUED_FUNCTION',",
-						"     disjoint: false) ~> splitByTypeDesc@(typeIsTableView, typeIsProgramingObject, typeOther)",
-						"splitByTypeDesc@typeIsTableView sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'stg_object',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
+					"url": "[parameters('adfdemo_rest_opentdb_com_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				},
+				"connectVia": {
+					"referenceName": "AzureIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_derivedcolumn')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/fs_offline')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "demo"
-				},
-				"type": "MappingDataFlow",
+				"annotations": [],
+				"type": "FileServer",
 				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "filter1"
-						},
-						{
-							"name": "derivedColumn1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'src_object',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"derivedColumn1 filter(type =='P') ~> filter1",
-						"source1 derive(column1 = 'a column value',",
-						"          each(match(type=='integer'), $$ = $$ + 2),",
-						"          each(match(type=='string'), $$ = $$ + 'kk'),",
-						"          column2 = 'ldsfds',",
-						"          each(match(type=='string'), $$+'short' = $$+'123')) ~> derivedColumn1",
-						"filter1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'stg_object',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
+					"host": "[parameters('fs_offline_properties_typeProperties_host')]",
+					"userId": "[parameters('fs_offline_properties_typeProperties_userId')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('fs_offline_password')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "TutorialIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_exists')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/http_aishu_site')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "demo"
-				},
-				"type": "MappingDataFlow",
+				"annotations": [],
+				"type": "HttpServer",
 				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						},
-						{
-							"linkedService": {
-								"referenceName": "adfdemo_asql_dst",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source2"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "exists1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'src_object',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'query',",
-						"     store: 'sqlserver',",
-						"     query: 'select * from sys.objects where is_ms_shipped = 0',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source2",
-						"source1, source2 exists(source1@name == source2@name,",
-						"     negate:true,",
-						"     broadcast: 'auto')~> exists1",
-						"exists1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'stg_object',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
+					"url": "[parameters('http_aishu_site_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('http_aishu_site_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('http_aishu_site_password')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "TutorialIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_filter')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/mssql_adfdemo')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "demo"
-				},
-				"type": "MappingDataFlow",
+				"annotations": [],
+				"type": "SqlServer",
 				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "filter1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'src_object',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source1 filter(type_desc == 'SQL_STORED_PROCEDURE' || type_desc == 'USER_TABLE') ~> filter1",
-						"filter1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'stg_object',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
+					"connectionString": "[parameters('mssql_adfdemo_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "TutorialIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_join')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/mssql_demo')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "demo"
+				"parameters": {
+					"dbName": {
+						"type": "string",
+						"defaultValue": "TestDataSource"
+					}
 				},
-				"type": "MappingDataFlow",
+				"annotations": [],
+				"type": "SqlServer",
 				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						},
-						{
-							"linkedService": {
-								"referenceName": "adfdemo_asql_dst",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source2"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "join1"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'src_object',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'query',",
-						"     store: 'sqlserver',",
-						"     query: 'select * from sys.objects where is_ms_shipped = 0',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source2",
-						"source1, source2 join(fuzzyCompare(source1@name, source2@name, 80.00),",
-						"     joinType:'inner',",
-						"     matchType:'fuzzy',",
-						"     ignoreSpaces: true,",
-						"     scoreColumn:'60',",
-						"     broadcast: 'off')~> join1",
-						"join1 select(mapColumn(",
-						"          each(match(instr(name,'source1@')==0))",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'stg_object',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          name,",
-						"          object_id,",
-						"          principal_id,",
-						"          schema_id,",
-						"          parent_object_id,",
-						"          type,",
-						"          type_desc,",
-						"          create_date,",
-						"          modify_date,",
-						"          is_ms_shipped,",
-						"          is_published,",
-						"          is_schema_published",
-						"     )) ~> sink1"
-					]
+					"connectionString": "[parameters('mssql_demo_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "TutorialIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_lookup')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/opentdb_api')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "demo"
+				"parameters": {
+					"baseURL": {
+						"type": "string",
+						"defaultValue": "https://opentdb.com/api.php"
+					}
 				},
-				"type": "MappingDataFlow",
+				"annotations": [],
+				"type": "RestService",
 				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						},
-						{
-							"linkedService": {
-								"referenceName": "adfdemo_asql_dst",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source2"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "select1"
-						},
-						{
-							"name": "lookup1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'src_object',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source(output(",
-						"          name as string,",
-						"          object_key as integer",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'query',",
-						"     store: 'sqlserver',",
-						"     query: 'select name, object_id object_key from sys.objects where is_ms_shipped = 0',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source2",
-						"lookup1 select(mapColumn(",
-						"          each(match(instr(name,'source1@')==0))",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"source1, source2 lookup(source1@name == source2@name,",
-						"     multiple: true,",
-						"     broadcast: 'auto')~> lookup1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'stg_object',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          name,",
-						"          object_id,",
-						"          principal_id,",
-						"          schema_id,",
-						"          parent_object_id,",
-						"          type,",
-						"          type_desc,",
-						"          create_date,",
-						"          modify_date,",
-						"          is_ms_shipped,",
-						"          is_published,",
-						"          is_schema_published",
-						"     )) ~> sink1"
-					]
+					"url": "[parameters('opentdb_api_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				},
+				"connectVia": {
+					"referenceName": "TutorialIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_pivot')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
+			"name": "[concat(parameters('factoryName'), '/sqldb_dw')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"folder": {
-					"name": "demo"
+				"parameters": {
+					"dbName": {
+						"type": "string",
+						"defaultValue": "sqldevswcd"
+					},
+					"dbUserName": {
+						"type": "string",
+						"defaultValue": "sqladminuser01"
+					},
+					"dbUserPwd": {
+						"type": "string",
+						"defaultValue": "1qaz!QAZ"
+					},
+					"dbServerName": {
+						"type": "string",
+						"defaultValue": "sqlserverdevswcd.database.windows.net"
+					}
 				},
-				"type": "MappingDataFlow",
+				"annotations": [],
+				"type": "AzureSqlDatabase",
 				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "pivot1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          name as string,",
-						"          class as string,",
-						"          score as integer",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'query',",
-						"     store: 'sqlserver',",
-						"     query: 'select *\\nfrom (values\\n     (N\\'张三\\', N\\'语文\\', 80),\\n     (N\\'张三\\', N\\'数学\\', 89),\\n     (N\\'张三\\', N\\'英语\\', 88),\\n     (N\\'李四\\', N\\'语文\\', 89),\\n     (N\\'李四\\', N\\'数学\\', 90),\\n     (N\\'李四\\', N\\'英语\\', 91)\\n) t1 ([name], class, score)',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source1 pivot(groupBy(name),",
-						"     pivotBy(class, ['语文', '数学', '英语', null]),",
-						"     sum = sum(score),",
-						"     columnNaming: 'a$Nb$Vc',",
-						"     lateral: true) ~> pivot1",
-						"pivot1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'stg_object',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
+					"connectionString": "[parameters('sqldb_dw_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AzureIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_pivot2')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "demo"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "pivot1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          type as string,",
-						"          cnt as integer",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'query',",
-						"     store: 'sqlserver',",
-						"     query: 'select * from (values(N\\'type1\\', 2), (N\\'type2\\', 3)) as t1([type], cnt)',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source1 pivot(pivotBy(type, ['type1', 'type2', 'D', null]),",
-						"     {} = sum(cnt),",
-						"     columnNaming: '$N$V',",
-						"     lateral: true) ~> pivot1",
-						"pivot1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'stg_object',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_pivot3')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "demo"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "pivot1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          type as string,",
-						"          cnt as integer",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'query',",
-						"     store: 'sqlserver',",
-						"     query: 'select type, count(1) as cnt from dbo.src_object group by type',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source1 pivot(pivotBy(type, ['D', 'FN', 'P', 'U', null]),",
-						"     {} = sum(cnt),",
-						"     columnNaming: '$N$V',",
-						"     lateral: true) ~> pivot1",
-						"pivot1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'stg_object',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_select')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "demo"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						},
-						{
-							"linkedService": {
-								"referenceName": "adfdemo_rest_opentdb_com",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source2"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "adfdemo_asql_src",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink2"
-						},
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "select1"
-						},
-						{
-							"name": "select2"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'src_object',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source(output(",
-						"          body as (response_code as boolean, results as (category as string, correct_answer as string, difficulty as string, incorrect_answers as string[], question as string, type as string)[]),",
-						"          headers as [string,string]",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'rest',",
-						"     timeout: 30,",
-						"     requestInterval: 0,",
-						"     httpMethod: 'GET',",
-						"     paginationRules: ['supportRFC5988' -> 'true'],",
-						"     responseFormat: ['type' -> 'json', 'documentForm' -> 'arrayOfDocuments']) ~> source2",
-						"source1 select(mapColumn(",
-						"          each(match(type=='string'&&length(name)<12)),",
-						"          each(match(locate('id',name)>0)),",
-						"          each(patternMatch(`(r)`))",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"source2 select(mapColumn(",
-						"          each(body.results,match(true()))",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select2",
-						"select2 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'adfdemo_rest_two',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          category,",
-						"          correct_answer,",
-						"          difficulty,",
-						"          incorrect_answers,",
-						"          question,",
-						"          type",
-						"     )) ~> sink2",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'stg_object',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_sort')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "demo"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "sort1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'src_object',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source1 sort(asc(name, true)) ~> sort1",
-						"sort1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'stg_object',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_union')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "demo"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						},
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source2"
-						},
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source3"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "union1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'src_object',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'query',",
-						"     store: 'sqlserver',",
-						"     query: 'select * from sys.system_objects',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source2",
-						"source(output(",
-						"          name as string,",
-						"          object_id as integer,",
-						"          principal_id as integer,",
-						"          schema_id as integer,",
-						"          parent_object_id as integer,",
-						"          type as string,",
-						"          type_desc as string,",
-						"          create_date as timestamp,",
-						"          modify_date as timestamp,",
-						"          is_ms_shipped as boolean,",
-						"          is_published as boolean,",
-						"          is_schema_published as boolean",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'sys',",
-						"     tableName: 'all_objects',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source3",
-						"source1, source2, source3 union(byName: false)~> union1",
-						"union1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'stg_object',",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/flowlet1')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "demo"
-				},
-				"type": "Flowlet",
-				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "sqldb_dw",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [],
-					"transformations": [
-						{
-							"name": "output1"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     stgTableNameWithSchem as string ('dbo.adfdemo')",
-						"}",
-						"source(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: 'dbo',",
-						"     tableName: 'objects',",
-						"     isolationLevel: 'READ_COMMITTED') ~> source1",
-						"source1 output() ~> output1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/flowlet2')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "demo"
-				},
-				"type": "Flowlet",
-				"typeProperties": {
-					"sources": [
-						{
-							"linkedService": {
-								"referenceName": "adfdemo_asql_dst",
-								"type": "LinkedServiceReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [],
-					"transformations": [
-						{
-							"name": "filter1"
-						},
-						{
-							"name": "output1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          insert_dt as string,",
-						"          file_name as string,",
-						"          file_last_modifty_time as timestamp,",
-						"          product_id as integer,",
-						"          qty as integer,",
-						"          unit_price as decimal(19,4),",
-						"          subtotal as decimal(19,4)",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'query',",
-						"     store: 'sqlserver',",
-						"     query: 'select convert(nvarchar(23), insert_dt, 121) insert_dt, file_name, file_last_modifty_time, product_id, qty, unit_price, subtotal from dbo.stg_sales',",
-						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
-						"source1 filter(qty <= 10) ~> filter1",
-						"filter1 output() ~> output1"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/01_template_src_ods')]",
+			"name": "[concat(parameters('factoryName'), '/CopyPipeline_re3')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "truncate table",
-						"type": "SqlServerStoredProcedure",
+						"name": "Copy_re3",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "file-data/demo/ssiswork/订单数据/"
+							},
+							{
+								"name": "Destination",
+								"value": "dbo.Order"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"modifiedDatetimeStart": {
+										"value": "@pipeline().parameters.windowStart",
+										"type": "Expression"
+									},
+									"modifiedDatetimeEnd": {
+										"value": "@pipeline().parameters.windowEnd",
+										"type": "Expression"
+									},
+									"wildcardFileName": "*",
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"tableOption": "autoCreate"
+							},
+							"enableStaging": false,
+							"validateDataConsistency": false
+						},
+						"inputs": [
+							{
+								"referenceName": "SourceDataset_re3",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DestinationDataset_re3",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "If Condition1",
+						"type": "IfCondition",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"ifTrueActivities": [
+								{
+									"name": "Filter1",
+									"type": "Filter",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"windowStart": {
+						"type": "String"
+					},
+					"windowEnd": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-19T08:32:42Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/TTL_Department')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -1473,177 +458,370 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"storedProcedureName": {
-								"value": "@variables('varTruncateProcNameWithSchema')",
-								"type": "Expression"
-							},
-							"storedProcedureParameters": {
-								"tableNameWithSchema": {
-									"value": {
-										"value": "@variables('varStgTableNameWithSchema')",
-										"type": "Expression"
-									},
-									"type": "String"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						}
-					},
-					{
-						"name": "Get Prev Load Point",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "truncate table",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
 							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderStoredProcedureName": {
-									"value": "@variables('varETLWorkGetPrevLoadPointProcNameWithSchema')",
-									"type": "Expression"
-								},
-								"storedProcedureParameters": {
-									"DataLoadTag": {
-										"type": "String",
-										"value": {
-											"value": "@variables('varStgTableNameWithSchema')",
-											"type": "Expression"
-										}
-									},
-									"SSISProject": {
-										"type": "String",
-										"value": {
-											"value": "@variables('varSSISProject')",
-											"type": "Expression"
-										}
-									}
-								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "azuresql_dst",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableNameWithSchema": " "
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"supportRFC5988": "true"
 								}
-							}
-						}
-					},
-					{
-						"name": "Set varPrevLoadPoint",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Get Prev Load Point",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "varPrevLoadPoint",
-							"value": {
-								"value": "@activity('Get Prev Load Point').output.firstRow.PrevLoadPoint",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Set varConfigurationId",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Get Prev Load Point",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "varConfigurationId",
-							"value": {
-								"value": "@activity('Get Prev Load Point').output.firstRow.ConfigurationId",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "move src to stg",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "Set varPrevLoadPoint",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							},
-							{
-								"activity": "Set varConfigurationId",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": {
-									"value": "@concat(\n    variables('varLoadSQL'),\n    ' where modify_date > ''', \n    variables('varPrevLoadPoint'), \n    ''''\n)",
-									"type": "Expression"
-								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
 							},
 							"sink": {
-								"type": "AzureSqlSink",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false,
-								"disableMetricsCollection": false
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_REST_QYWeChat",
+								"type": "DatasetReference",
+								"parameters": {
+									"RelativeURL": {
+										"value": "department/list?access_token=@{pipeline().parameters.access_token}&id=",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_JSON",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": "adfdemo",
+									"directory": {
+										"value": "@concat('QYWeChat/DepartmentTTL/dt=', pipeline().parameters.dt)",
+										"type": "Expression"
+									},
+									"file": "department"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"access_token": {
+						"type": "string",
+						"defaultValue": "0b928-07iz0vD_PMKehJMKAixL6qeypZ-GenBIJXzXdPXGOuwr77oreccrNcoZGKnM7xfRnT9v5Bcat1U-UDd_JjvB_xNltUwwUe_LdhPLUlpNUPWypXRddj85mz_i2P_0Kn-BTqqEwakqusBtx-DaHw_SWunU6_9pRzYSJN1Ji4fxT_a53YoTUirYoWpVKqyL7mGyjo4WiHQx7o4phRpw"
+					},
+					"dt": {
+						"type": "string",
+						"defaultValue": "2025-06-10"
+					}
+				},
+				"folder": {
+					"name": "QyWeChat/TTL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-09-02T10:00:17Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/TTL_User')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"supportRFC5988": "true"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_REST_QYWeChat",
+								"type": "DatasetReference",
+								"parameters": {
+									"RelativeURL": {
+										"value": "user/list?access_token=@{pipeline().parameters.access_token}&department_id=1&fetch_child=1&status=0",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_JSON",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": "adfdemo",
+									"directory": {
+										"value": "@concat('QYWeChat/UserTTL/dt=', pipeline().parameters.dt)",
+										"type": "Expression"
+									},
+									"file": "user"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"access_token": {
+						"type": "string",
+						"defaultValue": "0b928-07iz0vD_PMKehJMKAixL6qeypZ-GenBIJXzXdPXGOuwr77oreccrNcoZGKnM7xfRnT9v5Bcat1U-UDd_JjvB_xNltUwwUe_LdhPLUlpNUPWypXRddj85mz_i2P_0Kn-BTqqEwakqusBtx-DaHw_SWunU6_9pRzYSJN1Ji4fxT_a53YoTUirYoWpVKqyL7mGyjo4WiHQx7o4phRpw"
+					},
+					"dt": {
+						"type": "string",
+						"defaultValue": "2025-06-10"
+					}
+				},
+				"folder": {
+					"name": "QyWeChat/TTL"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-09-02T10:00:17Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_blob_retail_transaction')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "copy_extract src to stage file",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"modifiedDatetimeStart": {
+										"value": "@addDays(pipeline().parameters.dt,pipeline().parameters.daysOffset)",
+										"type": "Expression"
+									},
+									"wildcardFolderPath": {
+										"value": "@pipeline().parameters.path",
+										"type": "Expression"
+									},
+									"wildcardFileName": {
+										"value": "@pipeline().parameters.file",
+										"type": "Expression"
+									},
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "MergeFiles"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
 							},
 							"enableStaging": false,
 							"translator": {
 								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"name": "Seq",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 2
+										},
+										"sink": {
+											"name": "Transaction_ID",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 3
+										},
+										"sink": {
+											"name": "Date",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 4
+										},
+										"sink": {
+											"name": "Customer_Name",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 5
+										},
+										"sink": {
+											"name": "Product",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 6
+										},
+										"sink": {
+											"name": "Total_Item",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 7
+										},
+										"sink": {
+											"name": "Total_Cost",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 8
+										},
+										"sink": {
+											"name": "Payment_Method",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 9
+										},
+										"sink": {
+											"name": "City",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 10
+										},
+										"sink": {
+											"name": "Store_Type",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 11
+										},
+										"sink": {
+											"name": "Discount_Applied",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 12
+										},
+										"sink": {
+											"name": "Customer_Category",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 13
+										},
+										"sink": {
+											"name": "Season",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 14
+										},
+										"sink": {
+											"name": "Promotion",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 15
+										},
+										"sink": {
+											"name": "year",
+											"physicalType": "UTF8"
+										}
+									}
+								],
 								"typeConversion": true,
 								"typeConversionSettings": {
 									"allowDataTruncation": true,
@@ -1653,20 +831,40 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "azuresql_dst",
+								"referenceName": "DS_Blob_CSV",
 								"type": "DatasetReference",
 								"parameters": {
-									"tableNameWithSchema": " "
+									"container": {
+										"value": "@pipeline().parameters.container",
+										"type": "Expression"
+									},
+									"path": {
+										"value": "@pipeline().parameters.path",
+										"type": "Expression"
+									},
+									"file": " ",
+									"hasRowHeader": {
+										"value": "@pipeline().parameters.hasRowHeader",
+										"type": "Expression"
+									}
 								}
 							}
 						],
 						"outputs": [
 							{
-								"referenceName": "azuresql_dst",
+								"referenceName": "DS_Deltalake_Parquet",
 								"type": "DatasetReference",
 								"parameters": {
-									"tableNameWithSchema": {
-										"value": "@variables('varStgTableNameWithSchema')",
+									"container": {
+										"value": "@pipeline().parameters.dstContainer",
+										"type": "Expression"
+									},
+									"path": {
+										"value": "@{pipeline().parameters.dstFileDirPath}/@{variables('dstFileDirName')}/dt=@{pipeline().parameters.dt}",
+										"type": "Expression"
+									},
+									"file": {
+										"value": "@variables('dstFile')",
 										"type": "Expression"
 									}
 								}
@@ -1674,11 +872,11 @@
 						]
 					},
 					{
-						"name": "Get Current Load Point SQL",
-						"type": "Lookup",
+						"name": "nbk_bronze_blob_retail_transaction",
+						"type": "DatabricksNotebook",
 						"dependsOn": [
 							{
-								"activity": "move src to stg",
+								"activity": "copy_extract src to stage file",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1693,258 +891,24 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderStoredProcedureName": {
-									"value": "@variables('varETLWorkGetCurrentLoadPointSQLProcNameWithSchema')",
+							"notebookPath": {
+								"value": "@variables('notebookPath')",
+								"type": "Expression"
+							},
+							"baseParameters": {
+								"catalog_name": {
+									"value": "@pipeline().parameters.dstCatalog",
 									"type": "Expression"
 								},
-								"storedProcedureParameters": {
-									"DataLoadTag": {
-										"type": "String",
-										"value": {
-											"value": "@variables('varStgTableNameWithSchema')",
-											"type": "Expression"
-										}
-									},
-									"SSISProject": {
-										"type": "String",
-										"value": {
-											"value": "@variables('varSSISProject')",
-											"type": "Expression"
-										}
-									}
-								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "azuresql_dst",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableNameWithSchema": " "
-								}
-							}
-						}
-					},
-					{
-						"name": "Set varCurrentLoadPointSQL",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Get Current Load Point SQL",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "varCurrentLoadPointSQL",
-							"value": {
-								"value": "@activity('Get Current Load Point SQL').output.firstRow.CurrLoadPointTSQL",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Get Curr Load Point",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "Set varCurrentLoadPointSQL",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": {
-									"value": "@variables('varCurrentLoadPointSQL')",
+								"dt": {
+									"value": "@pipeline().parameters.dt",
 									"type": "Expression"
-								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "azuresql_dst",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableNameWithSchema": " "
-								}
-							}
-						}
-					},
-					{
-						"name": "Set varCurrLoadPoint",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Get Curr Load Point",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "varCurrLoadPoint",
-							"value": {
-								"value": "@string(activity('Get Curr Load Point').output.firstRow.CurrLoadPoint)",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Set varCurrRowCnt",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Get Curr Load Point",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "varCurrRowCnt",
-							"value": {
-								"value": "@activity('Get Curr Load Point').output.firstRow.RowCnt",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "move stg to ods",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [
-							{
-								"activity": "Set varCurrLoadPoint",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							},
-							{
-								"activity": "Set varCurrRowCnt",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": {
-								"value": "@variables('varOdsProcNameWithSchema')",
-								"type": "Expression"
-							},
-							"storedProcedureParameters": {
-								"batch_id": {
-									"value": {
-										"value": "@pipeline().parameters.batch_id",
-										"type": "Expression"
-									},
-									"type": "Int32"
 								}
 							}
 						},
 						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						}
-					},
-					{
-						"name": "Save Curr Point Load",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [
-							{
-								"activity": "move stg to ods",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": {
-								"value": "@variables('varETLWorkSaveCurrLoadPointProcNameWithSchema')",
-								"type": "Expression"
-							},
-							"storedProcedureParameters": {
-								"CurrLoadPoint": {
-									"value": {
-										"value": "@variables('varCurrLoadPoint')",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"DataLoadTag": {
-									"value": {
-										"value": "@variables('varStgTableNameWithSchema')",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"SSISProject": {
-									"value": {
-										"value": "@variables('varSSISProject')",
-										"type": "Expression"
-									},
-									"type": "String"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
 						}
 					}
 				],
@@ -1952,79 +916,74 @@
 					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"batch_id": {
+					"container": {
+						"type": "string",
+						"defaultValue": "file-data"
+					},
+					"path": {
+						"type": "string",
+						"defaultValue": "retail/retail_transaction"
+					},
+					"file": {
+						"type": "string",
+						"defaultValue": "*.csv"
+					},
+					"hasRowHeader": {
+						"type": "bool",
+						"defaultValue": false
+					},
+					"dstContainer": {
+						"type": "string",
+						"defaultValue": "demo"
+					},
+					"dstFileDirPath": {
+						"type": "string",
+						"defaultValue": "retail/blob/bronze"
+					},
+					"dt": {
+						"type": "string",
+						"defaultValue": "2025-01-01"
+					},
+					"daysOffset": {
 						"type": "int",
-						"defaultValue": 0
+						"defaultValue": -1000
+					},
+					"dstCatalog": {
+						"type": "string",
+						"defaultValue": "project_catalog"
 					}
 				},
 				"variables": {
-					"varStgTableNameWithSchema": {
+					"dstFileDirName": {
 						"type": "String",
-						"defaultValue": "dbo.stg_object"
+						"defaultValue": "stage_blob_retail_transaction"
 					},
-					"varOdsProcNameWithSchema": {
+					"dstFile": {
 						"type": "String",
-						"defaultValue": "dbo.p_etl_ods_object"
+						"defaultValue": "retail_transaction.parquet"
 					},
-					"varLoadSQL": {
+					"notebookPath": {
 						"type": "String",
-						"defaultValue": "select name, object_id, principal_id, schema_id, parent_object_id, type, type_desc, create_date, modify_date, is_ms_shipped, is_published, is_schema_published from dbo.src_object"
-					},
-					"varTruncateProcNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.p_truncate_table"
-					},
-					"varETLWorkGetPrevLoadPointProcNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.USP_DL_Configuration_LoadPoint_Get"
-					},
-					"varSSISProject": {
-						"type": "String",
-						"defaultValue": "Common_ADF"
-					},
-					"varPrevLoadPoint": {
-						"type": "String"
-					},
-					"varConfigurationId": {
-						"type": "Integer"
-					},
-					"varETLWorkGetCurrentLoadPointSQLProcNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.USP_DL_CurrLoadPointTSQL_Get"
-					},
-					"varCurrentLoadPointSQL": {
-						"type": "String"
-					},
-					"varCurrLoadPoint": {
-						"type": "String"
-					},
-					"varCurrRowCnt": {
-						"type": "Integer"
-					},
-					"varETLWorkSaveCurrLoadPointProcNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.USP_DL_Configuration_LoadPoint_Update"
+						"defaultValue": "/retail/dml/bronze/blob_retail_transaction"
 					}
 				},
 				"folder": {
-					"name": "demo"
+					"name": "retail/bronze/blob/detail"
 				},
 				"annotations": [],
-				"lastPublishTime": "2023-09-12T07:27:12Z"
+				"lastPublishTime": "2025-09-02T10:00:16Z"
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/GetMetadate_demo')]",
+			"name": "[concat(parameters('factoryName'), '/loop container')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Get Metadata of file",
+						"name": "Get Metadata1",
 						"type": "GetMetadata",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -2036,19 +995,17 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataset": {
-								"referenceName": "adfdemo_stroage_dataset_excel",
+								"referenceName": "storage_excel_src",
 								"type": "DatasetReference",
-								"parameters": {}
+								"parameters": {
+									"containerName": "/",
+									"directoryName": " ",
+									"fileName": " ",
+									"sheetName": " "
+								}
 							},
 							"fieldList": [
-								"itemName",
-								"itemType",
-								"lastModified",
-								"size",
-								"structure",
-								"columnCount",
-								"contentMD5",
-								"exists"
+								"childItems"
 							],
 							"storeSettings": {
 								"type": "AzureBlobStorageReadSettings",
@@ -2057,6 +1014,67 @@
 							}
 						}
 					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Set variable1",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "containerName",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"containerName": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-08-31T07:29:41Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline3')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
 					{
 						"name": "Get Metadata1",
 						"type": "GetMetadata",
@@ -2077,14 +1095,13 @@
 								"type": "DatasetReference",
 								"parameters": {
 									"container": "file-data",
-									"directory": "adfdemo",
+									"directory": "demo/ssiswork/订单数据/",
 									"file": " ",
 									"sheet": " "
 								}
 							},
 							"fieldList": [
-								"childItems",
-								"itemType"
+								"childItems"
 							],
 							"storeSettings": {
 								"type": "AzureBlobStorageReadSettings",
@@ -2094,7 +1111,69 @@
 						}
 					},
 					{
-						"name": "Get Metadata2",
+						"name": "ForEach1",
+						"type": "ForEach",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Get Metadata2",
+									"type": "GetMetadata",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "adfdemo_storage_dataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"container": "file-data",
+												"directory": "demo/ssiswork/订单数据/",
+												"file": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"sheet": "Sheet1"
+											}
+										},
+										"fieldList": [
+											"itemName",
+											"itemType",
+											"lastModified",
+											"size"
+										],
+										"storeSettings": {
+											"type": "AzureBlobStorageReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Get Metadata3",
 						"type": "GetMetadata",
 						"dependsOn": [],
 						"policy": {
@@ -2107,38 +1186,34 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataset": {
-								"referenceName": "adfdemo_asql_dataset_city",
+								"referenceName": "DS_Binary",
 								"type": "DatasetReference",
-								"parameters": {}
+								"parameters": {
+									"directory": {
+										"value": "sales",
+										"type": "Expression"
+									},
+									"file": " "
+								}
 							},
 							"fieldList": [
-								"columnCount",
-								"exists",
-								"structure"
-							]
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "BinaryReadSettings"
+							}
 						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "ADFDemo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-09-20T08:26:19Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adf_excel_to_asql')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
+					},
 					{
 						"name": "Copy data1",
 						"type": "Copy",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -2147,81 +1222,91 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [
-							{
-								"name": "Source",
-								"value": "file-data/adfdemo/Employee Demo.xlsx"
-							},
-							{
-								"name": "Destination",
-								"value": "dbo.EmployeeDemo"
-							}
-						],
+						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "ExcelSource",
+								"type": "BinarySource",
 								"storeSettings": {
 									"type": "AzureBlobStorageReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
 								}
 							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false,
-								"disableMetricsCollection": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"name": "FirsrtName",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "FirstName",
-											"type": "String",
-											"physicalType": "nvarchar"
-										}
-									},
-									{
-										"source": {
-											"name": "LastName",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "LastName",
-											"type": "String",
-											"physicalType": "nvarchar"
-										}
-									}
-								],
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
+							"enableStaging": false
 						},
 						"inputs": [
 							{
-								"referenceName": "storge_excel_customer",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "asql_employeedemo",
+								"referenceName": "DS_Binary",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "ForEach1_copy1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata3",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata3').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Get Metadata2_copy1",
+									"type": "GetMetadata",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "DS_Binary",
+											"type": "DatasetReference",
+											"parameters": {
+												"directory": {
+													"value": "sales",
+													"type": "Expression"
+												},
+												"file": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										},
+										"fieldList": [
+											"itemName",
+											"itemType",
+											"lastModified",
+											"size"
+										],
+										"storeSettings": {
+											"type": "AzureBlobStorageReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										},
+										"formatSettings": {
+											"type": "BinaryReadSettings"
+										}
+									}
+								}
+							]
+						}
 					}
 				],
 				"policy": {
@@ -2231,9 +1316,74 @@
 					"name": "demo"
 				},
 				"annotations": [],
-				"lastPublishTime": "2023-09-14T08:45:56Z"
+				"lastPublishTime": "2025-09-02T10:00:16Z"
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabaseDataSource')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your source data store.",
+				"linkedServiceName": {
+					"referenceName": "adfdemo_asql_dst",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "DataSourceTable"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/adfdemo_asql_dst')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabaseExternal_ControlTable')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "External control table to store high water mark value.",
+				"linkedServiceName": {
+					"referenceName": "adfdemo_asql_dst",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "watermarktable"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/adfdemo_asql_dst')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_ukk')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adfdemo_asql_dst",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "AzureBlobStorageFile"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/adfdemo_asql_dst')]"
+			]
 		}
 	]
 }
