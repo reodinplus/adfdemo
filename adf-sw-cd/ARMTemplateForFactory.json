@@ -12221,8 +12221,6 @@
 					{
 						"name": "ep_bronze_blob_master",
 						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [],
 						"policy": {
 							"secureInput": false
@@ -12261,8 +12259,6 @@
 					{
 						"name": "ep_silver_blob_master",
 						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "ep_bronze_blob_master",
@@ -12292,8 +12288,6 @@
 					{
 						"name": "ep_retail_dim_master",
 						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "ep_silver_blob_master",
@@ -12331,8 +12325,6 @@
 					{
 						"name": "ep_retail_fact_master",
 						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "ep_retail_dim_master",
@@ -12357,6 +12349,8 @@
 					{
 						"name": "job_retail_etl_job",
 						"type": "DatabricksJob",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
