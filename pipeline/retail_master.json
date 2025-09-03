@@ -100,6 +100,14 @@
 						"dstCatalog": {
 							"value": "@pipeline().parameters.dstCatalog",
 							"type": "Expression"
+						},
+						"date_start": {
+							"value": "@pipeline().parameters.date_start",
+							"type": "Expression"
+						},
+						"date_end": {
+							"value": "@pipeline().parameters.date_end",
+							"type": "Expression"
 						}
 					}
 				}
@@ -244,6 +252,14 @@
 			"daysOffset": {
 				"type": "int",
 				"defaultValue": -1000
+			},
+			"date_start": {
+				"type": "string",
+				"defaultValue": "2020-01-01"
+			},
+			"date_end": {
+				"type": "string",
+				"defaultValue": "2024-01-01"
 			}
 		},
 		"folder": {
