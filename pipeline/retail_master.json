@@ -140,14 +140,7 @@
 			{
 				"name": "job_retail_etl_job",
 				"type": "DatabricksJob",
-				"dependsOn": [
-					{
-						"activity": "ep_silver_blob_master_copy1",
-						"dependencyConditions": [
-							"Completed"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -162,73 +155,6 @@
 				"linkedServiceName": {
 					"referenceName": "LS_ADB",
 					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "ep_bronze_blob_master_copy1",
-				"type": "ExecutePipeline",
-				"dependsOn": [],
-				"policy": {
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"pipeline": {
-						"referenceName": "bronze_blob_master",
-						"type": "PipelineReference"
-					},
-					"waitOnCompletion": true,
-					"parameters": {
-						"container": {
-							"value": "@pipeline().parameters.container",
-							"type": "Expression"
-						},
-						"dstContainer": {
-							"value": "@pipeline().parameters.dstContainer",
-							"type": "Expression"
-						},
-						"dstCatalog": {
-							"value": "@pipeline().parameters.dstCatalog",
-							"type": "Expression"
-						},
-						"dt": {
-							"value": "@pipeline().parameters.dt",
-							"type": "Expression"
-						},
-						"daysOffset": {
-							"value": "@pipeline().parameters.daysOffset",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			{
-				"name": "ep_silver_blob_master_copy1",
-				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "ep_bronze_blob_master_copy1",
-						"dependencyConditions": [
-							"Completed"
-						]
-					}
-				],
-				"policy": {
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"pipeline": {
-						"referenceName": "silver_blob_master",
-						"type": "PipelineReference"
-					},
-					"waitOnCompletion": true,
-					"parameters": {
-						"dstCatalog": {
-							"value": "@pipeline().parameters.dstCatalog",
-							"type": "Expression"
-						}
-					}
 				}
 			}
 		],
