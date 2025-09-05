@@ -4414,7 +4414,7 @@
 					},
 					"dt": {
 						"type": "string",
-						"defaultValue": "2025-01-01"
+						"defaultValue": "2025-01-02"
 					},
 					"daysOffset": {
 						"type": "int",

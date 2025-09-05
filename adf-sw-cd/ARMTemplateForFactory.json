@@ -12393,7 +12393,7 @@
 					},
 					"dt": {
 						"type": "string",
-						"defaultValue": "2025-01-01"
+						"defaultValue": "2025-01-02"
 					},
 					"daysOffset": {
 						"type": "int",
@@ -20319,6 +20319,222 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/adfdemo_asql_dataset')]",
 				"[concat(variables('factoryId'), '/datasets/adfdemo_asql_ds')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/retail_master_job')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ep_bronze_blob_master",
+						"type": "ExecutePipeline",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "bronze_blob_master",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"container": {
+									"value": "@pipeline().parameters.container",
+									"type": "Expression"
+								},
+								"dstContainer": {
+									"value": "@pipeline().parameters.dstContainer",
+									"type": "Expression"
+								},
+								"dstCatalog": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								},
+								"dt": {
+									"value": "@pipeline().parameters.dt",
+									"type": "Expression"
+								},
+								"daysOffset": {
+									"value": "@pipeline().parameters.daysOffset",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "ep_silver_blob_master",
+						"type": "ExecutePipeline",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "ep_bronze_blob_master",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "silver_blob_master",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"dstCatalog": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "ep_retail_dim_master",
+						"type": "ExecutePipeline",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "ep_silver_blob_master",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "retail_dim_master",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"dstCatalog": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								},
+								"date_start": {
+									"value": "@pipeline().parameters.date_start",
+									"type": "Expression"
+								},
+								"date_end": {
+									"value": "@pipeline().parameters.date_end",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "ep_retail_fact_master",
+						"type": "ExecutePipeline",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "ep_retail_dim_master",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "retail_fact_master",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "job_retail_etl_job",
+						"type": "DatabricksJob",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"jobId": "531353983078799",
+							"jobParameters": {
+								"catalog_name": "project_catalog",
+								"dt": "2025-01-01",
+								"date_start": "2020-01-01",
+								"date_end": "2024-12-31"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"container": {
+						"type": "string",
+						"defaultValue": "file-data"
+					},
+					"dstContainer": {
+						"type": "string",
+						"defaultValue": "demo"
+					},
+					"dstCatalog": {
+						"type": "string",
+						"defaultValue": "project_catalog"
+					},
+					"dt": {
+						"type": "string",
+						"defaultValue": "2025-01-02"
+					},
+					"daysOffset": {
+						"type": "int",
+						"defaultValue": -1000
+					},
+					"date_start": {
+						"type": "string",
+						"defaultValue": "2020-01-01"
+					},
+					"date_end": {
+						"type": "string",
+						"defaultValue": "2024-01-01"
+					}
+				},
+				"folder": {
+					"name": "retail/gold"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-09-02T10:00:18Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/bronze_blob_master')]",
+				"[concat(variables('factoryId'), '/pipelines/silver_blob_master')]",
+				"[concat(variables('factoryId'), '/pipelines/retail_dim_master')]",
+				"[concat(variables('factoryId'), '/pipelines/retail_fact_master')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_ADB')]"
 			]
 		}
 	]
