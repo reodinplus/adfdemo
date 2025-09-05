@@ -437,9 +437,13 @@
 					},
 					"newClusterNodeType": "Standard_DS3_v2",
 					"newClusterNumOfWorker": "1:4",
-					"newClusterVersion": "17.0.x-cpu-ml-scala2.13",
+					"newClusterSparkEnvVars": {
+						"PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+					},
+					"newClusterVersion": "17.0.x-photon-scala2.13",
 					"clusterOption": "Autoscaling",
-					"newClusterInitScripts": []
+					"newClusterInitScripts": [],
+					"dataSecurityMode": "USER_ISOLATION"
 				}
 			},
 			"dependsOn": []
