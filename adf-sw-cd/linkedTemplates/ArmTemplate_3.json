@@ -443,6 +443,10 @@
 								"catalog_name": {
 									"value": "@pipeline().parameters.dstCatalog",
 									"type": "Expression"
+								},
+								"fc_catalog_name": {
+									"value": "@pipeline().parameters.fcCatalog",
+									"type": "Expression"
 								}
 							}
 						},
@@ -468,6 +472,10 @@
 							"baseParameters": {
 								"catalog_name": {
 									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								},
+								"fc_catalog_name": {
+									"value": "@pipeline().parameters.fcCatalog",
 									"type": "Expression"
 								}
 							}
@@ -495,6 +503,10 @@
 								"catalog_name": {
 									"value": "@pipeline().parameters.dstCatalog",
 									"type": "Expression"
+								},
+								"fc_catalog_name": {
+									"value": "@pipeline().parameters.fcCatalog",
+									"type": "Expression"
 								}
 							}
 						},
@@ -521,6 +533,10 @@
 								"catalog_name": {
 									"value": "@pipeline().parameters.dstCatalog",
 									"type": "Expression"
+								},
+								"fc_catalog_name": {
+									"value": "@pipeline().parameters.fcCatalog",
+									"type": "Expression"
 								}
 							}
 						},
@@ -537,6 +553,10 @@
 					"dstCatalog": {
 						"type": "string",
 						"defaultValue": "project_catalog"
+					},
+					"fcCatalog": {
+						"type": "string",
+						"defaultValue": "fc_mssql"
 					}
 				},
 				"folder": {

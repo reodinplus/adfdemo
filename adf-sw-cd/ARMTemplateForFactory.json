@@ -12410,6 +12410,10 @@
 								"dstCatalog": {
 									"value": "@pipeline().parameters.dstCatalog",
 									"type": "Expression"
+								},
+								"fcCatalog": {
+									"value": "@pipeline().parameters.fcCatalog",
+									"type": "Expression"
 								}
 							}
 						}
@@ -12504,6 +12508,10 @@
 					"date_end": {
 						"type": "string",
 						"defaultValue": "2024-01-01"
+					},
+					"fcCatalog": {
+						"type": "string",
+						"defaultValue": "fc_mssql"
 					}
 				},
 				"folder": {
@@ -20858,158 +20866,6 @@
 							"enableStaging": false,
 							"translator": {
 								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 1
-										},
-										"sink": {
-											"name": "Seq",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 2
-										},
-										"sink": {
-											"name": "Transaction_ID",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 3
-										},
-										"sink": {
-											"name": "Date",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 4
-										},
-										"sink": {
-											"name": "Customer_Name",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 5
-										},
-										"sink": {
-											"name": "Product",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 6
-										},
-										"sink": {
-											"name": "Total_Item",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 7
-										},
-										"sink": {
-											"name": "Total_Cost",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 8
-										},
-										"sink": {
-											"name": "Payment_Method",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 9
-										},
-										"sink": {
-											"name": "City",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 10
-										},
-										"sink": {
-											"name": "Store_Type",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 11
-										},
-										"sink": {
-											"name": "Discount_Applied",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 12
-										},
-										"sink": {
-											"name": "Customer_Category",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 13
-										},
-										"sink": {
-											"name": "Season",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 14
-										},
-										"sink": {
-											"name": "Promotion",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 15
-										},
-										"sink": {
-											"name": "year",
-											"physicalType": "UTF8"
-										}
-									}
-								],
 								"typeConversion": true,
 								"typeConversionSettings": {
 									"allowDataTruncation": true,
@@ -21191,158 +21047,6 @@
 							"enableStaging": false,
 							"translator": {
 								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 1
-										},
-										"sink": {
-											"name": "Seq",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 2
-										},
-										"sink": {
-											"name": "Transaction_ID",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 3
-										},
-										"sink": {
-											"name": "Date",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 4
-										},
-										"sink": {
-											"name": "Customer_Name",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 5
-										},
-										"sink": {
-											"name": "Product",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 6
-										},
-										"sink": {
-											"name": "Total_Item",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 7
-										},
-										"sink": {
-											"name": "Total_Cost",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 8
-										},
-										"sink": {
-											"name": "Payment_Method",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 9
-										},
-										"sink": {
-											"name": "City",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 10
-										},
-										"sink": {
-											"name": "Store_Type",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 11
-										},
-										"sink": {
-											"name": "Discount_Applied",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 12
-										},
-										"sink": {
-											"name": "Customer_Category",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 13
-										},
-										"sink": {
-											"name": "Season",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 14
-										},
-										"sink": {
-											"name": "Promotion",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 15
-										},
-										"sink": {
-											"name": "year",
-											"physicalType": "UTF8"
-										}
-									}
-								],
 								"typeConversion": true,
 								"typeConversionSettings": {
 									"allowDataTruncation": true,
@@ -21524,158 +21228,6 @@
 							"enableStaging": false,
 							"translator": {
 								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 1
-										},
-										"sink": {
-											"name": "Seq",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 2
-										},
-										"sink": {
-											"name": "Transaction_ID",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 3
-										},
-										"sink": {
-											"name": "Date",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 4
-										},
-										"sink": {
-											"name": "Customer_Name",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 5
-										},
-										"sink": {
-											"name": "Product",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 6
-										},
-										"sink": {
-											"name": "Total_Item",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 7
-										},
-										"sink": {
-											"name": "Total_Cost",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 8
-										},
-										"sink": {
-											"name": "Payment_Method",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 9
-										},
-										"sink": {
-											"name": "City",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 10
-										},
-										"sink": {
-											"name": "Store_Type",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 11
-										},
-										"sink": {
-											"name": "Discount_Applied",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 12
-										},
-										"sink": {
-											"name": "Customer_Category",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 13
-										},
-										"sink": {
-											"name": "Season",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 14
-										},
-										"sink": {
-											"name": "Promotion",
-											"physicalType": "UTF8"
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 15
-										},
-										"sink": {
-											"name": "year",
-											"physicalType": "UTF8"
-										}
-									}
-								],
 								"typeConversion": true,
 								"typeConversionSettings": {
 									"allowDataTruncation": true,
@@ -21896,6 +21448,10 @@
 								"catalog_name": {
 									"value": "@pipeline().parameters.dstCatalog",
 									"type": "Expression"
+								},
+								"fc_catalog_name": {
+									"value": "@pipeline().parameters.fcCatalog",
+									"type": "Expression"
 								}
 							}
 						},
@@ -21921,6 +21477,10 @@
 							"baseParameters": {
 								"catalog_name": {
 									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								},
+								"fc_catalog_name": {
+									"value": "@pipeline().parameters.fcCatalog",
 									"type": "Expression"
 								}
 							}
@@ -21948,6 +21508,10 @@
 								"catalog_name": {
 									"value": "@pipeline().parameters.dstCatalog",
 									"type": "Expression"
+								},
+								"fc_catalog_name": {
+									"value": "@pipeline().parameters.fcCatalog",
+									"type": "Expression"
 								}
 							}
 						},
@@ -21974,6 +21538,10 @@
 								"catalog_name": {
 									"value": "@pipeline().parameters.dstCatalog",
 									"type": "Expression"
+								},
+								"fc_catalog_name": {
+									"value": "@pipeline().parameters.fcCatalog",
+									"type": "Expression"
 								}
 							}
 						},
@@ -21990,6 +21558,10 @@
 					"dstCatalog": {
 						"type": "string",
 						"defaultValue": "project_catalog"
+					},
+					"fcCatalog": {
+						"type": "string",
+						"defaultValue": "fc_mssql"
 					}
 				},
 				"folder": {

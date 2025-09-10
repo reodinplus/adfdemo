@@ -1161,6 +1161,10 @@
 								"dstCatalog": {
 									"value": "@pipeline().parameters.dstCatalog",
 									"type": "Expression"
+								},
+								"fcCatalog": {
+									"value": "@pipeline().parameters.fcCatalog",
+									"type": "Expression"
 								}
 							}
 						}
@@ -1255,6 +1259,10 @@
 					"date_end": {
 						"type": "string",
 						"defaultValue": "2024-01-01"
+					},
+					"fcCatalog": {
+						"type": "string",
+						"defaultValue": "fc_mssql"
 					}
 				},
 				"folder": {
