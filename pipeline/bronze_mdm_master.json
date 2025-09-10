@@ -1,6 +1,128 @@
 {
 	"name": "bronze_mdm_master",
 	"properties": {
+		"activities": [
+			{
+				"name": "ep_bronze_mdm_customer",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_mdm_customer",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"dstContainer": {
+							"value": "@pipeline().parameters.dtContainer",
+							"type": "Expression"
+						},
+						"dt": {
+							"value": "@pipeline().parameters.dt",
+							"type": "Expression"
+						},
+						"daysOffset": {
+							"value": "@pipeline().parameters.daysOffset",
+							"type": "Expression"
+						},
+						"dstCatalog": {
+							"value": "@pipeline().parameters.dtCatalog",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "ep_bronze_mdm_city",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_mdm_city",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"dstContainer": {
+							"value": "@pipeline().parameters.dtContainer",
+							"type": "Expression"
+						},
+						"dt": {
+							"value": "@pipeline().parameters.dt",
+							"type": "Expression"
+						},
+						"daysOffset": {
+							"value": "@pipeline().parameters.daysOffset",
+							"type": "Expression"
+						},
+						"dstCatalog": {
+							"value": "@pipeline().parameters.dtCatalog",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "ep_bronze_mdm_product",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_mdm_product",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"dstContainer": {
+							"value": "@pipeline().parameters.dtContainer",
+							"type": "Expression"
+						},
+						"dt": {
+							"value": "@pipeline().parameters.dt",
+							"type": "Expression"
+						},
+						"daysOffset": {
+							"value": "@pipeline().parameters.daysOffset",
+							"type": "Expression"
+						},
+						"dstCatalog": {
+							"value": "@pipeline().parameters.dtCatalog",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"dtContainer": {
+				"type": "string",
+				"defaultValue": "demo"
+			},
+			"dtCatalog": {
+				"type": "string",
+				"defaultValue": "project_catalog"
+			},
+			"dt": {
+				"type": "string",
+				"defaultValue": "2025-01-01"
+			},
+			"daysOffset": {
+				"type": "string",
+				"defaultValue": "-1000"
+			}
+		},
 		"folder": {
 			"name": "retail/bronze/blob/mdm"
 		},
