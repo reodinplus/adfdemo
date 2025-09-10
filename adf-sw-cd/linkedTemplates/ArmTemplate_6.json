@@ -13,6 +13,317 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_join')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "demo"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						},
+						{
+							"linkedService": {
+								"referenceName": "adfdemo_asql_dst",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source2"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'src_object',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"source(output(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'query',",
+						"     store: 'sqlserver',",
+						"     query: 'select * from sys.objects where is_ms_shipped = 0',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source2",
+						"source1, source2 join(fuzzyCompare(source1@name, source2@name, 80.00),",
+						"     joinType:'inner',",
+						"     matchType:'fuzzy',",
+						"     ignoreSpaces: true,",
+						"     scoreColumn:'60',",
+						"     broadcast: 'off')~> join1",
+						"join1 select(mapColumn(",
+						"          each(match(instr(name,'source1@')==0))",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'stg_object',",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          name,",
+						"          object_id,",
+						"          principal_id,",
+						"          schema_id,",
+						"          parent_object_id,",
+						"          type,",
+						"          type_desc,",
+						"          create_date,",
+						"          modify_date,",
+						"          is_ms_shipped,",
+						"          is_published,",
+						"          is_schema_published",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_lookup')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "demo"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						},
+						{
+							"linkedService": {
+								"referenceName": "adfdemo_asql_dst",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source2"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "select1"
+						},
+						{
+							"name": "lookup1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          name as string,",
+						"          object_id as integer,",
+						"          principal_id as integer,",
+						"          schema_id as integer,",
+						"          parent_object_id as integer,",
+						"          type as string,",
+						"          type_desc as string,",
+						"          create_date as timestamp,",
+						"          modify_date as timestamp,",
+						"          is_ms_shipped as boolean,",
+						"          is_published as boolean,",
+						"          is_schema_published as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'src_object',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"source(output(",
+						"          name as string,",
+						"          object_key as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'query',",
+						"     store: 'sqlserver',",
+						"     query: 'select name, object_id object_key from sys.objects where is_ms_shipped = 0',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source2",
+						"lookup1 select(mapColumn(",
+						"          each(match(instr(name,'source1@')==0))",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"source1, source2 lookup(source1@name == source2@name,",
+						"     multiple: true,",
+						"     broadcast: 'auto')~> lookup1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'stg_object',",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          name,",
+						"          object_id,",
+						"          principal_id,",
+						"          schema_id,",
+						"          parent_object_id,",
+						"          type,",
+						"          type_desc,",
+						"          create_date,",
+						"          modify_date,",
+						"          is_ms_shipped,",
+						"          is_published,",
+						"          is_schema_published",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_pivot')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "demo"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "sqldb_dw",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "pivot1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          name as string,",
+						"          class as string,",
+						"          score as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'query',",
+						"     store: 'sqlserver',",
+						"     query: 'select *\\nfrom (values\\n     (N\\'张三\\', N\\'语文\\', 80),\\n     (N\\'张三\\', N\\'数学\\', 89),\\n     (N\\'张三\\', N\\'英语\\', 88),\\n     (N\\'李四\\', N\\'语文\\', 89),\\n     (N\\'李四\\', N\\'数学\\', 90),\\n     (N\\'李四\\', N\\'英语\\', 91)\\n) t1 ([name], class, score)',",
+						"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+						"source1 pivot(groupBy(name),",
+						"     pivotBy(class, ['语文', '数学', '英语', null]),",
+						"     sum = sum(score),",
+						"     columnNaming: 'a$Nb$Vc',",
+						"     lateral: true) ~> pivot1",
+						"pivot1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: 'dbo',",
+						"     tableName: 'stg_object',",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflow_pivot2')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -707,6 +1018,993 @@
 						"filter1 output() ~> output1"
 					]
 				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_mdm_customer')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "copy_extract src to stage file",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "FlattenHierarchy"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"name": "Seq",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 2
+										},
+										"sink": {
+											"name": "Transaction_ID",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 3
+										},
+										"sink": {
+											"name": "Date",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 4
+										},
+										"sink": {
+											"name": "Customer_Name",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 5
+										},
+										"sink": {
+											"name": "Product",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 6
+										},
+										"sink": {
+											"name": "Total_Item",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 7
+										},
+										"sink": {
+											"name": "Total_Cost",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 8
+										},
+										"sink": {
+											"name": "Payment_Method",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 9
+										},
+										"sink": {
+											"name": "City",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 10
+										},
+										"sink": {
+											"name": "Store_Type",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 11
+										},
+										"sink": {
+											"name": "Discount_Applied",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 12
+										},
+										"sink": {
+											"name": "Customer_Category",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 13
+										},
+										"sink": {
+											"name": "Season",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 14
+										},
+										"sink": {
+											"name": "Promotion",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 15
+										},
+										"sink": {
+											"name": "year",
+											"physicalType": "UTF8"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_ASQL_MDM",
+								"type": "DatasetReference",
+								"parameters": {
+									"schema": {
+										"value": "@pipeline().parameters.schema",
+										"type": "Expression"
+									},
+									"table": {
+										"value": "@pipeline().parameters.table",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_Deltalake_Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": {
+										"value": "@pipeline().parameters.dstContainer",
+										"type": "Expression"
+									},
+									"path": {
+										"value": "@{pipeline().parameters.dstFileDirPath}/@{variables('dstFileDirName')}/dt=@{pipeline().parameters.dt}",
+										"type": "Expression"
+									},
+									"file": {
+										"value": "@variables('dstFile')",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "nbk_bronze_blob_retail_transaction",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "copy_extract src to stage file",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": {
+								"value": "@variables('notebookPath')",
+								"type": "Expression"
+							},
+							"baseParameters": {
+								"catalog_name": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								},
+								"dt": {
+									"value": "@pipeline().parameters.dt",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"schema": {
+						"type": "string",
+						"defaultValue": "dbo"
+					},
+					"table": {
+						"type": "string",
+						"defaultValue": "mdm_customer"
+					},
+					"dstContainer": {
+						"type": "string",
+						"defaultValue": "demo"
+					},
+					"dstFileDirPath": {
+						"type": "string",
+						"defaultValue": "retail/mdm/bronze"
+					},
+					"dt": {
+						"type": "string",
+						"defaultValue": "2025-01-01"
+					},
+					"daysOffset": {
+						"type": "int",
+						"defaultValue": -1000
+					},
+					"dstCatalog": {
+						"type": "string",
+						"defaultValue": "project_catalog"
+					}
+				},
+				"variables": {
+					"dstFileDirName": {
+						"type": "String",
+						"defaultValue": "stage_mdm_customer"
+					},
+					"dstFile": {
+						"type": "String",
+						"defaultValue": "mdm_customer.parquet"
+					},
+					"notebookPath": {
+						"type": "String",
+						"defaultValue": "/retail/dml/bronze/mdm_customer"
+					}
+				},
+				"folder": {
+					"name": "retail/bronze/mdm/detail"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-09-02T10:00:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_mdm_city')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "copy_extract src to stage file",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "FlattenHierarchy"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"name": "Seq",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 2
+										},
+										"sink": {
+											"name": "Transaction_ID",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 3
+										},
+										"sink": {
+											"name": "Date",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 4
+										},
+										"sink": {
+											"name": "Customer_Name",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 5
+										},
+										"sink": {
+											"name": "Product",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 6
+										},
+										"sink": {
+											"name": "Total_Item",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 7
+										},
+										"sink": {
+											"name": "Total_Cost",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 8
+										},
+										"sink": {
+											"name": "Payment_Method",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 9
+										},
+										"sink": {
+											"name": "City",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 10
+										},
+										"sink": {
+											"name": "Store_Type",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 11
+										},
+										"sink": {
+											"name": "Discount_Applied",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 12
+										},
+										"sink": {
+											"name": "Customer_Category",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 13
+										},
+										"sink": {
+											"name": "Season",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 14
+										},
+										"sink": {
+											"name": "Promotion",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 15
+										},
+										"sink": {
+											"name": "year",
+											"physicalType": "UTF8"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_ASQL_MDM",
+								"type": "DatasetReference",
+								"parameters": {
+									"schema": {
+										"value": "@pipeline().parameters.schema",
+										"type": "Expression"
+									},
+									"table": {
+										"value": "@pipeline().parameters.table",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_Deltalake_Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": {
+										"value": "@pipeline().parameters.dstContainer",
+										"type": "Expression"
+									},
+									"path": {
+										"value": "@{pipeline().parameters.dstFileDirPath}/@{variables('dstFileDirName')}/dt=@{pipeline().parameters.dt}",
+										"type": "Expression"
+									},
+									"file": {
+										"value": "@variables('dstFile')",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "nbk_bronze_blob_retail_transaction",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "copy_extract src to stage file",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": {
+								"value": "@variables('notebookPath')",
+								"type": "Expression"
+							},
+							"baseParameters": {
+								"catalog_name": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								},
+								"dt": {
+									"value": "@pipeline().parameters.dt",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"schema": {
+						"type": "string",
+						"defaultValue": "dbo"
+					},
+					"table": {
+						"type": "string",
+						"defaultValue": "mdm_city"
+					},
+					"dstContainer": {
+						"type": "string",
+						"defaultValue": "demo"
+					},
+					"dstFileDirPath": {
+						"type": "string",
+						"defaultValue": "retail/mdm/bronze"
+					},
+					"dt": {
+						"type": "string",
+						"defaultValue": "2025-01-01"
+					},
+					"daysOffset": {
+						"type": "int",
+						"defaultValue": -1000
+					},
+					"dstCatalog": {
+						"type": "string",
+						"defaultValue": "project_catalog"
+					}
+				},
+				"variables": {
+					"dstFileDirName": {
+						"type": "String",
+						"defaultValue": "stage_mdm_city"
+					},
+					"dstFile": {
+						"type": "String",
+						"defaultValue": "mdm_city.parquet"
+					},
+					"notebookPath": {
+						"type": "String",
+						"defaultValue": "/retail/dml/bronze/mdm_city"
+					}
+				},
+				"folder": {
+					"name": "retail/bronze/mdm/detail"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-09-02T10:00:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_mdm_product')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "copy_extract src to stage file",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "FlattenHierarchy"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"name": "Seq",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 2
+										},
+										"sink": {
+											"name": "Transaction_ID",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 3
+										},
+										"sink": {
+											"name": "Date",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 4
+										},
+										"sink": {
+											"name": "Customer_Name",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 5
+										},
+										"sink": {
+											"name": "Product",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 6
+										},
+										"sink": {
+											"name": "Total_Item",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 7
+										},
+										"sink": {
+											"name": "Total_Cost",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 8
+										},
+										"sink": {
+											"name": "Payment_Method",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 9
+										},
+										"sink": {
+											"name": "City",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 10
+										},
+										"sink": {
+											"name": "Store_Type",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 11
+										},
+										"sink": {
+											"name": "Discount_Applied",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 12
+										},
+										"sink": {
+											"name": "Customer_Category",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 13
+										},
+										"sink": {
+											"name": "Season",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 14
+										},
+										"sink": {
+											"name": "Promotion",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 15
+										},
+										"sink": {
+											"name": "year",
+											"physicalType": "UTF8"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_ASQL_MDM",
+								"type": "DatasetReference",
+								"parameters": {
+									"schema": {
+										"value": "@pipeline().parameters.schema",
+										"type": "Expression"
+									},
+									"table": {
+										"value": "@pipeline().parameters.table",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_Deltalake_Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": {
+										"value": "@pipeline().parameters.dstContainer",
+										"type": "Expression"
+									},
+									"path": {
+										"value": "@{pipeline().parameters.dstFileDirPath}/@{variables('dstFileDirName')}/dt=@{pipeline().parameters.dt}",
+										"type": "Expression"
+									},
+									"file": {
+										"value": "@variables('dstFile')",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "nbk_bronze_blob_retail_transaction",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "copy_extract src to stage file",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": {
+								"value": "@variables('notebookPath')",
+								"type": "Expression"
+							},
+							"baseParameters": {
+								"catalog_name": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								},
+								"dt": {
+									"value": "@pipeline().parameters.dt",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"schema": {
+						"type": "string",
+						"defaultValue": "dbo"
+					},
+					"table": {
+						"type": "string",
+						"defaultValue": "mdm_product"
+					},
+					"dstContainer": {
+						"type": "string",
+						"defaultValue": "demo"
+					},
+					"dstFileDirPath": {
+						"type": "string",
+						"defaultValue": "retail/mdm/bronze"
+					},
+					"dt": {
+						"type": "string",
+						"defaultValue": "2025-01-01"
+					},
+					"daysOffset": {
+						"type": "int",
+						"defaultValue": -1000
+					},
+					"dstCatalog": {
+						"type": "string",
+						"defaultValue": "project_catalog"
+					}
+				},
+				"variables": {
+					"dstFileDirName": {
+						"type": "String",
+						"defaultValue": "stage_mdm_product"
+					},
+					"dstFile": {
+						"type": "String",
+						"defaultValue": "mdm_product.parquet"
+					},
+					"notebookPath": {
+						"type": "String",
+						"defaultValue": "/retail/dml/bronze/mdm_product"
+					}
+				},
+				"folder": {
+					"name": "retail/bronze/mdm/detail"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-09-02T10:00:16Z"
 			},
 			"dependsOn": []
 		},
@@ -2427,1356 +3725,6 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2025-09-02T10:00:17Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/TTL_Test')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Web_Get AcceccTokenObj",
-						"type": "WebActivity",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "GET",
-							"headers": {},
-							"url": {
-								"value": "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=@{variables('corpid')}&corpsecret=@{variables('corpsecret')}",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "SVar_Set Var accecc_token",
-						"type": "SetVariable",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [
-							{
-								"activity": "Web_Get AcceccTokenObj",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "access_token",
-							"value": {
-								"value": "@activity('Web_Get AcceccTokenObj').output.access_token",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [
-							{
-								"activity": "SVar_Set Var accecc_token",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "RestSource",
-								"httpRequestTimeout": "00:01:40",
-								"requestInterval": "00.00:00:00.010",
-								"requestMethod": "GET",
-								"paginationRules": {
-									"supportRFC5988": "true"
-								}
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"path": "$['errcode']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "$['errmsg']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['name']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['department'][0]"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['position']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['mobile']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['gender']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['email']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['avatar']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['status']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['enable']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['isleader']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['extattr']['attrs'][0]['name']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['extattr']['attrs'][0]['value']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['extattr']['attrs'][0]['type']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['extattr']['attrs'][0]['text']['value']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['hide_mobile']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['english_name']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['telephone']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['order'][0]"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['main_department']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['qr_code']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['alias']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['is_leader_in_dept'][0]"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['thumb_avatar']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['biz_mail']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['userid']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['direct_leader'][0]"
-										},
-										"sink": {}
-									}
-								],
-								"collectionReference": "$['userlist']",
-								"mapComplexValuesToString": true
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "DS_REST_QYWeChat",
-								"type": "DatasetReference",
-								"parameters": {
-									"RelativeURL": {
-										"value": "user/list?access_token=@{variables('access_token')}&department_id=1&fetch_child=1&status=0",
-										"type": "Expression"
-									}
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "asql_dataset",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
-						"name": "Lookup1",
-						"type": "Lookup",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "HttpReadSettings",
-									"requestMethod": "GET",
-									"requestBody": {
-										"value": "corpid=@{variables('corpid')}&corpsecret=@{variables('corpsecret')}",
-										"type": "Expression"
-									},
-									"requestTimeout": ""
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
-							},
-							"dataset": {
-								"referenceName": "DS_HTTP_QYWeChat_Login",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						}
-					},
-					{
-						"name": "Set variable1",
-						"type": "SetVariable",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [
-							{
-								"activity": "Lookup1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "access_token",
-							"value": {
-								"value": "@activity('Lookup1').output.firstRow.access_token",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Web1",
-						"type": "WebActivity",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "GET",
-							"headers": {}
-						},
-						"linkedServiceName": {
-							"referenceName": "LS_WEB_QYWeChat_Login",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"corpid": {
-									"value": "@variables('corpid')",
-									"type": "Expression"
-								},
-								"corpsecret": {
-									"value": "@variables('corpsecret')",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Copy data1_copy1",
-						"type": "Copy",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "RestSource",
-								"httpRequestTimeout": "00:01:40",
-								"requestInterval": "00.00:00:00.010",
-								"requestMethod": "GET",
-								"paginationRules": {
-									"supportRFC5988": "true"
-								}
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"path": "$['errcode']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "$['errmsg']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['name']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['department'][0]"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['position']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['mobile']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['gender']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['email']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['avatar']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['status']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['enable']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['isleader']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['extattr']['attrs'][0]['name']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['extattr']['attrs'][0]['value']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['extattr']['attrs'][0]['type']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['extattr']['attrs'][0]['text']['value']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['hide_mobile']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['english_name']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['telephone']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['order'][0]"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['main_department']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['qr_code']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['alias']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['is_leader_in_dept'][0]"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['thumb_avatar']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['biz_mail']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['userid']"
-										},
-										"sink": {}
-									},
-									{
-										"source": {
-											"path": "[['direct_leader'][0]"
-										},
-										"sink": {}
-									}
-								],
-								"collectionReference": "$['userlist']",
-								"mapComplexValuesToString": true
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "DS_REST_QYWeChat",
-								"type": "DatasetReference",
-								"parameters": {
-									"RelativeURL": {
-										"value": "user/list?access_token=@{variables('access_token')}&department_id=1&fetch_child=1&status=0",
-										"type": "Expression"
-									}
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "asql_dataset",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"corpid": {
-						"type": "String",
-						"defaultValue": "ww6756f2ce4a5f10ff"
-					},
-					"corpsecret": {
-						"type": "String",
-						"defaultValue": "VcCpyk0srxuJosFusMfA_mfGzJNrNsdLTPPuqbJ61s0"
-					},
-					"access_token": {
-						"type": "String",
-						"defaultValue": "jhAT-nUmGL0F2MDjHOQh7V5oCb9R2lqdUmSy_RnNzjzSQPkYK5OrVNPh_3bZcl3FskfGz5uLF4KNcN5uHFfAEzqo_jbgBN1S7d85Ia0rHZCBg9AMeEx5yYt0z1pFrvDgkjY29EV3JYGSinPXt6zb30-AduxqU8AaVs6jKQBVdz81GnuLWF2jxl_5kNmrUFjS2ZQBTrgnsSvJ8rlADMUvZQ"
-					}
-				},
-				"folder": {
-					"name": "QyWeChat"
-				},
-				"annotations": [],
-				"lastPublishTime": "2025-09-02T10:00:17Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adf_excel_to_asql')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [
-							{
-								"name": "Source",
-								"value": "file-data/adfdemo/Employee Demo.xlsx"
-							},
-							{
-								"name": "Destination",
-								"value": "dbo.EmployeeDemo"
-							}
-						],
-						"typeProperties": {
-							"source": {
-								"type": "ExcelSource",
-								"additionalColumns": [
-									{
-										"name": "FilePath",
-										"value": "$$FILEPATH"
-									},
-									{
-										"name": "FileName",
-										"value": "$$FILENAME"
-									}
-								],
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								}
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false,
-								"disableMetricsCollection": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"name": "FirsrtName",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "FirstName",
-											"type": "String",
-											"physicalType": "nvarchar"
-										}
-									},
-									{
-										"source": {
-											"name": "LastName",
-											"type": "String",
-											"physicalType": "String"
-										},
-										"sink": {
-											"name": "LastName",
-											"type": "String",
-											"physicalType": "nvarchar"
-										}
-									}
-								],
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "storge_excel_customer",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "asql_employeedemo",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2025-09-02T10:00:15Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adf_mssql_asql_employee')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "SqlServerSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"name": "ID",
-											"type": "Int32",
-											"physicalType": "int"
-										},
-										"sink": {
-											"name": "ID",
-											"type": "Int32",
-											"physicalType": "int"
-										}
-									},
-									{
-										"source": {
-											"name": "FirstName",
-											"type": "String",
-											"physicalType": "varchar"
-										},
-										"sink": {
-											"name": "FirstName",
-											"type": "String",
-											"physicalType": "varchar"
-										}
-									},
-									{
-										"source": {
-											"name": "LastName",
-											"type": "String",
-											"physicalType": "varchar"
-										},
-										"sink": {
-											"name": "LastName",
-											"type": "String",
-											"physicalType": "varchar"
-										}
-									}
-								],
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "mssql_adfemo_employee",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "adfdemo_asql_employee",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-09-14T04:07:59Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/aishu_excel')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "ExcelSource",
-								"additionalColumns": [
-									{
-										"value": "$$FILEPATH"
-									}
-								],
-								"storeSettings": {
-									"type": "HttpReadSettings",
-									"requestMethod": "GET",
-									"requestTimeout": "0.00:10:00"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "pbi_xuqiu_ds_excel",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/asql_to_asql_stg_adfdemo_object')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [
-							{
-								"name": "Source",
-								"value": "dbo.src_adfdemo_object"
-							},
-							{
-								"name": "Destination",
-								"value": "dbo.stg_adfdemo_object"
-							}
-						],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"name": "name",
-											"type": "String",
-											"physicalType": "nvarchar"
-										},
-										"sink": {
-											"name": "name",
-											"type": "String",
-											"physicalType": "nvarchar"
-										}
-									},
-									{
-										"source": {
-											"name": "object_id",
-											"type": "Int32",
-											"physicalType": "int"
-										},
-										"sink": {
-											"name": "object_id",
-											"type": "Int32",
-											"physicalType": "int"
-										}
-									},
-									{
-										"source": {
-											"name": "principal_id",
-											"type": "Int32",
-											"physicalType": "int"
-										},
-										"sink": {
-											"name": "principal_id",
-											"type": "Int32",
-											"physicalType": "int"
-										}
-									},
-									{
-										"source": {
-											"name": "schema_id",
-											"type": "Int32",
-											"physicalType": "int"
-										},
-										"sink": {
-											"name": "schema_id",
-											"type": "Int32",
-											"physicalType": "int"
-										}
-									},
-									{
-										"source": {
-											"name": "parent_object_id",
-											"type": "Int32",
-											"physicalType": "int"
-										},
-										"sink": {
-											"name": "parent_object_id",
-											"type": "Int32",
-											"physicalType": "int"
-										}
-									},
-									{
-										"source": {
-											"name": "type",
-											"type": "String",
-											"physicalType": "char"
-										},
-										"sink": {
-											"name": "type",
-											"type": "String",
-											"physicalType": "char"
-										}
-									},
-									{
-										"source": {
-											"name": "type_desc",
-											"type": "String",
-											"physicalType": "nvarchar"
-										},
-										"sink": {
-											"name": "type_desc",
-											"type": "String",
-											"physicalType": "nvarchar"
-										}
-									},
-									{
-										"source": {
-											"name": "create_date",
-											"type": "DateTime",
-											"physicalType": "datetime"
-										},
-										"sink": {
-											"name": "create_date",
-											"type": "DateTime",
-											"physicalType": "datetime"
-										}
-									},
-									{
-										"source": {
-											"name": "modify_date",
-											"type": "DateTime",
-											"physicalType": "datetime"
-										},
-										"sink": {
-											"name": "modify_date",
-											"type": "DateTime",
-											"physicalType": "datetime"
-										}
-									},
-									{
-										"source": {
-											"name": "is_ms_shipped",
-											"type": "Boolean",
-											"physicalType": "bit"
-										},
-										"sink": {
-											"name": "is_ms_shipped",
-											"type": "Boolean",
-											"physicalType": "bit"
-										}
-									},
-									{
-										"source": {
-											"name": "is_published",
-											"type": "Boolean",
-											"physicalType": "bit"
-										},
-										"sink": {
-											"name": "is_published",
-											"type": "Boolean",
-											"physicalType": "bit"
-										}
-									},
-									{
-										"source": {
-											"name": "is_schema_published",
-											"type": "Boolean",
-											"physicalType": "bit"
-										},
-										"sink": {
-											"name": "is_schema_published",
-											"type": "Boolean",
-											"physicalType": "bit"
-										}
-									}
-								],
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "adfdemo_asql_dataset_src_adfdemo_object",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "adfdemo_asql_dataset_stg_adfdemo_object",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "ADFDemo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-09-21T03:02:58Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/asql_to_asql_stg_adfdemo_object1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [
-							{
-								"name": "Source",
-								"value": "dbo.src_adfdemo_object"
-							},
-							{
-								"name": "Destination",
-								"value": "dbo.stg_adfdemo_object"
-							}
-						],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"name": "name",
-											"type": "String",
-											"physicalType": "nvarchar"
-										},
-										"sink": {
-											"name": "name",
-											"type": "String",
-											"physicalType": "nvarchar"
-										}
-									},
-									{
-										"source": {
-											"name": "object_id",
-											"type": "Int32",
-											"physicalType": "int"
-										},
-										"sink": {
-											"name": "object_id",
-											"type": "Int32",
-											"physicalType": "int"
-										}
-									},
-									{
-										"source": {
-											"name": "principal_id",
-											"type": "Int32",
-											"physicalType": "int"
-										},
-										"sink": {
-											"name": "principal_id",
-											"type": "Int32",
-											"physicalType": "int"
-										}
-									},
-									{
-										"source": {
-											"name": "schema_id",
-											"type": "Int32",
-											"physicalType": "int"
-										},
-										"sink": {
-											"name": "schema_id",
-											"type": "Int32",
-											"physicalType": "int"
-										}
-									},
-									{
-										"source": {
-											"name": "parent_object_id",
-											"type": "Int32",
-											"physicalType": "int"
-										},
-										"sink": {
-											"name": "parent_object_id",
-											"type": "Int32",
-											"physicalType": "int"
-										}
-									},
-									{
-										"source": {
-											"name": "type",
-											"type": "String",
-											"physicalType": "char"
-										},
-										"sink": {
-											"name": "type",
-											"type": "String",
-											"physicalType": "char"
-										}
-									},
-									{
-										"source": {
-											"name": "type_desc",
-											"type": "String",
-											"physicalType": "nvarchar"
-										},
-										"sink": {
-											"name": "type_desc",
-											"type": "String",
-											"physicalType": "nvarchar"
-										}
-									},
-									{
-										"source": {
-											"name": "create_date",
-											"type": "DateTime",
-											"physicalType": "datetime"
-										},
-										"sink": {
-											"name": "create_date",
-											"type": "DateTime",
-											"physicalType": "datetime"
-										}
-									},
-									{
-										"source": {
-											"name": "modify_date",
-											"type": "DateTime",
-											"physicalType": "datetime"
-										},
-										"sink": {
-											"name": "modify_date",
-											"type": "DateTime",
-											"physicalType": "datetime"
-										}
-									},
-									{
-										"source": {
-											"name": "is_ms_shipped",
-											"type": "Boolean",
-											"physicalType": "bit"
-										},
-										"sink": {
-											"name": "is_ms_shipped",
-											"type": "Boolean",
-											"physicalType": "bit"
-										}
-									},
-									{
-										"source": {
-											"name": "is_published",
-											"type": "Boolean",
-											"physicalType": "bit"
-										},
-										"sink": {
-											"name": "is_published",
-											"type": "Boolean",
-											"physicalType": "bit"
-										}
-									},
-									{
-										"source": {
-											"name": "is_schema_published",
-											"type": "Boolean",
-											"physicalType": "bit"
-										},
-										"sink": {
-											"name": "is_schema_published",
-											"type": "Boolean",
-											"physicalType": "bit"
-										}
-									}
-								],
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "adfdemo_asql_dataset_src_adfdemo_object1",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "adfdemo_asql_dataset_stg_adfdemo_object1",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "ADFDemo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-10-24T07:01:23Z"
 			},
 			"dependsOn": []
 		}

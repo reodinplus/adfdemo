@@ -13,6 +13,1471 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/file_excel_data_load')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "storage_excel_src",
+								"type": "DatasetReference",
+								"parameters": {
+									"containerName": {
+										"value": "@pipeline().parameters.containerName",
+										"type": "Expression"
+									},
+									"directoryName": {
+										"value": "@pipeline().parameters.directoryName",
+										"type": "Expression"
+									},
+									"fileName": " ",
+									"sheetName": " "
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false
+										},
+										"enableStaging": false,
+										"validateDataConsistency": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "storage_excel_src",
+											"type": "DatasetReference",
+											"parameters": {
+												"containerName": {
+													"value": "@pipeline().parameters.containerName",
+													"type": "Expression"
+												},
+												"directoryName": {
+													"value": "@pipeline().parameters.directoryName",
+													"type": "Expression"
+												},
+												"fileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"sheetName": {
+													"value": "@pipeline().parameters.sheetName",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "azuresql_dst",
+											"type": "DatasetReference",
+											"parameters": {
+												"tableNameWithSchema": {
+													"value": "@replace(replace(pipeline().parameters.stgTableNameWithSchema, '[', ''), ']', '')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "dbo.p_truncate_table",
+							"storedProcedureParameters": {
+								"tableNameWithSchema": {
+									"value": {
+										"value": "@pipeline().parameters.stgTableNameWithSchema",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "sqldb_dw",
+							"type": "LinkedServiceReference",
+							"parameters": {
+								"dbName": "sqldevswcd",
+								"dbUserName": "sqladminuser01",
+								"dbUserPwd": "1qaz!QAZ",
+								"dbServerName": "sqlserverdevswcd.database.windows.net"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"containerName": {
+						"type": "string",
+						"defaultValue": "file-data"
+					},
+					"directoryName": {
+						"type": "string",
+						"defaultValue": "demo/ssiswork/订单数据"
+					},
+					"sheetName": {
+						"type": "string",
+						"defaultValue": "sheet1"
+					},
+					"stgTableNameWithSchema": {
+						"type": "string",
+						"defaultValue": "dbo.[Order]"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-07T07:34:01Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/file_excel_data_load_from_filesystem')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [
+							{
+								"activity": "Stored procedure1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "filesystem_ds_excel",
+								"type": "DatasetReference",
+								"parameters": {
+									"directory": {
+										"value": "@pipeline().parameters.directoryName",
+										"type": "Expression"
+									},
+									"file": " ",
+									"sheet": " "
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "FileServerReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Filter1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Filter1').output.value",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "FileServerReadSettings",
+												"recursive": false,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false
+										},
+										"enableStaging": false,
+										"validateDataConsistency": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "filesystem_ds_excel",
+											"type": "DatasetReference",
+											"parameters": {
+												"directory": {
+													"value": "@pipeline().parameters.directoryName",
+													"type": "Expression"
+												},
+												"file": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"sheet": {
+													"value": "@pipeline().parameters.sheetName",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "azuresql_dst",
+											"type": "DatasetReference",
+											"parameters": {
+												"tableNameWithSchema": {
+													"value": "@replace(replace(pipeline().parameters.stgTableNameWithSchema, '[', ''), ']', '')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "dbo.p_truncate_table",
+							"storedProcedureParameters": {
+								"tableNameWithSchema": {
+									"value": {
+										"value": "@pipeline().parameters.stgTableNameWithSchema",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "sqldb_dw",
+							"type": "LinkedServiceReference",
+							"parameters": {
+								"dbName": "sqldevswcd",
+								"dbUserName": "sqladminuser01",
+								"dbUserPwd": "1qaz!QAZ",
+								"dbServerName": "sqlserverdevswcd.database.windows.net"
+							}
+						}
+					},
+					{
+						"name": "Filter1",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@and(equals(item().type, 'File'), endswith(item().name, '.xlsx'))",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"directoryName": {
+						"type": "string",
+						"defaultValue": "00Project_Data_Source/02SSISWork/ProjectSource/订单数据"
+					},
+					"sheetName": {
+						"type": "string",
+						"defaultValue": "sheet1"
+					},
+					"stgTableNameWithSchema": {
+						"type": "string",
+						"defaultValue": "dbo.[Order]"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-07T07:34:01Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/file_src_stg_error')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "foreach容器不能嵌套foreach容器",
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select *\nfrom (values\n\t(N'file-data', N'demo/ssiswork/地点数据', N'Sheet1', N'dbo.City'),\n\t(N'file-data', N'demo/ssiswork/产品数据', N'Sheet1', N'dbo.Product'),\n\t(N'file-data', N'demo/ssiswork/客户数据', N'Sheet1', N'dbo.Customer'),\n\t(N'file-data', N'demo/ssiswork/订单数据', N'Sheet1', N'dbo.[Order]')\n) t1(container_name,direcotry_name,sheet_name, stg);",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "azuresql_dst",
+								"type": "DatasetReference",
+								"parameters": {
+									"tableNameWithSchema": " "
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup1').output.value",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "Get Metadata1",
+									"type": "GetMetadata",
+									"dependsOn": [
+										{
+											"activity": "Stored procedure1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "storage_excel_src",
+											"type": "DatasetReference",
+											"parameters": {
+												"containerName": {
+													"value": "@item().containerName",
+													"type": "Expression"
+												},
+												"directoryName": {
+													"value": "@item().directoryName",
+													"type": "Expression"
+												},
+												"fileName": " ",
+												"sheetName": " "
+											}
+										},
+										"fieldList": [
+											"childItems"
+										],
+										"storeSettings": {
+											"type": "AzureBlobStorageReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										}
+									}
+								},
+								{
+									"name": "ForEach1_copy1",
+									"type": "ForEach",
+									"dependsOn": [
+										{
+											"activity": "Get Metadata1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('Get Metadata1').output.childItems",
+											"type": "Expression"
+										},
+										"activities": [
+											{
+												"name": "Copy data1_copy1",
+												"type": "Copy",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "ExcelSource",
+														"storeSettings": {
+															"type": "AzureBlobStorageReadSettings",
+															"recursive": true,
+															"enablePartitionDiscovery": false
+														}
+													},
+													"sink": {
+														"type": "AzureSqlSink",
+														"writeBehavior": "insert",
+														"sqlWriterUseTableLock": false
+													},
+													"enableStaging": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "storage_excel_src",
+														"type": "DatasetReference",
+														"parameters": {
+															"containerName": {
+																"value": "@item().containerName",
+																"type": "Expression"
+															},
+															"directoryName": {
+																"value": "@item().directoryName",
+																"type": "Expression"
+															},
+															"fileName": {
+																"value": "@item().name",
+																"type": "Expression"
+															},
+															"sheetName": {
+																"value": "@variables('sheetName')",
+																"type": "Expression"
+															}
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "azuresql_dst",
+														"type": "DatasetReference",
+														"parameters": {
+															"tableNameWithSchema": {
+																"value": "@replace(replace(item().stg, '[', ''), ']', '')",
+																"type": "Expression"
+															}
+														}
+													}
+												]
+											}
+										]
+									}
+								},
+								{
+									"name": "Stored procedure1",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "dbo.p_truncate_table",
+										"storedProcedureParameters": {
+											"tableNameWithSchema": {
+												"value": {
+													"value": "@item().stg",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "sqldb_dw",
+										"type": "LinkedServiceReference",
+										"parameters": {
+											"dbName": "sqldevswcd",
+											"dbUserName": "sqladminuser01",
+											"dbUserPwd": "1qaz!QAZ",
+											"dbServerName": "sqlserverdevswcd.database.windows.net"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"sheetName": {
+						"type": "String",
+						"defaultValue": "sheet1"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-08-29T08:24:42Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/increament_asql_to_asql_data_source_table')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select isnull(max(LastModifytime), '1900-01-01') MaxLastModifytime from dbo.data_destination_table",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "adfdemo_asql_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"schema": "dbo",
+									"table": "adfdemo_stg_sales"
+								}
+							}
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "@{'dbo'}.@{'data_source_table'}"
+							},
+							{
+								"name": "Destination",
+								"value": "@{'dbo'}.@{'data_destination_table'}"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select * from dbo.data_source_table where \tLastModifytime > '@{activity('Lookup1').output.firstRow.MaxLastModifytime}'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "PersonID",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"name": "PersonID",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "Name",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "Name",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "LastModifytime",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										},
+										"sink": {
+											"name": "LastModifytime",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "adfdemo_asql_ds_src",
+								"type": "DatasetReference",
+								"parameters": {
+									"schema": "dbo",
+									"table": "data_source_table"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "adfdemo_asql_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"schema": "dbo",
+									"table": "data_destination_table"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ADFDemo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-20T03:19:49Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/increament_loop_blob_excel_to_asql_adfdemo_stg_sales')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadate Files",
+						"type": "GetMetadata",
+						"dependsOn": [
+							{
+								"activity": "Lookup Max LastModifyTime",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "adfdemo_storage_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": "adfdemo",
+									"directory": "sales",
+									"file": " ",
+									"sheet": " "
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"modifiedDatetimeStart": {
+									"value": "@addSeconds(addHours(activity('Lookup Max LastModifyTime').output.firstRow.max_file_last_modifty_time, -8), 1)",
+									"type": "Expression"
+								},
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "Filter file by extendname",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "Get Metadate Files",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadate Files').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@endsWith(item().name, '.xlsx')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Filter file by extendname",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Filter file by extendname').output.Value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Get Metadata of file",
+									"type": "GetMetadata",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "adfdemo_storage_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"container": "adfdemo",
+												"directory": "sales",
+												"file": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"sheet": " "
+											}
+										},
+										"fieldList": [
+											"lastModified"
+										],
+										"storeSettings": {
+											"type": "AzureBlobStorageReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										}
+									}
+								},
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Get Metadata of file",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [
+										{
+											"name": "Source",
+											"value": "@{'adfdemo'}/@{'sales'}/@{item().name}"
+										},
+										{
+											"name": "Destination",
+											"value": "@{'dbo'}.@{'adfdemo_stg_sales'}"
+										}
+									],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"additionalColumns": [
+												{
+													"name": "file_name",
+													"value": {
+														"value": "@item().name",
+														"type": "Expression"
+													}
+												},
+												{
+													"name": "file_last_modifty_time",
+													"value": {
+														"value": "@addHours(activity('Get Metadata of file').output.lastModified, 8)",
+														"type": "Expression"
+													}
+												}
+											],
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "file_name",
+														"type": "String"
+													},
+													"sink": {
+														"name": "file_name",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												},
+												{
+													"source": {
+														"name": "file_last_modifty_time",
+														"type": "String"
+													},
+													"sink": {
+														"name": "file_last_modifty_time",
+														"type": "DateTime",
+														"physicalType": "datetime"
+													}
+												},
+												{
+													"source": {
+														"name": "ProdunctId",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "product_id",
+														"type": "Int32",
+														"physicalType": "int"
+													}
+												},
+												{
+													"source": {
+														"name": "Qty",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "qty",
+														"type": "Int32",
+														"physicalType": "int"
+													}
+												},
+												{
+													"source": {
+														"name": "UnitPrice",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "unit_price",
+														"type": "Decimal",
+														"physicalType": "decimal",
+														"scale": 4,
+														"precision": 19
+													}
+												},
+												{
+													"source": {
+														"name": "SubTotal",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "subtotal",
+														"type": "Decimal",
+														"physicalType": "decimal",
+														"scale": 4,
+														"precision": 19
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "adfdemo_storage_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"container": "adfdemo",
+												"directory": "sales",
+												"file": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"sheet": "Sheet1"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "adfdemo_asql_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "adfdemo_stg_sales"
+											}
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"name": "Lookup Max LastModifyTime",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select isnull(max(file_last_modifty_time), '1900-01-01') max_file_last_modifty_time from  dbo.adfdemo_stg_sales",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "adfdemo_asql_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"schema": "dbo",
+									"table": "adfdemo_stg_sales"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ADFDemo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-20T03:19:50Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/loop_blob_excel_to_asql_adfdemo_stg_sales')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Files",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "adfdemo_storage_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": "adfdemo",
+									"directory": "sales",
+									"file": " ",
+									"sheet": " "
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "ForEach Files",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Files",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Files').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Get Metadata of File",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [
+										{
+											"name": "Source",
+											"value": "@{'adfdemo'}/@{'sales'}/@{item().name}"
+										},
+										{
+											"name": "Destination",
+											"value": "@{'dbo'}.@{'adfdemo_stg_sales'}"
+										}
+									],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"additionalColumns": [
+												{
+													"name": "file_name",
+													"value": {
+														"value": "@item().name",
+														"type": "Expression"
+													}
+												},
+												{
+													"name": "file_last_modifty_time",
+													"value": {
+														"value": "@addHours(activity('Get Metadata of File').output.lastModified, 8)",
+														"type": "Expression"
+													}
+												}
+											],
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "file_name",
+														"type": "String"
+													},
+													"sink": {
+														"name": "file_name",
+														"type": "String",
+														"physicalType": "nvarchar"
+													}
+												},
+												{
+													"source": {
+														"name": "file_last_modifty_time",
+														"type": "String"
+													},
+													"sink": {
+														"name": "file_last_modifty_time",
+														"type": "DateTime",
+														"physicalType": "datetime"
+													}
+												},
+												{
+													"source": {
+														"name": "ProdunctId",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "product_id",
+														"type": "Int32",
+														"physicalType": "int"
+													}
+												},
+												{
+													"source": {
+														"name": "Qty",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "qty",
+														"type": "Int32",
+														"physicalType": "int"
+													}
+												},
+												{
+													"source": {
+														"name": "UnitPrice",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "unit_price",
+														"type": "Decimal",
+														"physicalType": "decimal",
+														"scale": 4,
+														"precision": 19
+													}
+												},
+												{
+													"source": {
+														"name": "SubTotal",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "subtotal",
+														"type": "Decimal",
+														"physicalType": "decimal",
+														"scale": 4,
+														"precision": 19
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "adfdemo_storage_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"container": "adfdemo",
+												"directory": "sales",
+												"file": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"sheet": "Sheet1"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "adfdemo_asql_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"schema": "dbo",
+												"table": "adfdemo_stg_sales"
+											}
+										}
+									]
+								},
+								{
+									"name": "Get Metadata of File",
+									"type": "GetMetadata",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "adfdemo_storage_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"container": "adfdemo",
+												"directory": "sales",
+												"file": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"sheet": " "
+											}
+										},
+										"fieldList": [
+											"lastModified"
+										],
+										"storeSettings": {
+											"type": "AzureBlobStorageReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ADFDemo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-20T03:19:50Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/mssql_to_asql_employee')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -3418,938 +4883,13 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/MetadataDrivenCopyTask_m06_MiddleLevel')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "This pipeline will copy one batch of objects. The objects belonging to this batch will be copied parallelly.",
-				"activities": [
-					{
-						"name": "DivideOneBatchIntoMultipleGroups",
-						"description": "Divide objects from single batch into multiple sub parallel groups to avoid reaching the output limit of lookup activity.",
-						"type": "ForEach",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@range(0, add(div(pipeline().parameters.SumOfObjectsToCopyForCurrentBatch, pipeline().parameters.MaxNumberOfObjectsReturnedFromLookupActivity),\n                    if(equals(mod(pipeline().parameters.SumOfObjectsToCopyForCurrentBatch, pipeline().parameters.MaxNumberOfObjectsReturnedFromLookupActivity), 0), 0, 1)))",
-								"type": "Expression"
-							},
-							"isSequential": false,
-							"batchCount": 50,
-							"activities": [
-								{
-									"name": "GetObjectsPerGroupToCopy",
-									"description": "Get objects (tables etc.) from control table required to be copied in this group. The order of objects to be copied following the TaskId in control table (ORDER BY [TaskId] DESC).",
-									"type": "Lookup",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": {
-												"value": "WITH OrderedControlTable AS (\n                             SELECT *, ROW_NUMBER() OVER (ORDER BY [TaskId], [Id] DESC) AS RowNumber\n                             FROM @{pipeline().parameters.MainControlTableName}\n                             where TopLevelPipelineName = '@{pipeline().parameters.TopLevelPipelineName}'\n                             and TriggerName like '%@{pipeline().parameters.TriggerName}%' and CopyEnabled = 1)\n                             SELECT * FROM OrderedControlTable WHERE RowNumber BETWEEN @{add(mul(int(item()),pipeline().parameters.MaxNumberOfObjectsReturnedFromLookupActivity),\n                             add(mul(pipeline().parameters.SumOfObjectsToCopyForCurrentBatch, pipeline().parameters.CurrentSequentialNumberOfBatch), 1))}\n                             AND @{min(add(mul(int(item()), pipeline().parameters.MaxNumberOfObjectsReturnedFromLookupActivity), add(mul(pipeline().parameters.SumOfObjectsToCopyForCurrentBatch, pipeline().parameters.CurrentSequentialNumberOfBatch),\n                             pipeline().parameters.MaxNumberOfObjectsReturnedFromLookupActivity)),\n                            mul(pipeline().parameters.SumOfObjectsToCopyForCurrentBatch, add(pipeline().parameters.CurrentSequentialNumberOfBatch,1)), pipeline().parameters.SumOfObjectsToCopy)}",
-												"type": "Expression"
-											},
-											"partitionOption": "None"
-										},
-										"dataset": {
-											"referenceName": "MetadataDrivenCopyTask_m06_ControlDS",
-											"type": "DatasetReference",
-											"parameters": {}
-										},
-										"firstRowOnly": false
-									}
-								},
-								{
-									"name": "CopyObjectsInOneGroup",
-									"description": "Execute another pipeline to copy objects from one group. The objects belonging to this group will be copied parallelly.",
-									"type": "ExecutePipeline",
-									"dependsOn": [
-										{
-											"activity": "GetObjectsPerGroupToCopy",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "MetadataDrivenCopyTask_m06_BottomLevel",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"ObjectsPerGroupToCopy": {
-												"value": "@activity('GetObjectsPerGroupToCopy').output.value",
-												"type": "Expression"
-											}
-										}
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"MaxNumberOfObjectsReturnedFromLookupActivity": {
-						"type": "Int"
-					},
-					"TopLevelPipelineName": {
-						"type": "String"
-					},
-					"TriggerName": {
-						"type": "String"
-					},
-					"CurrentSequentialNumberOfBatch": {
-						"type": "Int"
-					},
-					"SumOfObjectsToCopy": {
-						"type": "Int"
-					},
-					"SumOfObjectsToCopyForCurrentBatch": {
-						"type": "Int"
-					},
-					"MainControlTableName": {
-						"type": "String"
-					}
-				},
-				"folder": {
-					"name": "MetadataDrivenCopyTask_m06_20240104"
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/control_activity_other')]",
+			"name": "[concat(parameters('factoryName'), '/bronze_mdm_master')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Execute Pipeline1",
-						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "control_activity_common",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "Web1",
-						"type": "WebActivity",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "GET",
-							"headers": {},
-							"url": "https://www.baidu.com",
-							"connectVia": {
-								"referenceName": "TutorialIntegrationRuntime",
-								"type": "IntegrationRuntimeReference"
-							}
-						}
-					},
-					{
-						"name": "Fail1",
-						"type": "Fail",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"message": "",
-							"errorCode": ""
-						}
-					},
-					{
-						"name": "WebHook1",
-						"type": "WebHook",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"url": "https://www.baidu.com",
-							"method": "POST",
-							"headers": {},
-							"timeout": "00:10:00",
-							"reportStatusOnCallBack": false
-						}
-					},
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "SqlServerSink"
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "asql_dataset",
-								"type": "DatasetReference",
-								"parameters": {
-									"schemaName": " ",
-									"tableName": " "
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "msql_demo_dataset",
-								"type": "DatasetReference",
-								"parameters": {
-									"schemaName": "dbo",
-									"tableName": "b",
-									"dbName": "TestDataSource"
-								}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "ADFDemo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-09-23T04:49:11Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/demo_mater')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "ep_sales_pip",
-						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "sales",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"batch_id": 1
-							}
-						}
-					},
-					{
-						"name": "Data flow1",
-						"type": "ExecuteDataFlow",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow1",
-								"type": "DataFlowReference",
-								"parameters": {
-									"srcTableNameWithSchema": {
-										"value": "'@{variables('dtSrcTableNameWithSchema')}'",
-										"type": "Expression"
-									},
-									"dstTableNameWithSchema": {
-										"value": "'@{variables('dfDstTableNameWithSchema')}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"source1": {},
-									"sink1": {}
-								},
-								"linkedServiceParameters": {
-									"source1": {
-										"linkedService": {
-											"dbName": "sqldevswcd",
-											"dbUserName": "sqladminuser01",
-											"dbUserPwd": "1qaz!QAZ",
-											"dbServerName": "sqlserverdevswcd.database.windows.net"
-										}
-									},
-									"sink1": {
-										"linkedService": {
-											"dbName": "sqldevswcd",
-											"dbUserName": "sqladminuser01",
-											"dbUserPwd": "1qaz!QAZ",
-											"dbServerName": "sqlserverdevswcd.database.windows.net"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "powerquery1",
-						"type": "ExecuteWranglingDataflow",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"queries": [
-								{
-									"queryName": "UserQuery",
-									"dataflowSinks": [
-										{
-											"name": "UserQueryasqldataset",
-											"dataset": {
-												"referenceName": "asql_dataset",
-												"type": "DatasetReference",
-												"parameters": {}
-											},
-											"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tinsert_dt as timestamp,\n\t\tupdate_dt as timestamp,\n\t\tfile_name as string,\n\t\tfile_last_modifty_time as timestamp,\n\t\tproduct_id as integer,\n\t\tqty as integer,\n\t\tunit_price as decimal(19,4),\n\t\tsubtotal as decimal(19,4)\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> UserQueryasqldataset"
-										}
-									]
-								}
-							]
-						}
-					},
-					{
-						"name": "dataflow3",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow3",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"source1": {},
-									"sink1": {}
-								},
-								"linkedServiceParameters": {
-									"source1": {
-										"linkedService": {
-											"storageAccountName": "storageswcd"
-										}
-									},
-									"sink1": {
-										"linkedService": {
-											"dbName": "sqldevswcd",
-											"dbUserName": "sqladminuser01",
-											"dbUserPwd": "1qaz!QAZ",
-											"dbServerName": "sqlserverdevswcd.database.windows.net"
-										}
-									}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine",
-							"continuationSettings": {
-								"customizedCheckpointKey": "5bfaa0a5-c173-40b9-a4bd-87736bdefe7a"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"dfDstTableNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.stg_object"
-					},
-					"dtSrcTableNameWithSchema": {
-						"type": "String",
-						"defaultValue": "dbo.src_object"
-					}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-10-20T03:19:49Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/sales')]",
-				"[concat(variables('factoryId'), '/dataflows/dataflow3')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/file_src_stg')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Lookup1",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select *\nfrom (values\n\t(N'file-data', N'demo/ssiswork/地点数据', N'Sheet1', N'dbo.City'),\n\t(N'file-data', N'demo/ssiswork/产品数据', N'Sheet1', N'dbo.Product'),\n\t(N'file-data', N'demo/ssiswork/客户数据', N'Sheet1', N'dbo.Customer'),\n\t(N'file-data', N'demo/ssiswork/订单数据', N'Sheet1', N'dbo.[Order]')\n) t1(container_name,direcotry_name,sheet_name, stg);",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "azuresql_dst",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableNameWithSchema": " "
-								}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "ForEach1",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Lookup1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Lookup1').output.value",
-								"type": "Expression"
-							},
-							"isSequential": false,
-							"activities": [
-								{
-									"name": "Execute Pipeline1",
-									"type": "ExecutePipeline",
-									"dependsOn": [],
-									"policy": {
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "file_excel_data_load",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"containerName": {
-												"value": "@item().container_name",
-												"type": "Expression"
-											},
-											"directoryName": {
-												"value": "@item().direcotry_name",
-												"type": "Expression"
-											},
-											"sheetName": {
-												"value": "@item().sheet_name",
-												"type": "Expression"
-											},
-											"stgTableNameWithSchema": {
-												"value": "@item().stg",
-												"type": "Expression"
-											}
-										}
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-08-29T08:05:40Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/file_src_stg_from_filesystem')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Lookup1",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "\nselect *\nfrom (values\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/地点数据', N'Sheet1', N'dbo.City'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/产品数据', N'Sheet1', N'dbo.Product'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/客户数据', N'Sheet1', N'dbo.Customer'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/订单数据', N'Sheet1', N'dbo.[Order]')\n) t1(container_name,direcotry_name,sheet_name, stg);",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "azuresql_dst",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableNameWithSchema": " "
-								}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "ForEach1",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Lookup1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Lookup1').output.value",
-								"type": "Expression"
-							},
-							"isSequential": true,
-							"activities": [
-								{
-									"name": "Execute Pipeline1",
-									"type": "ExecutePipeline",
-									"dependsOn": [],
-									"policy": {
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "file_excel_data_load_from_filesystem",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"directoryName": {
-												"value": "@item().direcotry_name",
-												"type": "Expression"
-											},
-											"sheetName": {
-												"value": "@item().sheet_name",
-												"type": "Expression"
-											},
-											"stgTableNameWithSchema": {
-												"value": "@item().stg",
-												"type": "Expression"
-											}
-										}
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-08-29T08:05:40Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Script1",
-						"type": "Script",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"linkedServiceName": {
-							"referenceName": "sqldb_dw",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"dbName": "sqldevswcd",
-								"dbUserName": "sqladminuser01",
-								"dbUserPwd": "1qaz!QAZ",
-								"dbServerName": "sqlserverdevswcd.database.windows.net"
-							}
-						},
-						"typeProperties": {
-							"scripts": [
-								{
-									"type": "Query",
-									"text": "select name from sys.objects"
-								}
-							],
-							"scriptBlockExecutionTimeout": "02:00:00"
-						}
-					},
-					{
-						"name": "Notebook1",
-						"type": "DatabricksNotebook",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {}
-					},
-					{
-						"name": "Jar1",
-						"type": "DatabricksSparkJar",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"parameters": []
-						}
-					},
-					{
-						"name": "Python1",
-						"type": "DatabricksSparkPython",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"parameters": []
-						}
-					},
-					{
-						"name": "Custom1",
-						"type": "Custom",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"referenceObjects": {
-								"linkedServices": [],
-								"datasets": []
-							}
-						}
-					},
-					{
-						"name": "Web1",
-						"type": "WebActivity",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"headers": {}
-						}
-					},
-					{
-						"name": "WebHook1",
-						"type": "WebHook",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "POST",
-							"headers": {},
-							"timeout": "00:10:00"
-						}
-					},
-					{
-						"name": "Power Query1",
-						"type": "ExecuteWranglingDataflow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "pq_employee",
-								"type": "DataFlowReference",
-								"datasetParameters": {
-									"adfdemo_asql_dataset_employee": {},
-									"UserQueryadfdemoasqldatasetemployee": {}
-								}
-							},
-							"staging": {},
-							"integrationRuntime": {
-								"referenceName": "AzureIntegrationRuntime",
-								"type": "IntegrationRuntimeReference"
-							},
-							"queries": [
-								{
-									"queryName": "UserQuery",
-									"dataflowSinks": [
-										{
-											"name": "UserQueryadfdemoasqldatasetemployee",
-											"dataset": {
-												"referenceName": "adfdemo_asql_dataset_employee",
-												"type": "DatasetReference",
-												"parameters": {}
-											},
-											"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tID as integer,\n\t\tFirstName as string,\n\t\tLastName as string\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tFirstName,\n\t\tLastName\n\t)) ~> UserQueryadfdemoasqldatasetemployee"
-										}
-									]
-								}
-							]
-						}
-					},
-					{
-						"name": "Power Query2",
-						"type": "ExecuteWranglingDataflow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "qp_sales",
-								"type": "DataFlowReference",
-								"datasetParameters": {
-									"adfdemo_asql_dataset": {},
-									"adfdemo_asql_ds": {
-										"schema": "dbo",
-										"table": "stg_sales"
-									},
-									"UserQueryadfdemoasqlds": {
-										"schema": "dbo",
-										"table": "ods_sales"
-									}
-								}
-							},
-							"staging": {},
-							"integrationRuntime": {
-								"referenceName": "AzureIntegrationRuntime",
-								"type": "IntegrationRuntimeReference"
-							},
-							"queries": [
-								{
-									"queryName": "UserQuery",
-									"dataflowSinks": [
-										{
-											"name": "UserQueryadfdemoasqlds",
-											"dataset": {
-												"referenceName": "adfdemo_asql_ds",
-												"type": "DatasetReference",
-												"parameters": {
-													"schema": "dbo",
-													"table": "ods_sales"
-												}
-											},
-											"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tinsert_dt as timestamp,\n\t\tupdate_dt as timestamp,\n\t\tfile_name as string,\n\t\tfile_last_modifty_time as timestamp,\n\t\tproduct_id as integer,\n\t\tqty as integer,\n\t\tunit_price as decimal(19,4),\n\t\tsubtotal as decimal(19,4)\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> UserQueryadfdemoasqlds"
-										}
-									]
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-10-20T05:55:19Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/pq_employee')]",
-				"[concat(variables('factoryId'), '/dataflows/qp_sales')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/retail_master')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "ep_bronze_blob_master",
+						"name": "ep_bronze_mdm_customer",
 						"type": "ExecutePipeline",
 						"dependsOn": [],
 						"policy": {
@@ -4358,21 +4898,13 @@
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
-								"referenceName": "bronze_blob_master",
+								"referenceName": "bronze_mdm_customer",
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
 							"parameters": {
-								"container": {
-									"value": "@pipeline().parameters.container",
-									"type": "Expression"
-								},
 								"dstContainer": {
-									"value": "@pipeline().parameters.dstContainer",
-									"type": "Expression"
-								},
-								"dstCatalog": {
-									"value": "@pipeline().parameters.dstCatalog",
+									"value": "@pipeline().parameters.dtContainer",
 									"type": "Expression"
 								},
 								"dt": {
@@ -4382,126 +4914,80 @@
 								"daysOffset": {
 									"value": "@pipeline().parameters.daysOffset",
 									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "ep_silver_blob_master",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "ep_bronze_blob_master",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "silver_blob_master",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"dstCatalog": {
-									"value": "@pipeline().parameters.dstCatalog",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "ep_retail_dim_master",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "ep_silver_blob_master",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "retail_dim_master",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"dstCatalog": {
-									"value": "@pipeline().parameters.dstCatalog",
-									"type": "Expression"
 								},
-								"date_start": {
-									"value": "@pipeline().parameters.date_start",
-									"type": "Expression"
-								},
-								"date_end": {
-									"value": "@pipeline().parameters.date_end",
+								"dstCatalog": {
+									"value": "@pipeline().parameters.dtCatalog",
 									"type": "Expression"
 								}
 							}
 						}
 					},
 					{
-						"name": "ep_retail_fact_master",
+						"name": "ep_bronze_mdm_city",
 						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "ep_retail_dim_master",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "retail_fact_master",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "job_retail_etl_job",
-						"type": "DatabricksJob",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [],
 						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
 							"secureInput": false
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"jobId": "574857699270895",
-							"jobParameters": {
-								"catalog_name": "project_catalog",
-								"dt": "2025-01-01",
-								"date_start": "2020-01-01",
-								"date_end": "2024-12-31"
+							"pipeline": {
+								"referenceName": "bronze_mdm_city",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"dstContainer": {
+									"value": "@pipeline().parameters.dtContainer",
+									"type": "Expression"
+								},
+								"dt": {
+									"value": "@pipeline().parameters.dt",
+									"type": "Expression"
+								},
+								"daysOffset": {
+									"value": "@pipeline().parameters.daysOffset",
+									"type": "Expression"
+								},
+								"dstCatalog": {
+									"value": "@pipeline().parameters.dtCatalog",
+									"type": "Expression"
+								}
 							}
+						}
+					},
+					{
+						"name": "ep_bronze_mdm_product",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
 						},
-						"linkedServiceName": {
-							"referenceName": "LS_ADB",
-							"type": "LinkedServiceReference"
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "bronze_mdm_product",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"dstContainer": {
+									"value": "@pipeline().parameters.dtContainer",
+									"type": "Expression"
+								},
+								"dt": {
+									"value": "@pipeline().parameters.dt",
+									"type": "Expression"
+								},
+								"daysOffset": {
+									"value": "@pipeline().parameters.daysOffset",
+									"type": "Expression"
+								},
+								"dstCatalog": {
+									"value": "@pipeline().parameters.dtCatalog",
+									"type": "Expression"
+								}
+							}
 						}
 					}
 				],
@@ -4509,40 +4995,27 @@
 					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"container": {
-						"type": "string",
-						"defaultValue": "file-data"
-					},
-					"dstContainer": {
+					"dtContainer": {
 						"type": "string",
 						"defaultValue": "demo"
 					},
-					"dstCatalog": {
+					"dtCatalog": {
 						"type": "string",
 						"defaultValue": "project_catalog"
 					},
 					"dt": {
 						"type": "string",
-						"defaultValue": "2025-01-02"
+						"defaultValue": "2025-01-01"
 					},
 					"daysOffset": {
-						"type": "int",
-						"defaultValue": -1000
-					},
-					"date_start": {
 						"type": "string",
-						"defaultValue": "2020-01-01"
-					},
-					"date_end": {
-						"type": "string",
-						"defaultValue": "2024-01-01"
+						"defaultValue": "-1000"
 					}
 				},
 				"folder": {
-					"name": "retail/gold"
+					"name": "retail/bronze/mdm"
 				},
-				"annotations": [],
-				"lastPublishTime": "2025-09-02T10:00:18Z"
+				"annotations": []
 			},
 			"dependsOn": []
 		}

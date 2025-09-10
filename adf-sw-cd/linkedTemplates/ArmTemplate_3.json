@@ -370,6 +370,312 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/silver_mdm_master')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "nbk_silver_blob_retail_transaction",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/retail/dml/silver/blob_retail_transaction",
+							"baseParameters": {
+								"catalog_name": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"dstCatalog": {
+						"type": "string",
+						"defaultValue": "project_catalog"
+					}
+				},
+				"folder": {
+					"name": "retail/silver/mdm"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-09-02T10:00:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze_fc_master')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "nbk_bronze_fc_promotion",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/retail/dml/bronze/fc_promotion",
+							"baseParameters": {
+								"catalog_name": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "nbk_bronze_fc_season",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/retail/dml/bronze/fc_season",
+							"baseParameters": {
+								"catalog_name": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "nbk_bronze_fc_payment_method",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/retail/dml/bronze/fc_payment_method",
+							"baseParameters": {
+								"catalog_name": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "nbk_bronze_fc_store_type",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/retail/dml/bronze/fc_store_type",
+							"baseParameters": {
+								"catalog_name": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"dstCatalog": {
+						"type": "string",
+						"defaultValue": "project_catalog"
+					}
+				},
+				"folder": {
+					"name": "retail/bronze/fc"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-09-02T10:00:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/silver_fc_master')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "nbk_bronze_fc_promotion",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/retail/dml/silver/fc_promotion",
+							"baseParameters": {
+								"catalog_name": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "nbk_silver_fc_season",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/retail/dml/silver/fc_season",
+							"baseParameters": {
+								"catalog_name": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "nbk_silver_fc_payment_method",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/retail/dml/silver/fc_payment_method",
+							"baseParameters": {
+								"catalog_name": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "nbk_silver_fc_store_type",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/retail/dml/silver/fc_store_type",
+							"baseParameters": {
+								"catalog_name": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "LS_ADB",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"dstCatalog": {
+						"type": "string",
+						"defaultValue": "project_catalog"
+					}
+				},
+				"folder": {
+					"name": "retail/silver/fc"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-09-02T10:00:16Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/CopyPipeline_re3')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1104,301 +1410,6 @@
 				"lastPublishTime": "2023-08-31T07:29:41Z"
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipeline3')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Get Metadata1",
-						"type": "GetMetadata",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "adfdemo_storage_dataset",
-								"type": "DatasetReference",
-								"parameters": {
-									"container": "file-data",
-									"directory": "demo/ssiswork/订单数据/",
-									"file": " ",
-									"sheet": " "
-								}
-							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "AzureBlobStorageReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							}
-						}
-					},
-					{
-						"name": "ForEach1",
-						"type": "ForEach",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [
-							{
-								"activity": "Get Metadata1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Get Metadata1').output.childItems",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Get Metadata2",
-									"type": "GetMetadata",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataset": {
-											"referenceName": "adfdemo_storage_dataset",
-											"type": "DatasetReference",
-											"parameters": {
-												"container": "file-data",
-												"directory": "demo/ssiswork/订单数据/",
-												"file": {
-													"value": "@item().name",
-													"type": "Expression"
-												},
-												"sheet": "Sheet1"
-											}
-										},
-										"fieldList": [
-											"itemName",
-											"itemType",
-											"lastModified",
-											"size"
-										],
-										"storeSettings": {
-											"type": "AzureBlobStorageReadSettings",
-											"recursive": true,
-											"enablePartitionDiscovery": false
-										}
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Get Metadata3",
-						"type": "GetMetadata",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "DS_Binary",
-								"type": "DatasetReference",
-								"parameters": {
-									"directory": {
-										"value": "sales",
-										"type": "Expression"
-									},
-									"file": " "
-								}
-							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "AzureBlobStorageReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "BinaryReadSettings"
-							}
-						}
-					},
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "BinarySource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true
-								},
-								"formatSettings": {
-									"type": "BinaryReadSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "DS_Binary",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
-						"name": "ForEach1_copy1",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Get Metadata3",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Get Metadata3').output.childItems",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Get Metadata2_copy1",
-									"type": "GetMetadata",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataset": {
-											"referenceName": "DS_Binary",
-											"type": "DatasetReference",
-											"parameters": {
-												"directory": {
-													"value": "sales",
-													"type": "Expression"
-												},
-												"file": {
-													"value": "@item().name",
-													"type": "Expression"
-												}
-											}
-										},
-										"fieldList": [
-											"itemName",
-											"itemType",
-											"lastModified",
-											"size"
-										],
-										"storeSettings": {
-											"type": "AzureBlobStorageReadSettings",
-											"recursive": true,
-											"enablePartitionDiscovery": false
-										},
-										"formatSettings": {
-											"type": "BinaryReadSettings"
-										}
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"lastPublishTime": "2025-09-02T10:00:16Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabaseDataSource')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Connection to your source data store.",
-				"linkedServiceName": {
-					"referenceName": "adfdemo_asql_dst",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "DataSourceTable"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfdemo_asql_dst')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabaseExternal_ControlTable')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "External control table to store high water mark value.",
-				"linkedServiceName": {
-					"referenceName": "adfdemo_asql_dst",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "watermarktable"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/adfdemo_asql_dst')]"
-			]
 		}
 	]
 }

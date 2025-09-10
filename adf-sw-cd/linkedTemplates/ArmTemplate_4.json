@@ -13,6 +13,297 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/pipeline3')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "adfdemo_storage_dataset",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": "file-data",
+									"directory": "demo/ssiswork/订单数据/",
+									"file": " ",
+									"sheet": " "
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Get Metadata2",
+									"type": "GetMetadata",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "adfdemo_storage_dataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"container": "file-data",
+												"directory": "demo/ssiswork/订单数据/",
+												"file": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"sheet": "Sheet1"
+											}
+										},
+										"fieldList": [
+											"itemName",
+											"itemType",
+											"lastModified",
+											"size"
+										],
+										"storeSettings": {
+											"type": "AzureBlobStorageReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Get Metadata3",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "DS_Binary",
+								"type": "DatasetReference",
+								"parameters": {
+									"directory": {
+										"value": "sales",
+										"type": "Expression"
+									},
+									"file": " "
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "BinaryReadSettings"
+							}
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_Binary",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "ForEach1_copy1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata3",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata3').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Get Metadata2_copy1",
+									"type": "GetMetadata",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "DS_Binary",
+											"type": "DatasetReference",
+											"parameters": {
+												"directory": {
+													"value": "sales",
+													"type": "Expression"
+												},
+												"file": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										},
+										"fieldList": [
+											"itemName",
+											"itemType",
+											"lastModified",
+											"size"
+										],
+										"storeSettings": {
+											"type": "AzureBlobStorageReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										},
+										"formatSettings": {
+											"type": "BinaryReadSettings"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-09-02T10:00:16Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabaseDataSource')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your source data store.",
+				"linkedServiceName": {
+					"referenceName": "adfdemo_asql_dst",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "DataSourceTable"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabaseExternal_ControlTable')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "External control table to store high water mark value.",
+				"linkedServiceName": {
+					"referenceName": "adfdemo_asql_dst",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "watermarktable"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DestinationDataset_ukk')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -753,199 +1044,6 @@
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "employee"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/adfdemo_rest_opentdb_com')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "adfdemo_rest_opentdb_com",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "adfdemo"
-				},
-				"annotations": [],
-				"type": "RestResource",
-				"typeProperties": {},
-				"schema": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/asql_dataset')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "sqldb_dw",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"dbName": "sqldevswcd",
-						"dbUserName": "sqladminuser01",
-						"dbUserPwd": "1qaz!QAZ",
-						"dbServerName": "sqlserverdevswcd.database.windows.net"
-					}
-				},
-				"parameters": {
-					"schemaName": {
-						"type": "string"
-					},
-					"tableName": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "insert_dt",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "update_dt",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "file_name",
-						"type": "nvarchar"
-					},
-					{
-						"name": "file_last_modifty_time",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "product_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "qty",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "unit_price",
-						"type": "decimal",
-						"precision": 19,
-						"scale": 4
-					},
-					{
-						"name": "subtotal",
-						"type": "decimal",
-						"precision": 19,
-						"scale": 4
-					}
-				],
-				"typeProperties": {
-					"schema": {
-						"value": "@dataset().schemaName",
-						"type": "Expression"
-					},
-					"table": {
-						"value": "@dataset().tableName",
-						"type": "Expression"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/asql_dataset_copy1')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "sqldb_dw",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"dbName": "sqldevswcd",
-						"dbUserName": "sqladminuser01",
-						"dbUserPwd": "1qaz!QAZ",
-						"dbServerName": "sqlserverdevswcd.database.windows.net"
-					}
-				},
-				"parameters": {
-					"schemaName": {
-						"type": "string"
-					},
-					"tableName": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "demo"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "insert_dt",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "update_dt",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "file_name",
-						"type": "nvarchar"
-					},
-					{
-						"name": "file_last_modifty_time",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					},
-					{
-						"name": "product_id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "qty",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "unit_price",
-						"type": "decimal",
-						"precision": 19,
-						"scale": 4
-					},
-					{
-						"name": "subtotal",
-						"type": "decimal",
-						"precision": 19,
-						"scale": 4
-					}
-				],
-				"typeProperties": {
-					"schema": {
-						"value": "@dataset().schemaName",
-						"type": "Expression"
-					},
-					"table": {
-						"value": "@dataset().tableName",
-						"type": "Expression"
-					}
 				}
 			},
 			"dependsOn": []

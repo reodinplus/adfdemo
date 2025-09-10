@@ -45,6 +45,1227 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/MetadataDrivenCopyTask_m06_MiddleLevel')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "This pipeline will copy one batch of objects. The objects belonging to this batch will be copied parallelly.",
+				"activities": [
+					{
+						"name": "DivideOneBatchIntoMultipleGroups",
+						"description": "Divide objects from single batch into multiple sub parallel groups to avoid reaching the output limit of lookup activity.",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@range(0, add(div(pipeline().parameters.SumOfObjectsToCopyForCurrentBatch, pipeline().parameters.MaxNumberOfObjectsReturnedFromLookupActivity),\n                    if(equals(mod(pipeline().parameters.SumOfObjectsToCopyForCurrentBatch, pipeline().parameters.MaxNumberOfObjectsReturnedFromLookupActivity), 0), 0, 1)))",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 50,
+							"activities": [
+								{
+									"name": "GetObjectsPerGroupToCopy",
+									"description": "Get objects (tables etc.) from control table required to be copied in this group. The order of objects to be copied following the TaskId in control table (ORDER BY [TaskId] DESC).",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "WITH OrderedControlTable AS (\n                             SELECT *, ROW_NUMBER() OVER (ORDER BY [TaskId], [Id] DESC) AS RowNumber\n                             FROM @{pipeline().parameters.MainControlTableName}\n                             where TopLevelPipelineName = '@{pipeline().parameters.TopLevelPipelineName}'\n                             and TriggerName like '%@{pipeline().parameters.TriggerName}%' and CopyEnabled = 1)\n                             SELECT * FROM OrderedControlTable WHERE RowNumber BETWEEN @{add(mul(int(item()),pipeline().parameters.MaxNumberOfObjectsReturnedFromLookupActivity),\n                             add(mul(pipeline().parameters.SumOfObjectsToCopyForCurrentBatch, pipeline().parameters.CurrentSequentialNumberOfBatch), 1))}\n                             AND @{min(add(mul(int(item()), pipeline().parameters.MaxNumberOfObjectsReturnedFromLookupActivity), add(mul(pipeline().parameters.SumOfObjectsToCopyForCurrentBatch, pipeline().parameters.CurrentSequentialNumberOfBatch),\n                             pipeline().parameters.MaxNumberOfObjectsReturnedFromLookupActivity)),\n                            mul(pipeline().parameters.SumOfObjectsToCopyForCurrentBatch, add(pipeline().parameters.CurrentSequentialNumberOfBatch,1)), pipeline().parameters.SumOfObjectsToCopy)}",
+												"type": "Expression"
+											},
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "MetadataDrivenCopyTask_m06_ControlDS",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "CopyObjectsInOneGroup",
+									"description": "Execute another pipeline to copy objects from one group. The objects belonging to this group will be copied parallelly.",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "GetObjectsPerGroupToCopy",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "MetadataDrivenCopyTask_m06_BottomLevel",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"ObjectsPerGroupToCopy": {
+												"value": "@activity('GetObjectsPerGroupToCopy').output.value",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"MaxNumberOfObjectsReturnedFromLookupActivity": {
+						"type": "Int"
+					},
+					"TopLevelPipelineName": {
+						"type": "String"
+					},
+					"TriggerName": {
+						"type": "String"
+					},
+					"CurrentSequentialNumberOfBatch": {
+						"type": "Int"
+					},
+					"SumOfObjectsToCopy": {
+						"type": "Int"
+					},
+					"SumOfObjectsToCopyForCurrentBatch": {
+						"type": "Int"
+					},
+					"MainControlTableName": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "MetadataDrivenCopyTask_m06_20240104"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/control_activity_other')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Execute Pipeline1",
+						"type": "ExecutePipeline",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "control_activity_common",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Web1",
+						"type": "WebActivity",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "GET",
+							"headers": {},
+							"url": "https://www.baidu.com",
+							"connectVia": {
+								"referenceName": "TutorialIntegrationRuntime",
+								"type": "IntegrationRuntimeReference"
+							}
+						}
+					},
+					{
+						"name": "Fail1",
+						"type": "Fail",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"message": "",
+							"errorCode": ""
+						}
+					},
+					{
+						"name": "WebHook1",
+						"type": "WebHook",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://www.baidu.com",
+							"method": "POST",
+							"headers": {},
+							"timeout": "00:10:00",
+							"reportStatusOnCallBack": false
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "SqlServerSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "asql_dataset",
+								"type": "DatasetReference",
+								"parameters": {
+									"schemaName": " ",
+									"tableName": " "
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "msql_demo_dataset",
+								"type": "DatasetReference",
+								"parameters": {
+									"schemaName": "dbo",
+									"tableName": "b",
+									"dbName": "TestDataSource"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "ADFDemo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-09-23T04:49:11Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/demo_mater')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ep_sales_pip",
+						"type": "ExecutePipeline",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "sales",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"batch_id": 1
+							}
+						}
+					},
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow1",
+								"type": "DataFlowReference",
+								"parameters": {
+									"srcTableNameWithSchema": {
+										"value": "'@{variables('dtSrcTableNameWithSchema')}'",
+										"type": "Expression"
+									},
+									"dstTableNameWithSchema": {
+										"value": "'@{variables('dfDstTableNameWithSchema')}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								},
+								"linkedServiceParameters": {
+									"source1": {
+										"linkedService": {
+											"dbName": "sqldevswcd",
+											"dbUserName": "sqladminuser01",
+											"dbUserPwd": "1qaz!QAZ",
+											"dbServerName": "sqlserverdevswcd.database.windows.net"
+										}
+									},
+									"sink1": {
+										"linkedService": {
+											"dbName": "sqldevswcd",
+											"dbUserName": "sqladminuser01",
+											"dbUserPwd": "1qaz!QAZ",
+											"dbServerName": "sqlserverdevswcd.database.windows.net"
+										}
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "powerquery1",
+						"type": "ExecuteWranglingDataflow",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"queries": [
+								{
+									"queryName": "UserQuery",
+									"dataflowSinks": [
+										{
+											"name": "UserQueryasqldataset",
+											"dataset": {
+												"referenceName": "asql_dataset",
+												"type": "DatasetReference",
+												"parameters": {}
+											},
+											"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tinsert_dt as timestamp,\n\t\tupdate_dt as timestamp,\n\t\tfile_name as string,\n\t\tfile_last_modifty_time as timestamp,\n\t\tproduct_id as integer,\n\t\tqty as integer,\n\t\tunit_price as decimal(19,4),\n\t\tsubtotal as decimal(19,4)\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> UserQueryasqldataset"
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"name": "dataflow3",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow3",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								},
+								"linkedServiceParameters": {
+									"source1": {
+										"linkedService": {
+											"storageAccountName": "storageswcd"
+										}
+									},
+									"sink1": {
+										"linkedService": {
+											"dbName": "sqldevswcd",
+											"dbUserName": "sqladminuser01",
+											"dbUserPwd": "1qaz!QAZ",
+											"dbServerName": "sqlserverdevswcd.database.windows.net"
+										}
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine",
+							"continuationSettings": {
+								"customizedCheckpointKey": "5bfaa0a5-c173-40b9-a4bd-87736bdefe7a"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"dfDstTableNameWithSchema": {
+						"type": "String",
+						"defaultValue": "dbo.stg_object"
+					},
+					"dtSrcTableNameWithSchema": {
+						"type": "String",
+						"defaultValue": "dbo.src_object"
+					}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-20T03:19:49Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/file_src_stg')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select *\nfrom (values\n\t(N'file-data', N'demo/ssiswork/地点数据', N'Sheet1', N'dbo.City'),\n\t(N'file-data', N'demo/ssiswork/产品数据', N'Sheet1', N'dbo.Product'),\n\t(N'file-data', N'demo/ssiswork/客户数据', N'Sheet1', N'dbo.Customer'),\n\t(N'file-data', N'demo/ssiswork/订单数据', N'Sheet1', N'dbo.[Order]')\n) t1(container_name,direcotry_name,sheet_name, stg);",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "azuresql_dst",
+								"type": "DatasetReference",
+								"parameters": {
+									"tableNameWithSchema": " "
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup1').output.value",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "Execute Pipeline1",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "file_excel_data_load",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"containerName": {
+												"value": "@item().container_name",
+												"type": "Expression"
+											},
+											"directoryName": {
+												"value": "@item().direcotry_name",
+												"type": "Expression"
+											},
+											"sheetName": {
+												"value": "@item().sheet_name",
+												"type": "Expression"
+											},
+											"stgTableNameWithSchema": {
+												"value": "@item().stg",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-08-29T08:05:40Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/file_src_stg_from_filesystem')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "\nselect *\nfrom (values\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/地点数据', N'Sheet1', N'dbo.City'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/产品数据', N'Sheet1', N'dbo.Product'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/客户数据', N'Sheet1', N'dbo.Customer'),\n\t(N'file-data', N'00Project_Data_Source/02SSISWork/ProjectSource/订单数据', N'Sheet1', N'dbo.[Order]')\n) t1(container_name,direcotry_name,sheet_name, stg);",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "azuresql_dst",
+								"type": "DatasetReference",
+								"parameters": {
+									"tableNameWithSchema": " "
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup1').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Execute Pipeline1",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "file_excel_data_load_from_filesystem",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"directoryName": {
+												"value": "@item().direcotry_name",
+												"type": "Expression"
+											},
+											"sheetName": {
+												"value": "@item().sheet_name",
+												"type": "Expression"
+											},
+											"stgTableNameWithSchema": {
+												"value": "@item().stg",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-08-29T08:05:40Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Script1",
+						"type": "Script",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "sqldb_dw",
+							"type": "LinkedServiceReference",
+							"parameters": {
+								"dbName": "sqldevswcd",
+								"dbUserName": "sqladminuser01",
+								"dbUserPwd": "1qaz!QAZ",
+								"dbServerName": "sqlserverdevswcd.database.windows.net"
+							}
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": "select name from sys.objects"
+								}
+							],
+							"scriptBlockExecutionTimeout": "02:00:00"
+						}
+					},
+					{
+						"name": "Notebook1",
+						"type": "DatabricksNotebook",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {}
+					},
+					{
+						"name": "Jar1",
+						"type": "DatabricksSparkJar",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"parameters": []
+						}
+					},
+					{
+						"name": "Python1",
+						"type": "DatabricksSparkPython",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"parameters": []
+						}
+					},
+					{
+						"name": "Custom1",
+						"type": "Custom",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"referenceObjects": {
+								"linkedServices": [],
+								"datasets": []
+							}
+						}
+					},
+					{
+						"name": "Web1",
+						"type": "WebActivity",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"headers": {}
+						}
+					},
+					{
+						"name": "WebHook1",
+						"type": "WebHook",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "POST",
+							"headers": {},
+							"timeout": "00:10:00"
+						}
+					},
+					{
+						"name": "Power Query1",
+						"type": "ExecuteWranglingDataflow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "pq_employee",
+								"type": "DataFlowReference",
+								"datasetParameters": {
+									"adfdemo_asql_dataset_employee": {},
+									"UserQueryadfdemoasqldatasetemployee": {}
+								}
+							},
+							"staging": {},
+							"integrationRuntime": {
+								"referenceName": "AzureIntegrationRuntime",
+								"type": "IntegrationRuntimeReference"
+							},
+							"queries": [
+								{
+									"queryName": "UserQuery",
+									"dataflowSinks": [
+										{
+											"name": "UserQueryadfdemoasqldatasetemployee",
+											"dataset": {
+												"referenceName": "adfdemo_asql_dataset_employee",
+												"type": "DatasetReference",
+												"parameters": {}
+											},
+											"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tID as integer,\n\t\tFirstName as string,\n\t\tLastName as string\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tFirstName,\n\t\tLastName\n\t)) ~> UserQueryadfdemoasqldatasetemployee"
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"name": "Power Query2",
+						"type": "ExecuteWranglingDataflow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "qp_sales",
+								"type": "DataFlowReference",
+								"datasetParameters": {
+									"adfdemo_asql_dataset": {},
+									"adfdemo_asql_ds": {
+										"schema": "dbo",
+										"table": "stg_sales"
+									},
+									"UserQueryadfdemoasqlds": {
+										"schema": "dbo",
+										"table": "ods_sales"
+									}
+								}
+							},
+							"staging": {},
+							"integrationRuntime": {
+								"referenceName": "AzureIntegrationRuntime",
+								"type": "IntegrationRuntimeReference"
+							},
+							"queries": [
+								{
+									"queryName": "UserQuery",
+									"dataflowSinks": [
+										{
+											"name": "UserQueryadfdemoasqlds",
+											"dataset": {
+												"referenceName": "adfdemo_asql_ds",
+												"type": "DatasetReference",
+												"parameters": {
+													"schema": "dbo",
+													"table": "ods_sales"
+												}
+											},
+											"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tinsert_dt as timestamp,\n\t\tupdate_dt as timestamp,\n\t\tfile_name as string,\n\t\tfile_last_modifty_time as timestamp,\n\t\tproduct_id as integer,\n\t\tqty as integer,\n\t\tunit_price as decimal(19,4),\n\t\tsubtotal as decimal(19,4)\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> UserQueryadfdemoasqlds"
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "demo"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-20T05:55:19Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/retail_master')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ep_bronze_blob_master",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "bronze_blob_master",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"container": {
+									"value": "@pipeline().parameters.container",
+									"type": "Expression"
+								},
+								"dstContainer": {
+									"value": "@pipeline().parameters.dstContainer",
+									"type": "Expression"
+								},
+								"dstCatalog": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								},
+								"dt": {
+									"value": "@pipeline().parameters.dt",
+									"type": "Expression"
+								},
+								"daysOffset": {
+									"value": "@pipeline().parameters.daysOffset",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "ep_silver_blob_master",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "ep_bronze_blob_master",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "silver_blob_master",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"dstCatalog": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "ep_retail_dim_master",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "ep_silver_blob_master",
+								"dependencyConditions": [
+									"Completed"
+								]
+							},
+							{
+								"activity": "ep_silver_mdm_master",
+								"dependencyConditions": [
+									"Completed"
+								]
+							},
+							{
+								"activity": "ep_silver_fc_master",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "retail_dim_master",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"dstCatalog": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								},
+								"date_start": {
+									"value": "@pipeline().parameters.date_start",
+									"type": "Expression"
+								},
+								"date_end": {
+									"value": "@pipeline().parameters.date_end",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "ep_retail_fact_master",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "ep_retail_dim_master",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "retail_fact_master",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "ep_bronze_mdm_master",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "bronze_mdm_master",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"dtContainer": {
+									"value": "@pipeline().parameters.dstContainer",
+									"type": "Expression"
+								},
+								"dtCatalog": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								},
+								"dt": {
+									"value": "@pipeline().parameters.dt",
+									"type": "Expression"
+								},
+								"daysOffset": {
+									"value": "@pipeline().parameters.daysOffset",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "ep_bronze_fc_master",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "bronze_fc_master",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"dstCatalog": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "ep_silver_mdm_master",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "ep_bronze_mdm_master",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "silver_mdm_master",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"dstCatalog": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "ep_silver_fc_master",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "ep_bronze_fc_master",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "silver_fc_master",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"dstCatalog": {
+									"value": "@pipeline().parameters.dstCatalog",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"container": {
+						"type": "string",
+						"defaultValue": "file-data"
+					},
+					"dstContainer": {
+						"type": "string",
+						"defaultValue": "demo"
+					},
+					"dstCatalog": {
+						"type": "string",
+						"defaultValue": "project_catalog"
+					},
+					"dt": {
+						"type": "string",
+						"defaultValue": "2025-01-02"
+					},
+					"daysOffset": {
+						"type": "int",
+						"defaultValue": -1000
+					},
+					"date_start": {
+						"type": "string",
+						"defaultValue": "2020-01-01"
+					},
+					"date_end": {
+						"type": "string",
+						"defaultValue": "2024-01-01"
+					}
+				},
+				"folder": {
+					"name": "retail/gold"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-09-02T10:00:18Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/retail_master_job')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -418,7 +1639,9 @@
 					"MetadataDrivenSolution"
 				]
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/MetadataDrivenCopyTask_m06_MiddleLevel')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/trg_sch_retail')]",
@@ -462,7 +1685,9 @@
 					}
 				}
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/retail_master')]"
+			]
 		}
 	]
 }
