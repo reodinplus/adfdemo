@@ -1,0 +1,9 @@
+{
+	"name": "bronze_mdm_master",
+	"properties": {
+		"folder": {
+			"name": "retail/bronze/blob/mdm"
+		},
+		"annotations": []
+	}
+}
