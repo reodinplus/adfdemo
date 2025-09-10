@@ -102,15 +102,15 @@
 		},
 		"LS_ASQL_Demo_properties_typeProperties_server": {
 			"type": "string",
-			"defaultValue": "sqlserverdevswcd.database.windows.net"
+			"defaultValue": "azuresqlstxserver.database.windows.net"
 		},
 		"LS_ASQL_Demo_properties_typeProperties_database": {
 			"type": "string",
-			"defaultValue": "sqldevswcd"
+			"defaultValue": "adfstudy"
 		},
 		"LS_ASQL_Demo_properties_typeProperties_userName": {
 			"type": "string",
-			"defaultValue": "sqladminuser01"
+			"defaultValue": "cdstx"
 		},
 		"LS_Deltalake_properties_typeProperties_url": {
 			"type": "string",
@@ -539,9 +539,6 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
-					},
-					"Trigger_ukk_properties_CopyPipeline_ukk_parameters_windowStart": {
-						"value": "[parameters('Trigger_ukk_properties_CopyPipeline_ukk_parameters_windowStart')]"
 					}
 				}
 			},
@@ -562,6 +559,9 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"Trigger_ukk_properties_CopyPipeline_ukk_parameters_windowStart": {
+						"value": "[parameters('Trigger_ukk_properties_CopyPipeline_ukk_parameters_windowStart')]"
 					},
 					"trg_sch_retail_properties_retail_master_parameters_container": {
 						"value": "[parameters('trg_sch_retail_properties_retail_master_parameters_container')]"
