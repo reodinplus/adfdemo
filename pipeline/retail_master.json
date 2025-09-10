@@ -78,6 +78,18 @@
 						"dependencyConditions": [
 							"Completed"
 						]
+					},
+					{
+						"activity": "ep_silver_mdm_master",
+						"dependencyConditions": [
+							"Completed"
+						]
+					},
+					{
+						"activity": "ep_silver_fc_master",
+						"dependencyConditions": [
+							"Completed"
+						]
 					}
 				],
 				"policy": {
@@ -130,31 +142,117 @@
 				}
 			},
 			{
-				"name": "job_retail_etl_job",
-				"type": "DatabricksJob",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
+				"name": "ep_bronze_mdm_master",
+				"type": "ExecutePipeline",
 				"dependsOn": [],
 				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
 					"secureInput": false
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"jobId": "574857699270895",
-					"jobParameters": {
-						"catalog_name": "project_catalog",
-						"dt": "2025-01-01",
-						"date_start": "2020-01-01",
-						"date_end": "2024-12-31"
+					"pipeline": {
+						"referenceName": "bronze_mdm_master",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"dtContainer": {
+							"value": "@pipeline().parameters.dstContainer",
+							"type": "Expression"
+						},
+						"dtCatalog": {
+							"value": "@pipeline().parameters.dstCatalog",
+							"type": "Expression"
+						},
+						"dt": {
+							"value": "@pipeline().parameters.dt",
+							"type": "Expression"
+						},
+						"daysOffset": {
+							"value": "@pipeline().parameters.daysOffset",
+							"type": "Expression"
+						}
 					}
+				}
+			},
+			{
+				"name": "ep_bronze_fc_master",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
 				},
-				"linkedServiceName": {
-					"referenceName": "LS_ADB",
-					"type": "LinkedServiceReference"
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_fc_master",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"dstCatalog": {
+							"value": "@pipeline().parameters.dstCatalog",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "ep_silver_mdm_master",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ep_bronze_mdm_master",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "silver_mdm_master",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"dstCatalog": {
+							"value": "@pipeline().parameters.dstCatalog",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "ep_silver_fc_master",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ep_bronze_fc_master",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "silver_fc_master",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"dstCatalog": {
+							"value": "@pipeline().parameters.dstCatalog",
+							"type": "Expression"
+						}
+					}
 				}
 			}
 		],
