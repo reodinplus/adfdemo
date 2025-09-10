@@ -1,0 +1,45 @@
+{
+	"name": "silver_mdm_master",
+	"properties": {
+		"activities": [
+			{
+				"name": "nbk_silver_blob_retail_transaction",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/retail/dml/silver/blob_retail_transaction",
+					"baseParameters": {
+						"catalog_name": {
+							"value": "@pipeline().parameters.dstCatalog",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ADB",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"dstCatalog": {
+				"type": "string",
+				"defaultValue": "project_catalog"
+			}
+		},
+		"folder": {
+			"name": "retail/silver/mdm"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-09-02T10:00:16Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
