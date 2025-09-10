@@ -1,0 +1,324 @@
+{
+	"name": "bronze_mdm_product",
+	"properties": {
+		"activities": [
+			{
+				"name": "copy_extract src to stage file",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "MergeFiles"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 1
+								},
+								"sink": {
+									"name": "Seq",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 2
+								},
+								"sink": {
+									"name": "Transaction_ID",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 3
+								},
+								"sink": {
+									"name": "Date",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 4
+								},
+								"sink": {
+									"name": "Customer_Name",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 5
+								},
+								"sink": {
+									"name": "Product",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 6
+								},
+								"sink": {
+									"name": "Total_Item",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 7
+								},
+								"sink": {
+									"name": "Total_Cost",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 8
+								},
+								"sink": {
+									"name": "Payment_Method",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 9
+								},
+								"sink": {
+									"name": "City",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 10
+								},
+								"sink": {
+									"name": "Store_Type",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 11
+								},
+								"sink": {
+									"name": "Discount_Applied",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 12
+								},
+								"sink": {
+									"name": "Customer_Category",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 13
+								},
+								"sink": {
+									"name": "Season",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 14
+								},
+								"sink": {
+									"name": "Promotion",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"type": "String",
+									"ordinal": 15
+								},
+								"sink": {
+									"name": "year",
+									"physicalType": "UTF8"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_ASQL_MDM",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema": {
+								"value": "@pipeline().parameters.schema",
+								"type": "Expression"
+							},
+							"table": {
+								"value": "@pipeline().parameters.table",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Deltalake_Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "@pipeline().parameters.dstContainer",
+								"type": "Expression"
+							},
+							"path": {
+								"value": "@{pipeline().parameters.dstFileDirPath}/@{variables('dstFileDirName')}/dt=@{pipeline().parameters.dt}",
+								"type": "Expression"
+							},
+							"file": {
+								"value": "@variables('dstFile')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "nbk_bronze_blob_retail_transaction",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "copy_extract src to stage file",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": {
+						"value": "@variables('notebookPath')",
+						"type": "Expression"
+					},
+					"baseParameters": {
+						"catalog_name": {
+							"value": "@pipeline().parameters.dstCatalog",
+							"type": "Expression"
+						},
+						"dt": {
+							"value": "@pipeline().parameters.dt",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ADB",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"schema": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"table": {
+				"type": "string",
+				"defaultValue": "mdm_product"
+			},
+			"dstContainer": {
+				"type": "string",
+				"defaultValue": "demo"
+			},
+			"dstFileDirPath": {
+				"type": "string",
+				"defaultValue": "retail/mdm/bronze"
+			},
+			"dt": {
+				"type": "string",
+				"defaultValue": "2025-01-01"
+			},
+			"daysOffset": {
+				"type": "int",
+				"defaultValue": -1000
+			},
+			"dstCatalog": {
+				"type": "string",
+				"defaultValue": "project_catalog"
+			}
+		},
+		"variables": {
+			"dstFileDirName": {
+				"type": "String",
+				"defaultValue": "stage_mdm_product"
+			},
+			"dstFile": {
+				"type": "String",
+				"defaultValue": "mdm_product.parquet"
+			},
+			"notebookPath": {
+				"type": "String",
+				"defaultValue": "/retail/dml/bronze/mdm_product"
+			}
+		},
+		"folder": {
+			"name": "retail/bronze/blob/mdm/detail"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-09-02T10:00:16Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
